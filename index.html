@@ -83,6 +83,33 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 .dailyBanner strong{display:block;font-size:19px;margin:5px 0}
 .dailyBanner small{color:#e6edf7}
 
+
+.seasonSpeedOptions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.seasonSpeedOptions button{min-width:0;font-size:12px}.seasonSpeedOptions small{font-size:10px;color:#d3deea}@media(max-width:520px){.seasonSpeedOptions{grid-template-columns:1fr}}
+.seasonMatchList{display:grid;gap:6px;margin-top:12px;text-align:left;max-height:320px;overflow:auto}
+.seasonMatch{display:grid;grid-template-columns:38px minmax(0,1fr) auto 22px;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;background:#0b1828;border:1px solid #ffffff12;font-size:12px}
+.seasonGameNo{color:#8295aa;font-size:10px}.seasonOpponent{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seasonMatch strong{font-size:13px;font-variant-numeric:tabular-nums}.seasonWin{color:#62d69b}.seasonLoss{color:#ff7b7b}
+#draftMode{z-index:70}
+#draftMode .draftModal{width:min(900px,96vw);max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.draftIntro{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+.draftTile{background:linear-gradient(145deg,#1b3550,#0b1828);border:1px solid #ffffff20;border-radius:14px;padding:15px;text-align:left}
+.draftTile h3{margin:5px 0}.draftTile p{font-size:12px;color:#b9c9dc}
+.draftTeam{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(110deg,#1b3550,#0b1828);padding:14px;border-radius:14px;margin:12px 0}
+.draftTeam h3{margin:0}.draftTeam small{color:#b8c7d9}
+.draftGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin:12px 0}
+.draftPlayer{background:#102238;border:1px solid #ffffff24;border-radius:12px;padding:11px;text-align:left;color:#fff;cursor:pointer}
+.draftPlayer:disabled{opacity:.35;cursor:not-allowed}
+.draftPlayer strong{display:block;font-size:14px}.draftPlayer small{display:block;color:#b9c9dc;font-size:10px;margin-top:4px}
+.draftPlayer .ovr{float:right;color:#ffd166;font-size:20px;font-weight:1000}
+.draftSlots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}
+.draftSlot{background:#0b1828;border:1px dashed #ffffff44;border-radius:10px;padding:10px 4px;text-align:center;min-height:70px}
+.draftSlot b{display:block;color:#ffd166;font-size:11px}.draftSlot small{font-size:9px;color:#b9c9dc}
+.draftActions{display:flex;gap:8px;flex-wrap:wrap}.draftActions button{flex:1;min-width:140px}
+.draftScoreboard{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.draftScore{padding:12px;background:#0b1828;border-radius:12px;text-align:center}
+.draftScore b{display:block;font-size:24px;color:#ffd166}
+@media(max-width:520px){.draftIntro{grid-template-columns:1fr}.draftSlots{grid-template-columns:repeat(3,1fr)}}
+
 </style>
 <style>
 #modeMenu{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 0%,#294966,#07111f 70%);display:flex;align-items:center;justify-content:center;padding:18px}
@@ -92,9 +119,162 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 @media(max-width:480px){.rollHero img{width:88px;height:88px}}
 #leaderboardModal{z-index:50}
 </style>
+<style>
+.championCelebration{position:relative;overflow:hidden;min-height:440px;border-radius:20px;background:radial-gradient(circle at 50% 45%,#243b69,#080d1b 72%);display:grid;place-items:center;text-align:center;color:#fff;padding:28px}
+.championContent{position:relative;z-index:2;max-width:560px}
+.championTrophy{font-size:76px;filter:drop-shadow(0 0 20px #ffd34d);animation:trophyPop .8s ease-out both}
+.championContent h2{font-size:clamp(25px,5vw,42px);margin:10px 0;color:#ffd86b}
+.championContent p{color:#e7eaf2}
+.championConfetti{font-size:28px;margin:20px 0;letter-spacing:5px}
+.fireworks{position:absolute;inset:0;pointer-events:none}
+.fireworks i{position:absolute;width:7px;height:7px;border-radius:50%;left:var(--x);top:var(--y);background:#ffe27a;box-shadow:0 0 8px 3px #ffb52e,0 0 24px 8px #ffdf70;animation:firework 1.8s ease-out infinite;animation-delay:var(--d)}
+.fireworks i:nth-child(1){--x:15%;--y:22%;--d:0s}.fireworks i:nth-child(2){--x:82%;--y:18%;--d:.3s}.fireworks i:nth-child(3){--x:70%;--y:65%;--d:.6s}.fireworks i:nth-child(4){--x:25%;--y:72%;--d:.9s}.fireworks i:nth-child(5){--x:50%;--y:12%;--d:1.2s}.fireworks i:nth-child(6){--x:90%;--y:48%;--d:.5s}.fireworks i:nth-child(7){--x:8%;--y:48%;--d:1s}.fireworks i:nth-child(8){--x:45%;--y:82%;--d:1.4s}.fireworks i:nth-child(9){--x:60%;--y:30%;--d:.8s}
+@keyframes firework{0%{transform:scale(.2);opacity:0}35%{transform:scale(1.4);opacity:1;box-shadow:0 0 0 8px #ffdf7044,0 0 0 18px #ffdf7022,0 0 30px 12px #ffdf70}100%{transform:scale(.1);opacity:0}}
+@keyframes trophyPop{0%{transform:scale(.3) rotate(-20deg);opacity:0}70%{transform:scale(1.18) rotate(8deg)}100%{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.fireworks i,.championTrophy{animation:none}}
+</style>
+<style>
+.seasonLiveBoard{margin:18px 0 12px;padding:18px 20px;border:1px solid #53617b;border-radius:18px;background:linear-gradient(135deg,#111d35,#1d3153 60%,#14223c);color:#fff;box-shadow:0 12px 30px #0003;transition:transform .18s ease,border-color .18s ease}
+.seasonLiveTop,.seasonLiveBottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.seasonLiveTop span{font-size:12px;letter-spacing:2px;font-weight:800;color:#c7d3e8}
+.seasonLiveTop strong{font-size:13px;color:#f8c65b}
+.seasonLiveRecord{display:flex;align-items:center;justify-content:center;gap:clamp(22px,8vw,70px);padding:12px 0 14px}
+.seasonLiveStat{display:flex;flex-direction:column;align-items:center;min-width:75px}
+.seasonLiveStat small{font-size:11px;letter-spacing:2px;color:#c3cee0;font-weight:800}
+.seasonLiveStat b{font-size:clamp(48px,10vw,76px);line-height:1.05;font-weight:900;font-variant-numeric:tabular-nums;text-shadow:0 4px 18px #0005}
+.seasonLiveDash{font-size:38px;color:#9aa9c1;font-weight:300}
+.seasonProgress{height:9px;background:#ffffff22;border-radius:99px;overflow:hidden}
+.seasonProgress>div{height:100%;width:0;background:linear-gradient(90deg,#f28c28,#ffd66b);border-radius:99px;transition:width .22s ease}
+.seasonLiveBottom{margin-top:12px;font-size:12px;color:#cbd6e8}
+.seasonLiveBottom strong{font-size:14px;color:#fff}
+.seasonPulseWin{border-color:#54d68b;transform:scale(1.008)}
+.seasonPulseLoss{border-color:#ef7777;transform:scale(1.008)}
+@media(max-width:480px){.seasonLiveBoard{padding:15px}.seasonLiveBottom{font-size:11px}.seasonLiveBottom strong{font-size:12px}}
+</style>
+<style>
+.draftSaveStatus{margin:10px 0;padding:10px 12px;border-radius:10px;background:#33251b;border:1px solid #f0a24a66;color:#ffd39a;font-size:12px;overflow-wrap:anywhere;text-align:left}
+</style>
+<style>
+.playoffStats{margin-top:14px}
+.playoffStatRows{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.playoffStatRow{display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:10px;background:#ffffff0a;border:1px solid #ffffff12}
+.playoffRank{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#f2a23a;color:#172238;font-weight:900;font-size:12px}
+.playoffPlayerName{display:flex;flex:1;flex-direction:column;min-width:0}
+.playoffPlayerName small{font-size:11px;color:#aebdd1}
+.playoffStatRow>strong{color:#ffd36c;font-size:14px;white-space:nowrap}
+</style>
+<style>
+.playoffHero{padding:18px;border-radius:20px;background:radial-gradient(circle at 50% 0%,#304c75,#101a2c 75%);border:1px solid #ffffff20;color:#fff;box-shadow:0 16px 38px #0004;overflow:hidden}
+.playoffHeroTop{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:11px;letter-spacing:2px;color:#ffbf61;font-weight:900}
+.playoffHeroTop b{color:#dce7f7}
+.playoffMatchup{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:22px 0 16px}
+.playoffSide{display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;min-width:0}
+.playoffSide strong{font-size:clamp(12px,3.2vw,16px);line-height:1.2}
+.playoffSide small{font-size:9px;letter-spacing:1.5px;color:#a9bdd6}
+.playoffVs{text-align:center;display:flex;flex-direction:column;gap:5px}
+.playoffVs span,.playoffVs small{font-size:9px;letter-spacing:1.4px;color:#a9bdd6}
+.playoffVs b{font-size:25px;color:#ffbd59;font-style:italic}
+.nbaCrest{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;align-content:center;gap:0;background:radial-gradient(circle at 35% 25%,#ffffff55,var(--crest) 48%,#07101f 110%);border:2px solid #ffffffa8;box-shadow:0 5px 16px #0008,inset 0 0 0 3px #ffffff20;color:white;text-shadow:0 2px 4px #000;font-weight:1000}
+.nbaCrest span{font-size:17px;line-height:1}
+.nbaCrest b{font-size:9px;letter-spacing:1px}
+.nbaCrestLarge{width:86px;height:86px;border-width:3px}
+.nbaCrestLarge span{font-size:26px}.nbaCrestLarge b{font-size:12px}
+.playoffSeriesLine{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #ffffff20;color:#c4d2e5;font-size:11px;letter-spacing:1px}
+.playoffSeriesLine b{font-size:20px;color:#ffcb68}
+.halftimeHero{padding:24px 18px;text-align:center;border-radius:20px;background:radial-gradient(circle at 50% 0%,#7a3c20,#18243a 72%);border:1px solid #f4a64d66;color:#fff}
+.halftimeHero .eyebrow{letter-spacing:3px;color:#ffc16a;font-weight:900}
+.halftimeHero h2{font-size:clamp(23px,6vw,34px);margin:12px 0}
+.halftimeHero p{color:#d7dfeb}
+.halftimeScore{display:flex;justify-content:center;align-items:center;gap:25px;margin-top:16px}
+.halftimeScore span{font-size:44px;font-weight:1000;color:#ffcf70}
+.halftimeScore b{font-size:10px;letter-spacing:2px;color:#d2dbea}
+.speechGrid{display:grid;gap:10px;margin-top:14px}
+.speechCard{display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto auto;column-gap:12px;text-align:left;padding:15px;border-radius:15px;color:#fff;background:#17253a;border:1px solid #ffffff20}
+.speechCard .speechIcon{grid-row:1/4;align-self:center;font-size:30px}
+.speechCard b{font-size:14px;letter-spacing:1px}
+.speechCard small{font-size:12px;color:#c2cede;margin:4px 0}
+.speechCard em{font-size:11px;font-style:normal;font-weight:900;color:#8ee3b2}
+.speechRisk em{color:#ff9999}.speechGood{border-color:#48c98b66}.speechTactic{border-color:#69a9f866}.speechRisk{border-color:#e77d7d66}
+.gameRecapHero{padding:20px;border-radius:18px;background:linear-gradient(140deg,#172a45,#0b1424);border:1px solid #ffffff20;text-align:center;color:white}
+.recapScore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:20px 0}
+.recapScore>div{display:flex;flex-direction:column;align-items:center;gap:7px}
+.recapScore>div>b{font-size:42px;color:#ffd16c}
+.recapScore small{font-size:11px;color:#c7d3e3}
+.recapScore>span{font-size:20px;color:#8194ad}
+.gameRecapHero h2{font-size:30px;margin:10px;color:#ffca68}
+.gameRecapHero p{color:#c8d5e7}
+.mvpFeature{position:relative;overflow:hidden;margin:14px 0;padding:22px 16px;border-radius:20px;text-align:center;color:white;background:radial-gradient(circle at 50% 20%,#5b4520,#18243a 62%,#0b1424);border:1px solid #f3c76b77;box-shadow:0 12px 35px #0005}
+.mvpGlow{position:absolute;width:220px;height:220px;left:50%;top:30px;transform:translateX(-50%);border-radius:50%;background:#ffd56b20;filter:blur(25px)}
+.mvpLabel,.mvpTag,.mvpFeature h2,.mvpBigStat,.mvpExtraStats,.mvpPhotoWrap{position:relative;z-index:1}
+.mvpLabel{font-size:11px;letter-spacing:3px;color:#ffdc8b;font-weight:900}
+.mvpPhotoWrap{width:180px;height:180px;margin:15px auto 6px;border-radius:50%;overflow:hidden;border:4px solid #ffd36d;box-shadow:0 0 0 7px #ffd36d22,0 10px 30px #0008;background:linear-gradient(145deg,#314c6d,#111b2c);display:grid;place-items:center}
+.mvpPortrait{width:100%;height:100%;object-fit:cover;object-position:top center}
+.mvpFallback{width:100%;height:100%;display:grid;place-items:center;align-content:center;gap:5px;font-size:65px;color:#fff}
+.mvpFallback b{font-size:17px;letter-spacing:2px}
+.mvpTag{display:inline-block;padding:6px 20px;border-radius:99px;background:linear-gradient(90deg,#f0b83e,#ffe69a);color:#271a08;font-size:18px;font-weight:1000;letter-spacing:4px}
+.mvpFeature h2{font-size:25px;margin:10px 0}
+.mvpBigStat{font-size:46px;font-weight:1000;color:#ffd16c;line-height:1}
+.mvpBigStat small{display:block;font-size:9px;letter-spacing:3px;color:#e6d5a8}
+.mvpExtraStats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.mvpExtraStats span{padding:6px 10px;border-radius:99px;background:#ffffff14;color:#dbe5f2;font-size:10px;font-weight:800}
+.championTournamentMvp{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:16px auto;padding:12px;border:1px solid #ffd16c66;border-radius:14px;background:#ffffff10}
+.championTournamentMvp img{width:58px;height:58px;object-fit:cover;object-position:top;border-radius:50%}
+.championTournamentMvp b{color:#ffdc8b;letter-spacing:2px}
+.championTournamentMvp strong{color:white}.championTournamentMvp span{font-size:11px;color:#e8d7ad}
+@media(max-width:380px){.nbaCrestLarge{width:68px;height:68px}.playoffMatchup{gap:5px}.playoffSide strong{font-size:11px}}
+</style>
+<style>
+.franchiseSelected{margin:12px 0;padding:15px;border-radius:16px;background:linear-gradient(120deg,#1c3554,#101c30);border:1px solid #f4b64c66;color:#fff}
+.franchiseSelectedTeam{display:flex;align-items:center;gap:14px;margin-top:10px}
+.franchiseSelectedTeam h3{margin:0;font-size:20px}.franchiseSelectedTeam small{color:#c2d0e2}
+.franchisePicker{margin:12px 0}
+.randomFranchise{width:100%;padding:13px;border-radius:12px;border:1px solid #f5b64d;background:linear-gradient(90deg,#e99a2f,#ffd36d);color:#211708;font-weight:1000;font-size:14px;margin:8px 0 14px}
+.franchiseGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.franchiseOption{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;padding:10px 5px;border-radius:12px;background:#ffffff09;border:1px solid #ffffff20;color:#e8eef7;font-size:10px;font-weight:800;text-align:center}
+.franchiseOption .nbaCrest{width:42px;height:42px}.franchiseOption .nbaCrest span{font-size:13px}.franchiseOption .nbaCrest b{font-size:7px}
+.franchiseOption.selected{border:2px solid #ffd16c;background:#f6b94b20;box-shadow:0 0 16px #f5b64d22}
+.halftimeResult{padding:28px 20px;border-radius:20px;text-align:center;background:radial-gradient(circle at 50% 0%,#3a4b68,#111c2e 72%);border:1px solid #ffffff25;color:#fff}
+.halftimeReactionIcon{font-size:64px;margin:18px 0}
+.halftimeResult h2{font-size:clamp(22px,5vw,32px);color:#ffd17a}
+.halftimeResult p{color:#d2dceb;line-height:1.5}
+.halftimeResult strong{display:block;margin-top:16px;padding:12px;border-radius:10px;background:#ffffff10;color:#ffcf77;font-size:12px;letter-spacing:1px}
+@media(max-width:380px){.franchiseGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<style>
+.mdShell{color:#fff}
+.mdTop{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px;border-radius:15px;background:linear-gradient(120deg,#152b49,#263f60);border:1px solid #ffffff20}
+.mdTop span{font-size:10px;letter-spacing:2px;color:#ffcb6d;font-weight:900}
+.mdTop h3{margin:6px 0 0;font-size:18px}
+.mdRoomCode{font-size:18px;letter-spacing:3px;font-weight:1000;color:#ffd36d;background:#111b2c;padding:10px;border-radius:9px}
+.mdPlayers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.mdPlayers>div{padding:12px 8px;border-radius:13px;background:#ffffff0b;border:1px solid #ffffff20;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;min-width:0}
+.mdPlayers>div.mdActive{border:2px solid #f7bd56;background:#f7bd5618}
+.mdPlayers b{font-size:13px;overflow-wrap:anywhere}.mdPlayers small{font-size:10px;color:#b8c8dc}
+.mdTeamReveal{display:flex;align-items:center;gap:15px;padding:13px;border-radius:14px;background:#13243a;border:1px solid #f2bd5d55;margin:12px 0}
+.mdTeamReveal span{font-size:9px;letter-spacing:2px;color:#ffcb6d;font-weight:900}.mdTeamReveal h3{margin:4px 0}.mdTeamReveal small{color:#aebed2}
+.mdWaiting{display:grid;place-items:center;text-align:center;padding:25px 12px;border:1px dashed #ffffff3d;border-radius:14px;margin:12px 0}
+.mdWaiting div{font-size:45px}.mdWaiting b{font-size:16px;margin:8px}.mdWaiting small{color:#b8c8dc}
+.mdRoster{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.mdPlayerPick{padding:12px 10px;border-radius:12px;text-align:left;background:#1a2b43;border:1px solid #ffffff20;color:#fff;display:flex;flex-direction:column;gap:5px}
+.mdPlayerPick:disabled{opacity:.48}.mdPlayerPick b{font-size:13px}.mdPlayerPick small{font-size:10px;color:#b8c8dc}.mdPlayerPick em{font-size:9px;color:#ffbf6a;font-style:normal}
+.mdControls{text-align:center;margin:14px 0}.mdControls button,.mdShell>#mdPlayQuarter{width:100%}.mdControls p{font-size:11px;letter-spacing:1.5px;color:#ffcb6d;font-weight:900}
+.mdLineups{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.mdLineups section{padding:10px;border-radius:12px;background:#ffffff09;border:1px solid #ffffff15;min-width:0}
+.mdLineups h4{font-size:10px;line-height:1.3;color:#ffcf78;margin:0 0 8px}
+.mdLineupRows>div{display:flex;align-items:center;gap:5px;padding:5px 0;border-top:1px solid #ffffff12;font-size:10px}
+.mdLineupRows>div>b{width:20px;color:#ffcf78}.mdLineupRows>div>span{flex:1;overflow-wrap:anywhere}.mdLineupRows small{color:#aebed2;font-size:9px}
+.mdMessage{font-size:12px;text-align:center;min-height:18px;color:#9ee6bd;overflow-wrap:anywhere}
+.mdDivider{text-align:center;color:#9eafc4;font-size:10px;letter-spacing:2px;margin:18px 0}
+.mdGameScore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;padding:22px 10px;border-radius:18px;background:linear-gradient(120deg,#101c2d,#243d5c);margin:12px 0}
+.mdGameScore div{display:flex;flex-direction:column;gap:5px}.mdGameScore small{font-size:10px;color:#c3d2e5}.mdGameScore b{font-size:56px;color:#ffd16b}.mdGameScore>span{font-size:26px;color:#aebed2}
+.mdQuarter{text-align:center;margin:12px;color:#ffcf78;font-size:12px;font-weight:900;letter-spacing:2px}
+.mdChampion{text-align:center;padding:32px 15px;border-radius:20px;background:radial-gradient(circle at 50% 20%,#675021,#101c2e 70%);border:1px solid #ffd16b66}
+.mdChampion>div{font-size:75px}.mdChampion>span{font-size:11px;letter-spacing:3px;color:#ffda88}.mdChampion h2{font-size:30px;color:#fff}.mdChampion>b{font-size:48px;color:#ffd16b}.mdChampion p{color:#c6d5e7}
+@media(max-width:380px){.mdRoster{grid-template-columns:1fr}.mdRoomCode{font-size:14px}}
+</style>
 </head>
 <body><div class="wrap">
-<header class="top"><div class="brand">BASKET <span>3PT</span></div><div class="topright"><span class="tag">HEAD TO HEAD · FIRST TO 5</span><button class="secondary smallbtn sound-on" id="soundBtn">🔊 SOUND ON</button><button class="secondary smallbtn" id="inviteBtn">↗ INVITE</button></div></header>
+<header class="top"><div class="brand">BASKETBALL <span>UNIVERSE</span></div><div class="topright"><span class="tag">HEAD TO HEAD · FIRST TO 5</span><button class="secondary smallbtn sound-on" id="soundBtn">🔊 SOUND ON</button><button class="secondary smallbtn" id="inviteBtn">↗ INVITE</button></div></header>
 <section class="hero"><div class="eyebrow">THE ULTIMATE SHOOTOUT</div><h1>3-POINT CONTEST</h1><p class="subtitle">Five racks. Twenty-five shots. No excuses.</p></section>
 <div id="roomBanner" class="panel hidden" style="margin-bottom:12px;text-align:center"><div class="muted">ROOM CODE · SEND THIS TO YOUR FRIEND</div><div id="roomCodeText" style="font-size:28px;font-weight:1000;letter-spacing:5px;color:var(--gold)"></div><div id="onlineStatus" class="muted">Waiting for player 2…</div><button class="secondary smallbtn" id="copyInvite" style="margin-top:8px">COPY INVITE LINK</button></div>
 <div class="scoreline">
@@ -131,8 +311,34 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </aside>
 </div></div>
 
-<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKET <span style="color:#f28c28">3PT</span><br>CHALLENGE</h1><p>NBA EDITION · FIVE RACKS · TWENTY-FIVE SHOTS</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button><button class="primary" id="dailyChallengeBtn">📅 DAILY CHALLENGE</button><button class="secondary" id="specialChallengesBtn">⚡ SPECIAL CHALLENGES</button><button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button><button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button><button class="secondary" id="badgeCollectionOpen">🎖️ MY BADGE COLLECTION</button><button class="secondary" id="leaderboardOpen">🏆 ALL-TIME LEADERBOARD</button></div></div></div>
+<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>BUILD YOUR TEAM · COMPETE · BECOME A LEGEND</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="threePtMode">🏀 3PT</button><button class="primary" id="draftModeBtn">🎲 DRAFT</button><button class="secondary" id="fantasyModeBtn" disabled>⭐ FANTASY · COMING SOON</button></div></div></div>
 
+<div class="overlay hidden" id="threePtMenu" style="z-index:65">
+ <div class="modal" style="width:min(560px,94vw)">
+  <div class="eyebrow">BASKETBALL UNIVERSE</div>
+  <h2>🏀 3PT CHALLENGE</h2>
+  <p>Choose how you want to play.</p>
+  <div class="modeBtns">
+   <button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button>
+   <button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button>
+   <button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button>
+   <button class="primary" id="dailyChallengeBtn">📅 DAILY CHALLENGE</button>
+   <button class="secondary" id="specialChallengesBtn">⚡ SPECIAL CHALLENGES</button>
+   <button class="secondary" id="badgeCollectionOpen">🎖️ MY BADGE COLLECTION</button>
+   <button class="secondary" id="leaderboardOpen">🏆 ALL-TIME LEADERBOARD</button>
+  </div>
+  <button class="secondary" id="threePtBackMenu" style="width:100%;margin-top:12px">MAIN MENU</button>
+ </div>
+</div>
+
+<div class="overlay hidden" id="draftMode">
+ <div class="modal draftModal">
+  <div class="eyebrow">BASKETBALL UNIVERSE · ALL ERAS 1980–2026</div>
+  <h2>🎲 DRAFT MODE</h2>
+  <div id="draftStage"></div>
+  <button class="secondary" id="draftBackMenu" style="width:100%;margin-top:12px">MAIN MENU</button>
+ </div>
+</div>
 
 <div class="overlay hidden" id="badgeCollectionModal">
  <div class="modal">
@@ -230,6 +436,27 @@ const SUPABASE_KEY = "sb_publishable_AXMDnK0IJKolloeq-vmC7Q_gNlpMI3c";
 const sb = (window.supabase && typeof window.supabase.createClient === 'function')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
+
+// --- PRIVACY-FRIENDLY VISIT ANALYTICS ---
+// Counts visits and anonymous browser sessions; no names, emails or IPs are written by this code.
+(function trackBasketballUniverseVisit(){
+  if(!sb)return;
+  try{
+    let sessionId=sessionStorage.getItem('bu_analytics_session');
+    if(!sessionId){
+      sessionId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():
+        'bu-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
+      sessionStorage.setItem('bu_analytics_session',sessionId);
+    }
+    sb.from('basketball_universe_visits').insert({
+      session_id:sessionId,
+      page:'game'
+    }).then(({error})=>{
+      if(error)console.warn('Basketball Universe analytics:',error.message);
+    });
+  }catch(e){console.warn('Basketball Universe analytics unavailable:',e.message)}
+})();
+
 let remoteMode=false, roomCode=null, localSlot=null, remoteChannel=null, remotePhase='';
 let remoteCandidates=[];
 const makeCode=()=>Math.random().toString(36).slice(2,8).toUpperCase();
@@ -333,7 +560,7 @@ async function loadLeaderboard(){
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 $('leaderboardOpen').onclick=(ev)=>{ev.preventDefault();$('leaderboardModal').classList.remove('hidden');$('leaderboardModal').style.zIndex='50';$('leaderboardRows').innerHTML='<p>Loading leaderboard…</p>';requestAnimationFrame(()=>loadLeaderboard())};
 $('leaderboardClose').onclick=()=>{$('leaderboardModal').classList.add('hidden')};
-$('betweenMenu').onclick=()=>{ $('between').classList.add('hidden'); $('gameover').classList.add('hidden'); $('draft').classList.add('hidden'); $('modeMenu').classList.remove('hidden'); soloMode=false; remoteMode=false; roomCode=null; };
+$('betweenMenu').onclick=()=>{ $('between').classList.add('hidden'); $('gameover').classList.add('hidden'); $('draft').classList.add('hidden'); $('threePtMenu').classList.add('hidden'); $('modeMenu').classList.remove('hidden'); soloMode=false; remoteMode=false; roomCode=null; };
 // Save one score after every completed 25-shot round. Online saves only on the active player's device.
 const leaderboardOriginalRemoteEndTurn=remoteEndTurn;
 remoteEndTurn=async function(){const nick=names[turn],pts=score;await saveLeaderboardScore(nick,pts);return leaderboardOriginalRemoteEndTurn()};
@@ -707,4 +934,532 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
 })();
 </script>
 
+
+<script>
+/* Basketball Universe Draft Mode v1 — playable solo draft + season/playoffs prototype.
+   Historic teams span the 1980s to current era. Ratings are game-balancing estimates,
+   not official NBA ratings. Initial roster library is curated and expandable. */
+(()=>{
+ const $=id=>document.getElementById(id);
+ const stage=$('draftStage'),overlay=$('draftMode');
+ if(!stage||!overlay)return;
+ const teams=[
+  {team:'Los Angeles Lakers',season:'1986/87',players:[
+   ['Magic Johnson','PG',97,23.9,6.3,12.2],['Byron Scott','SG',84,17.0,3.1,3.6],['James Worthy','SF',91,19.4,5.7,2.8],['A.C. Green','PF',82,10.8,7.8,1.1],['Kareem Abdul-Jabbar','C',94,17.5,6.7,2.6],['Michael Cooper','SG',83,10.5,2.8,4.5],['Mychal Thompson','C',80,10.1,5.6,1.0],['Kurt Rambis','PF',78,5.4,5.4,1.3]]},
+  {team:'Chicago Bulls',season:'1995/96',players:[
+   ['Ron Harper','PG',84,7.4,2.7,2.6],['Michael Jordan','SG',99,30.4,6.6,4.3],['Scottie Pippen','SF',96,19.4,6.4,5.9],['Dennis Rodman','PF',91,5.5,14.9,2.5],['Luc Longley','C',81,9.1,5.1,1.4],['Toni Kukoč','SF',87,13.1,4.0,3.5],['Steve Kerr','PG',82,8.4,1.0,2.3],['Bill Wennington','C',76,4.0,2.5,0.4]]},
+  {team:'San Antonio Spurs',season:'2002/03',players:[
+   ['Tony Parker','PG',88,15.5,2.6,5.3],['Stephen Jackson','SG',84,11.8,3.6,2.3],['Bruce Bowen','SF',84,7.1,2.9,1.4],['Tim Duncan','PF',98,23.3,12.9,3.9],['David Robinson','C',90,8.5,7.9,1.0],['Manu Ginóbili','SG',90,7.6,2.3,2.0],['Steve Smith','SG',80,6.8,2.0,1.1],['Malik Rose','PF',78,4.6,3.3,0.6]]},
+  {team:'Boston Celtics',season:'2007/08',players:[
+   ['Rajon Rondo','PG',88,10.6,4.2,5.1],['Ray Allen','SG',91,17.4,3.7,3.1],['Paul Pierce','SF',94,19.6,5.1,4.5],['Kevin Garnett','PF',96,18.8,9.2,3.4],['Kendrick Perkins','C',82,6.9,6.1,1.1],['James Posey','SF',81,6.7,3.6,1.5],['Eddie House','PG',78,7.0,1.0,1.0],['Leon Powe','PF',78,7.9,4.1,0.6]]},
+  {team:'Miami Heat',season:'2012/13',players:[
+   ['Mario Chalmers','PG',82,8.6,2.2,3.5],['Dwyane Wade','SG',94,21.2,5.0,5.1],['LeBron James','SF',99,26.8,8.0,7.3],['Chris Bosh','PF',90,16.6,6.8,1.7],['Udonis Haslem','C',79,3.9,5.4,0.7],['Ray Allen','SG',86,10.9,2.7,1.7],['Shane Battier','SF',81,6.0,2.3,1.0],['Mike Miller','SG',79,4.8,2.7,1.7]]},
+  {team:'Golden State Warriors',season:'2015/16',players:[
+   ['Stephen Curry','PG',99,30.1,5.4,6.7],['Klay Thompson','SG',94,22.1,3.8,2.1],['Harrison Barnes','SF',85,11.7,4.9,1.8],['Draymond Green','PF',94,14.0,9.5,7.4],['Andrew Bogut','C',85,5.4,7.0,2.3],['Andre Iguodala','SF',87,7.0,3.8,3.4],['Shaun Livingston','PG',81,6.3,2.2,3.0],['Festus Ezeli','C',78,7.0,5.6,0.7]]},
+  {team:'Cleveland Cavaliers',season:'2016/17',players:[
+   ['Kyrie Irving','PG',94,25.2,3.2,5.8],['J.R. Smith','SG',83,8.6,2.8,1.5],['LeBron James','SF',99,26.4,8.6,8.7],['Kevin Love','PF',90,19.0,11.1,1.9],['Tristan Thompson','C',83,8.1,9.2,1.0],['Kyle Korver','SG',82,10.7,2.8,1.6],['Iman Shumpert','SG',79,7.5,2.9,1.4],['Deron Williams','PG',78,7.5,1.9,3.6]]},
+  {team:'Denver Nuggets',season:'2023/24',players:[
+   ['Jamal Murray','PG',91,21.2,4.1,6.5],['Kentavious Caldwell-Pope','SG',84,10.1,2.4,2.4],['Michael Porter Jr.','SF',88,16.7,7.0,1.5],['Aaron Gordon','PF',87,13.9,6.5,3.5],['Nikola Jokić','C',99,26.4,12.4,9.0],['Christian Braun','SG',81,7.3,3.7,1.6],['Reggie Jackson','PG',79,10.2,1.9,3.8],['Justin Holiday','SF',76,4.0,1.2,1.2]]},
+  {team:'Dallas Mavericks',season:'2023/24',players:[
+   ['Kyrie Irving','PG',93,25.6,5.0,5.2],['Luka Dončić','SG',99,33.9,9.2,9.8],['Derrick Jones Jr.','SF',83,8.6,3.3,1.0],['P.J. Washington','PF',84,12.9,5.6,2.2],['Daniel Gafford','C',84,11.0,7.6,1.6],['Tim Hardaway Jr.','SG',80,14.4,3.2,1.8],['Dereck Lively II','C',82,8.8,6.9,1.1],['Josh Green','SF',78,4.9,2.5,1.2]]},
+  {team:'Oklahoma City Thunder',season:'2024/25',players:[
+   ['Shai Gilgeous-Alexander','PG',98,32.7,5.0,6.4],['Alex Caruso','SG',87,8.3,2.9,2.5],['Jalen Williams','SF',94,21.6,5.3,5.1],['Chet Holmgren','PF',91,15.0,8.0,2.0],['Isaiah Hartenstein','C',87,11.2,10.7,3.8],['Luguentz Dort','SG',84,10.1,4.1,1.6],['Aaron Wiggins','SF',82,12.0,3.9,1.8],['Cason Wallace','PG',81,8.4,3.4,2.5]]},
+  {team:'New York Knicks',season:'1993/94',players:[
+   ['Derek Harper','PG',85,11.0,2.4,5.7],['John Starks','SG',88,19.0,3.1,5.0],['Hubert Davis','SG',80,7.7,1.7,1.1],['Charles Oakley','PF',89,11.8,11.8,1.8],['Patrick Ewing','C',97,24.5,11.2,2.3],['Anthony Mason','PF',87,7.0,5.9,3.0],['Charles Smith','SF',79,8.8,4.0,1.0],['Greg Anthony','PG',78,6.0,1.8,3.0]]},
+  {team:'Portland Trail Blazers',season:'1989/90',players:[
+   ['Terry Porter','PG',89,17.0,3.2,9.1],['Clyde Drexler','SG',96,23.3,6.9,5.9],['Jerome Kersey','SF',86,12.6,6.4,2.2],['Buck Williams','PF',88,13.6,9.8,1.4],['Kevin Duckworth','C',86,16.0,6.0,1.0],['Cliff Robinson','PF',80,8.8,4.2,1.0],['Danny Ainge','SG',82,6.7,1.7,2.5],['Mark Bryant','C',76,3.3,3.2,0.4]]}
+ ];
+ const positions=['PG','SG','SF','PF','C'];
+ const state={team:null,franchiseTeam:null,roster:[],picked:{},rerolls:1,usedTeams:[],seasonGames:[],wins:0,losses:0,playoff:false,playoffRound:0,seriesW:0,seriesL:0,game:1,quarter:1,gamePts:0,oppPts:0,boost:false,playoffOpponents:[],playoffPlayerStats:{},playoffGamePlayerPts:{},halftimeUsed:false,halftimeBoost:0,morale:0};
+ const rand=a=>a[Math.floor(Math.random()*a.length)];
+ const avg=()=>Object.values(state.picked).length?Math.round(Object.values(state.picked).reduce((s,p)=>s+p.ovr,0)/Object.keys(state.picked).length):0;
+ const positionOf=p=>p.pos.split('/').map(x=>x.trim());
+ function resetDraft(){state.team=null;state.franchiseTeam=null;state.roster=[];state.picked={};state.rerolls=1;state.usedTeams=[];state.seasonGames=[];state.wins=0;state.losses=0;state.playoff=false;state.playoffRound=0;state.seriesW=0;state.seriesL=0;state.game=1;state.quarter=1;state.gamePts=0;state.oppPts=0;state.boost=false;state.playoffOpponents=[];state.playoffPlayerStats={};state.playoffGamePlayerPts={};state.halftimeUsed=false;state.halftimeBoost=0;state.morale=0;}
+ function chooseTeam(){
+  const available=teams.filter(t=>!state.usedTeams.includes(t.team+'|'+t.season));
+  const pool=available.length?available:teams;
+  state.team=rand(pool);
+  const key=state.team.team+'|'+state.team.season;
+  if(!state.usedTeams.includes(key))state.usedTeams.push(key);
+  state.roster=state.team.players.map(x=>({name:x[0],pos:x[1],ovr:x[2],ppg:x[3],rpg:x[4],apg:x[5],team:state.team.team,season:state.team.season}));
+ }
+ function menu(){
+  resetDraft();
+  stage.innerHTML=`<div class="draftIntro">
+   <div class="draftTile"><div class="eyebrow">SINGLE PLAYER</div><h3>🏆 SOLO DRAFT</h3><p>Draft your starting five, play an 82-game season and fight for the championship.</p><button class="primary" id="soloDraftStart">SOLO</button></div>
+   <div class="draftTile"><div class="eyebrow">PLAY WITH FRIENDS</div><h3>🌐 MULTIPLAYER DRAFT</h3><p>Create a private room, invite a friend with a code, draft five players each and battle in an online series.</p><button class="primary" id="multiDraftInfo">🌐 PLAY ONLINE</button></div>
+   <div class="draftTile"><div class="eyebrow">GLOBAL RANKING</div><h3>🏆 DRAFT LEADERBOARD</h3><p>See the best regular-season records from all players. A perfect 82–0 season is the ultimate target.</p><button class="primary" id="openDraftLeaderboard">VIEW LEADERBOARD</button></div>
+  </div><p class="muted">Historic and modern NBA teams · 1980s–2020s<br>Roster library is currently a curated prototype; player ratings are game estimates.</p>`;
+  $('soloDraftStart').onclick=()=>{resetDraft();renderDraft()};
+  $('openDraftLeaderboard').onclick=()=>{stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">GLOBAL RANKING</div><h3>🏆 DRAFT LEADERBOARD</h3><small>Best regular-season record per player</small></div><div style="font-size:38px">🏀</div></div><div class="draftTile"><div id="draftLeaderboardRows"></div></div><button class="secondary" id="backDraftModes" style="width:100%;margin-top:12px">BACK TO DRAFT MENU</button>`;loadDraftLeaderboard();$('backDraftModes').onclick=menu};
+  $('multiDraftInfo').onclick=renderMultiDraftLobby;
+ }
+ // Two-player online Draft. Realtime state is stored separately from 3PT matches.
+ let mdRoom=null,mdSlot=null,mdChannel=null,mdBusy=false,mdState=null;
+ const mdTable='draft_multiplayer_rooms';
+ const mdCode=()=>Math.random().toString(36).slice(2,8).toUpperCase();
+ const mdName=()=>String($('menuNick')?.value||'').trim().slice(0,16)||'PLAYER';
+ const mdSay=(msg,bad=false)=>{const el=$('mdMessage');if(el){el.textContent=msg;el.style.color=bad?'#ff9b9b':'#9ee6bd'}};
+ function mdRender(){
+  if(!mdState)return;
+  const p=mdState.players||['PLAYER 1','PLAYER 2'], picks=mdState.picks||[[],[]], turn=mdState.turn||0;
+  const phase=mdState.phase||'draft', current=mdState.currentRoster||[], active=mdState.activeTeam||null;
+  const myTurn=mdSlot===turn;
+  const crest=(name)=>teamCrest(name,true);
+  let body='';
+  if(phase==='draft'){
+   const round=mdState.round||1;
+   body=`<div class="mdTop"><div><span>ONLINE DRAFT · ROUND ${round}/5</span><h3>${round===5?'FINAL PICK · OWN TEAM SPIN':'SHARED TEAM ROSTER'}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
+    <div class="mdPlayers"><div class="${turn===0?'mdActive':''}"><b>${escapeDraftText(p[0]||'PLAYER 1')}</b><small>${picks[0].length}/5 PLAYERS</small></div><div class="${turn===1?'mdActive':''}"><b>${escapeDraftText(p[1]||'PLAYER 2')}</b><small>${picks[1].length}/5 PLAYERS</small></div></div>
+    ${active?`<div class="mdTeamReveal">${crest(active.team)}<div><span>${round===5?'YOUR PERSONAL TEAM':'THIS ROUND’S TEAM'}</span><h3>${escapeDraftText(active.team)}</h3><small>${escapeDraftText(active.season||'NBA ROSTER')}</small></div></div>`:`<div class="mdWaiting"><div>🎲</div><b>${round===5?'Spin your own team':'Spin the shared NBA team'}</b><small>${round===5?'Each player gets a separate team for the final pick.':'Both players will choose from the same roster.'}</small></div>`}
+    ${active?`<div class="mdRoster">${current.map((pl,i)=>{const already=picks.some(arr=>arr.some(x=>x.name===pl.name));return `<button class="mdPlayerPick" data-md-pick="${i}" ${!myTurn||already?'disabled':''}><b>${escapeDraftText(pl.name)}</b><small>${pl.pos} · ${pl.ovr} OVR · ${pl.ppg} PPG</small>${already?'<em>ALREADY PICKED</em>':''}</button>`}).join('')}</div>`:''}
+    <div class="mdControls">${!active?`<button class="primary" id="mdSpin" ${!myTurn||mdBusy?'disabled':''}>🎲 ${round===5?'SPIN MY TEAM':'ROLL SHARED TEAM'}</button>`:''}<p>${myTurn?'YOUR TURN':'WAITING FOR '+escapeDraftText(p[turn]||'OPPONENT')}</p></div>
+    <div class="mdLineups"><section><h4>${escapeDraftText(p[0]||'PLAYER 1')} · LINEUP</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(p[1]||'PLAYER 2')} · LINEUP</h4>${mdLineup(picks[1])}</section></div>`;
+  }else if(phase==='game'){
+   const g=mdState.game||1,q=mdState.quarter||1,sc=mdState.score||[0,0],wins=mdState.wins||[0,0];
+   body=`<div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g}</span><h3>FIRST TO FOUR WINS</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
+    <div class="mdPlayers"><div>${crest(mdState.franchises?.[0]||'Boston Celtics')}<b>${escapeDraftText(mdState.players[0])}</b><small>${wins[0]} SERIES WINS</small></div><div>${crest(mdState.franchises?.[1]||'Los Angeles Lakers')}<b>${escapeDraftText(mdState.players[1])}</b><small>${wins[1]} SERIES WINS</small></div></div>
+    <div class="mdGameScore"><div><small>${escapeDraftText(mdState.franchises?.[0]||'TEAM 1')}</small><b>${sc[0]}</b></div><span>–</span><div><small>${escapeDraftText(mdState.franchises?.[1]||'TEAM 2')}</small><b>${sc[1]}</b></div></div>
+    <div class="mdQuarter">QUARTER ${q} / 4</div><button class="primary" id="mdPlayQuarter" ${!myTurn||mdBusy?'disabled':''}>${myTurn?'SIMULATE QUARTER':'WAITING FOR OPPONENT'}</button>
+    <div class="mdLineups"><section><h4>${escapeDraftText(mdState.players[0])} · TEAM</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(mdState.players[1])} · TEAM</h4>${mdLineup(picks[1])}</section></div>`;
+  }else if(phase==='gameover'){
+   const wins=mdState.wins||[0,0], winner=wins[0]>wins[1]?0:1;
+   body=`<div class="mdChampion"><div>🏆</div><span>ONLINE DRAFT CHAMPION</span><h2>${escapeDraftText(mdState.players[winner])}</h2><b>${wins[0]} – ${wins[1]}</b><p>${escapeDraftText(mdState.players[0])} vs ${escapeDraftText(mdState.players[1])}</p><button class="primary" id="mdNewRoom">BACK TO DRAFT MENU</button></div>`;
+  }
+  stage.innerHTML=`<div class="mdShell">${body}<p id="mdMessage" class="mdMessage">${phase==='draft'?(myTurn?'Your pick.':'Waiting for opponent…'):'Online room connected'}</p><button class="secondary" id="mdLeave" style="width:100%;margin-top:10px">LEAVE ROOM</button></div>`;
+  $('mdLeave').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
+  if($('mdSpin'))$('mdSpin').onclick=mdSpinTeam;
+  stage.querySelectorAll('[data-md-pick]').forEach(btn=>btn.onclick=()=>mdPick(+btn.dataset.mdPick));
+  if($('mdPlayQuarter'))$('mdPlayQuarter').onclick=mdPlayQuarter;
+  if($('mdNewRoom'))$('mdNewRoom').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
+ }
+ function mdLineup(arr){
+  return `<div class="mdLineupRows">${positions.map(pos=>{const pl=arr.find(x=>x.slot===pos);return `<div><b>${pos}</b><span>${pl?escapeDraftText(pl.name):'—'}</span>${pl?`<small>${pl.ovr} OVR</small>`:''}</div>`}).join('')}</div>`;
+ }
+ function mdSubscribe(){
+  if(mdChannel)sb.removeChannel(mdChannel);
+  mdChannel=sb.channel('draft-room-'+mdRoom).on('postgres_changes',{event:'UPDATE',schema:'public',table:mdTable,filter:'room_code=eq.'+mdRoom},payload=>{
+   if(payload.new?.game_state){mdState=payload.new.game_state;mdRender()}
+  }).subscribe();
+ }
+ async function mdPersist(next){
+  if(mdBusy)return false;
+  mdBusy=true;
+  try{
+   const {data,error}=await sb.from(mdTable).update({game_state:next,status:next.phase==='gameover'?'finished':'playing',updated_at:new Date().toISOString()}).eq('room_code',mdRoom);
+   if(error)throw error;
+   // Update locally immediately; Realtime broadcasts to the other player.
+   mdState={...next,updated_at:new Date().toISOString()};mdRender();return true;
+  }catch(e){mdSay('Sync error: '+e.message,true);return false}
+  finally{mdBusy=false}
+ }
+ async function mdSpinTeam(){
+  if(mdBusy||mdSlot!==mdState.turn||mdState.currentRoster?.length)return;
+  const pool=[...teams];
+  if(mdState.round===5){
+   const ownTeams=mdState.finalTeams||[null,null];
+   const t=rand(pool);ownTeams[mdSlot]={team:t.team,season:t.season};
+   const roster=t.players.map(x=>({name:x[0],pos:x[1],ovr:x[2],ppg:x[3],rpg:x[4],apg:x[5],slot:positionOf({pos:x[1]})[0]||x[1]}));
+   await mdPersist({...mdState,finalTeams:ownTeams,activeTeam:ownTeams[mdSlot],currentRoster:roster});
+  }else{
+   const t=rand(pool),roster=t.players.map(x=>({name:x[0],pos:x[1],ovr:x[2],ppg:x[3],rpg:x[4],apg:x[5],slot:positionOf({pos:x[1]}).find(pos=>positions.includes(pos))||x[1]}));
+   await mdPersist({...mdState,activeTeam:{team:t.team,season:t.season},currentRoster:roster});
+  }
+ }
+ async function mdPick(index){
+  if(mdBusy||mdSlot!==mdState.turn)return;
+  const pl=mdState.currentRoster?.[index];if(!pl)return;
+  const picks=(mdState.picks||[[],[]]).map(a=>[...a]);
+  if(picks.some(a=>a.some(x=>x.name===pl.name)))return;
+  const slot=positions.find(pos=>!picks[mdSlot].some(x=>x.slot===pos));
+  if(!slot){mdSay('Your five positions are full.',true);return}
+  picks[mdSlot].push({...pl,slot,sourceTeam:mdState.activeTeam?.team});
+  let next={...mdState,picks,turn:1-mdSlot,currentRoster:mdState.currentRoster,activeTeam:mdState.activeTeam};
+  const round=mdState.round||1;
+  if(round<5&&mdSlot===1){
+   next.round=round+1;next.turn=0;next.currentRoster=[];next.activeTeam=null;
+  }else if(round===5&&picks[0].length===5&&picks[1].length===5){
+   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.franchises=mdState.finalTeams.map(t=>t.team);
+  }else if(round===5&&mdSlot===0){
+   next.currentRoster=[];next.activeTeam=null;next.turn=1;
+  }
+  await mdPersist(next);
+ }
+ async function mdPlayQuarter(){
+  if(mdBusy||mdSlot!==mdState.turn)return;
+  const score=[...(mdState.score||[0,0])],quarter=mdState.quarter||1;
+  score[0]+=Math.floor(Math.random()*26)+17;score[1]+=Math.floor(Math.random()*26)+17;
+  let next={...mdState,score,quarter:quarter+1,turn:1-mdSlot};
+  if(quarter===4){
+   if(score[0]===score[1])score[Math.floor(Math.random()*2)]+=1;
+   const wins=[...(mdState.wins||[0,0])];wins[score[0]>score[1]?0:1]++;
+   next={...next,lastGameScore:score,wins,score:[0,0],game:mdState.game+1,quarter:1,turn:0,phase:wins[0]===4||wins[1]===4?'gameover':'game'};
+  }
+  await mdPersist(next);
+ }
+ async function renderMultiDraftLobby(){
+  stage.innerHTML=`<div class="draftTile"><div class="eyebrow">ONLINE · TWO PLAYERS</div><h3>🌐 MULTIPLAYER DRAFT</h3><p>Create a room and invite your friend with a six-character code. Both players need to open Basketball Universe online.</p><label class="field">YOUR NICKNAME</label><input id="mdNick" maxlength="16" value="${escapeDraftText(mdName())}" placeholder="Your nickname"><button class="primary" id="mdCreate" style="width:100%;margin-top:12px">CREATE ROOM</button><div class="mdDivider">OR JOIN A ROOM</div><input id="mdCode" maxlength="6" placeholder="ROOM CODE" style="text-transform:uppercase"><button class="secondary" id="mdJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="mdMessage" class="mdMessage"></p><button class="secondary" id="backDraftModes" style="width:100%;margin-top:10px">BACK</button></div>`;
+  $('backDraftModes').onclick=menu;
+  $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
+ }
+ async function mdCreateRoom(){
+  try{
+   if(!sb)throw new Error('Supabase client did not load.');
+   const nickname=$('mdNick').value.trim().slice(0,16)||'PLAYER 1';mdRoom=mdCode();mdSlot=0;
+   const initial={players:[nickname,'WAITING…'],picks:[[],[]],round:1,turn:0,phase:'draft',currentRoster:[],activeTeam:null,finalTeams:[null,null],wins:[0,0],score:[0,0],game:1,quarter:1};
+   const {error}=await sb.from(mdTable).insert({room_code:mdRoom,host_name:nickname,guest_name:null,status:'waiting',game_state:initial});
+   if(error)throw error;
+   mdState=initial;mdSubscribe();mdRender();
+   const codeEl=document.querySelector('.mdRoomCode');mdSay('Room created! Share code '+mdRoom+' with your friend.');
+  }catch(e){mdSay('Error: '+e.message,true)}
+ }
+ async function mdJoinRoom(){
+  try{
+   if(!sb)throw new Error('Supabase client did not load.');
+   const code=$('mdCode').value.trim().toUpperCase();if(code.length!==6)throw new Error('Enter the six-character room code.');
+   const nickname=$('mdNick').value.trim().slice(0,16)||'PLAYER 2';
+   const {data,error}=await sb.from(mdTable).select('*').eq('room_code',code).maybeSingle();
+   if(error)throw error;if(!data)throw new Error('Room not found. Check the code.');
+   if(data.guest_name)throw new Error('This room already has two players.');
+   mdRoom=code;mdSlot=1;
+   const next={...data.game_state,players:[data.host_name,nickname]};
+   const {error:upError}=await sb.from(mdTable).update({guest_name:nickname,status:'playing',game_state:next,updated_at:new Date().toISOString()}).eq('room_code',code).is('guest_name',null);
+   if(upError)throw upError;
+   mdState=next;mdSubscribe();mdRender();mdSay('Joined room '+code+'. Draft is ready!');
+  }catch(e){mdSay('Error: '+e.message,true)}
+ }
+
+ function renderDraft(){
+  const filled=positions.filter(p=>state.picked[p]).length;
+  const hasTeam=!!state.team;
+  stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">${filled===5?'DRAFT COMPLETE':'ROUND '+(filled+1)+' OF 5'} · ${state.rerolls} EXTRA REROLL LEFT</div><h3>${hasTeam?state.team.team:'YOUR TEAM IS NOT ROLLED YET'}</h3><small>${hasTeam?state.team.season+' · TEAM ROSTER':'Spin to reveal a random NBA team and its roster'}</small></div><div style="font-size:38px">🏀</div></div>
+  <div class="draftSlots">${positions.map(pos=>`<div class="draftSlot"><b>${pos}</b><small>${state.picked[pos]?state.picked[pos].name:'OPEN'}</small></div>`).join('')}</div>
+  <div class="draftActions"><button class="primary" id="rollTeam" ${hasTeam||filled===5?'disabled':''}>🎲 ROLL TEAM</button><button class="secondary" id="rerollTeam" ${!hasTeam||state.rerolls<=0||filled===5?'disabled':''}>↻ EXTRA REROLL</button><button class="primary" id="draftSeason" ${filled<5?'disabled':''}>START SEASON</button></div>
+  ${hasTeam?`<h3>AVAILABLE ROSTER · SELECT ONE PLAYER</h3><div class="draftGrid">${state.roster.map((p,i)=>{const eligible=positionOf(p).find(pos=>positions.includes(pos)&&!state.picked[pos]);const used=Object.values(state.picked).some(x=>x.name===p.name);return `<button class="draftPlayer" data-pick="${i}" ${!eligible||used?'disabled':''}><span class="ovr">${p.ovr}</span><strong>${p.name}</strong><small>${p.pos} · PPG ${p.ppg} · RPG ${p.rpg} · APG ${p.apg}</small><small>${eligible?'Available for '+eligible:'Position already filled'}</small></button>`}).join('')}</div>`:'<div class="draftTile"><h3>READY TO SPIN?</h3><p>Your five positions are waiting. Press ROLL TEAM to reveal your first NBA roster.</p></div>'}`;
+  $('rollTeam').onclick=()=>{if(state.team||filled===5)return;chooseTeam();renderDraft()};
+  $('rerollTeam').onclick=()=>{if(!state.team||state.rerolls<=0)return;state.rerolls--;state.usedTeams=state.usedTeams.filter(k=>k!==state.team.team+'|'+state.team.season);state.team=null;state.roster=[];chooseTeam();renderDraft()};
+  stage.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const p=state.roster[+b.dataset.pick];const pos=positionOf(p).find(x=>positions.includes(x)&&!state.picked[x]);if(!pos)return;state.picked[pos]={...p};state.team=null;state.roster=[];if(positions.every(x=>state.picked[x]))seasonIntro();else renderDraft()});
+  $('draftSeason').onclick=()=>seasonIntro();
+ }
+ let seasonRunning=false;
+ function renderSeasonMatches(){
+  const matchList=$('seasonMatchList');
+  if(matchList)matchList.innerHTML=state.seasonGames.slice().reverse().map(g=>`<div class="seasonMatch"><span class="seasonGameNo">#${g.game}</span><span class="seasonOpponent">${g.home?'vs':'@'} ${g.opponent}</span><strong class="${g.win?'seasonWin':'seasonLoss'}">${g.own} – ${g.opp}</strong><b class="${g.win?'seasonWin':'seasonLoss'}">${g.win?'W':'L'}</b></div>`).join('');
+ }
+ function updateSeasonStatus(){
+  const n=state.seasonGames.length,last=state.seasonGames.at(-1);
+  const status=$('seasonStatus');
+  if(status)status.textContent=`${n}/82 games · ${state.wins} W – ${state.losses} L${last?` · Last: ${last.own}-${last.opp}`:''}`;
+  const put=(id,value)=>{const el=$(id);if(el)el.textContent=value};
+  put('seasonGameCount',`${n} / 82 GAMES`);
+  put('seasonLiveWins',state.wins);
+  put('seasonLiveLosses',state.losses);
+  put('seasonLiveRate',`WIN RATE ${(n?state.wins/n*100:0).toFixed(1)}%`);
+  put('seasonLastResult',last?`${last.win?'WIN':'LOSS'} · ${last.own} – ${last.opp}`:'READY TO TIP OFF');
+  const fill=$('seasonProgressFill');if(fill)fill.style.width=`${n/82*100}%`;
+  const board=$('seasonLiveBoard');
+  if(board&&last){board.classList.remove('seasonPulseWin','seasonPulseLoss');void board.offsetWidth;board.classList.add(last.win?'seasonPulseWin':'seasonPulseLoss')}
+ }
+ function seasonIntro(){
+  const overall=avg();
+  if(!state.franchiseTeam)state.franchiseTeam=rand(nbaOpponentPool);
+  stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">YOUR STARTING FIVE</div><h3>${overall} TEAM OVERALL</h3><small>Five players drafted from five team spins · 1980s–2020s</small></div><div style="font-size:40px">🏆</div></div>
+  <div class="draftSlots">${positions.map(pos=>`<div class="draftSlot"><b>${pos}</b><small>${state.picked[pos].name}</small></div>`).join('')}</div>
+  ${state.franchiseTeam?`<div class="franchiseSelected"><div class="eyebrow">YOUR FRANCHISE</div><div class="franchiseSelectedTeam">${teamCrest(state.franchiseTeam,true)}<div><h3>${escapeDraftText(state.franchiseTeam)}</h3><small>Your drafted five will represent this NBA club.</small></div></div></div>`:''}
+  <div class="draftTile franchisePicker"><div class="eyebrow">CHOOSE YOUR NBA FRANCHISE</div><h3>WHO WILL YOU REPRESENT?</h3><p>Pick a club to represent through the season and playoffs, or let the game choose one at random.</p>
+   <button class="randomFranchise" id="randomFranchise">🎲 RANDOM NBA TEAM</button>
+   <div class="franchiseGrid">${nbaOpponentPool.map(name=>`<button class="franchiseOption ${state.franchiseTeam===name?'selected':''}" data-franchise="${escapeDraftText(name)}">${teamCrest(name)}<span>${escapeDraftText(name)}</span></button>`).join('')}</div>
+  </div>
+  <div class="draftTile"><h3>82-GAME REGULAR SEASON</h3><p>Choose how quickly you want to watch the results. Your final record is submitted to the global leaderboard before the playoffs.</p>
+   <label class="field" for="draftNickname">LEADERBOARD NICKNAME</label><input id="draftNickname" maxlength="16" value="${escapeDraftText(draftNickname())}" placeholder="Enter your nickname">
+   <div class="seasonSpeedOptions">
+    <button class="primary" id="slowSeason">🐢 SLOW<br><small>One game at a time</small></button>
+    <button class="primary" id="fastSeason">⚡ FAST<br><small>Rapid game list</small></button>
+    <button class="secondary" id="instantSeason">⏩ FINAL SCORE<br><small>Show only final record</small></button>
+   </div>
+  </div>
+  <div class="seasonLiveBoard" id="seasonLiveBoard">
+   <div class="seasonLiveTop"><span>REGULAR SEASON</span><strong id="seasonGameCount">0 / 82 GAMES</strong></div>
+   <div class="seasonLiveRecord"><div class="seasonLiveStat"><small>WINS</small><b id="seasonLiveWins">0</b></div><div class="seasonLiveDash">–</div><div class="seasonLiveStat"><small>LOSSES</small><b id="seasonLiveLosses">0</b></div></div>
+   <div class="seasonProgress"><div id="seasonProgressFill"></div></div>
+   <div class="seasonLiveBottom"><span id="seasonLiveRate">WIN RATE 0.0%</span><strong id="seasonLastResult">READY TO TIP OFF</strong></div>
+  </div>
+  <div id="seasonStatus" class="muted">0 / 82 games played · 0 W – 0 L</div><div id="seasonMatchList" class="seasonMatchList"></div>`;
+  $('randomFranchise').onclick=()=>{state.franchiseTeam=rand(nbaOpponentPool);seasonIntro()};
+  stage.querySelectorAll('[data-franchise]').forEach(btn=>btn.onclick=()=>{state.franchiseTeam=btn.dataset.franchise;seasonIntro()});
+  $('slowSeason').onclick=()=>simulateSeason('slow');
+  $('fastSeason').onclick=()=>simulateSeason('fast');
+  $('instantSeason').onclick=()=>simulateSeason('instant');
+ }
+ function createSeasonGame(){
+  const opponentPool=['Boston Celtics','Chicago Bulls','Los Angeles Lakers','Golden State Warriors','Miami Heat','New York Knicks','San Antonio Spurs','Denver Nuggets','Dallas Mavericks','Phoenix Suns','Philadelphia 76ers','Detroit Pistons','Houston Rockets','Cleveland Cavaliers','Milwaukee Bucks'];
+  const opponent=rand(opponentPool);
+  const home=Math.random()<0.5;
+  const own=Math.max(75,Math.round(95+(avg()-85)*1.05+(Math.random()-.5)*24+(home?2:-2)));
+  const opp=Math.round(95+(Math.random()-.5)*28);
+  const win=own>opp;
+  state.seasonGames.push({game:state.seasonGames.length+1,opponent,home,own,opp,win});
+  if(win)state.wins++;else state.losses++;
+ }
+ async function simulateSeason(speed){
+  if(seasonRunning||state.seasonGames.length>=82)return;
+  if(!draftNickname()){
+   const nick=$('draftNickname');
+   if(nick){nick.focus();nick.placeholder='Enter a nickname to join the leaderboard';nick.style.borderColor='#f28c28'}
+   return;
+  }
+  seasonRunning=true;
+  ['slowSeason','fastSeason','instantSeason'].forEach(id=>{const b=$(id);if(b)b.disabled=true});
+  const delay=speed==='slow'?1100:speed==='fast'?160:0;
+  while(state.seasonGames.length<82){
+   createSeasonGame();
+   updateSeasonStatus();
+   if(speed!=='instant')renderSeasonMatches();
+   if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+  }
+  seasonRunning=false;
+  if(speed==='instant'){
+   const list=$('seasonMatchList');
+   if(list)list.innerHTML=`<div class="draftScoreboard"><div class="draftScore">FINAL RECORD<b>${state.wins}–${state.losses}</b></div><div class="draftScore">WIN RATE<b>${(state.wins/82*100).toFixed(1)}%</b></div></div><p class="muted">82 games simulated. Individual match results hidden in this mode.</p>`;
+  }else renderSeasonMatches();
+  await saveDraftSeasonScore();
+  renderSeasonEnd();
+ }
+ const draftNickname=()=>String($('draftNickname')?.value||$('menuNick')?.value||'').trim().slice(0,16);
+ async function saveDraftSeasonScore(){
+  const nickname=draftNickname();
+  window.__draftLeaderboardSaveStatus='Saving season result…';
+  if(!sb){window.__draftLeaderboardSaveStatus='ERROR: Supabase client did not load. Open the game with an internet connection.';return false}
+  if(!nickname){window.__draftLeaderboardSaveStatus='ERROR: No nickname was entered for this season.';return false}
+  try{
+   // getUser() returns AuthSessionMissingError when no session exists.
+   // Check the session first, then create an anonymous session if needed.
+   const sessionResult=await sb.auth.getSession();
+   if(sessionResult.error)throw sessionResult.error;
+   let user=sessionResult.data?.session?.user||null;
+   if(!user){
+    const signed=await sb.auth.signInAnonymously();
+    if(signed.error)throw signed.error;
+    user=signed.data?.user||signed.data?.session?.user||null;
+   }
+   if(!user){
+    const retrySession=await sb.auth.getSession();
+    if(retrySession.error)throw retrySession.error;
+    user=retrySession.data?.session?.user||null;
+   }
+   if(!user)throw new Error('Anonymous sign-in did not create a session. Check that Anonymous Sign-Ins are enabled in Supabase Authentication.');
+   const {data:previous,error:readError}=await sb.from('draft_leaderboard_secure').select('best_wins,best_losses').eq('user_id',user.id).maybeSingle();
+   if(readError)throw readError;
+   if(previous && (Number(previous.best_wins)>state.wins || (Number(previous.best_wins)===state.wins && Number(previous.best_losses)<=state.losses))){
+    window.__draftLeaderboardSaveStatus='Your previous personal best is already better. It remains on the leaderboard.';
+    return true;
+   }
+   const row={user_id:user.id,nickname,best_wins:state.wins,best_losses:state.losses,updated_at:new Date().toISOString()};
+   const {error}=await sb.from('draft_leaderboard_secure').upsert(row,{onConflict:'user_id'});
+   if(error)throw error;
+   window.__draftLeaderboardSaveStatus=`SAVED: ${nickname} · ${state.wins}–${state.losses}`;
+   return true;
+  }catch(e){
+   const message=String(e?.message||e);
+   console.warn('Secure draft leaderboard save failed:',message);
+   window.__draftLeaderboardSaveStatus='ERROR: '+message;
+   return false;
+  }
+ }
+ async function loadDraftLeaderboard(){
+  const host=$('draftLeaderboardRows');if(!host)return;
+  host.innerHTML='<p class="muted">Loading leaderboard…</p>';
+  if(!sb){host.innerHTML='<p class="muted">Online leaderboard connection unavailable.</p>';return}
+  try{
+   const {data,error}=await sb.from('draft_leaderboard_secure').select('nickname,best_wins,best_losses').order('best_wins',{ascending:false}).order('best_losses',{ascending:true}).limit(10);
+   if(error)throw error;
+   host.innerHTML=data?.length?data.map((r,i)=>`<div class="seasonMatch"><span class="seasonGameNo">#${i+1}</span><span class="seasonOpponent">${escapeDraftText(r.nickname)}</span><strong>${r.best_wins}–${r.best_losses}</strong><b>${Number(r.best_wins)===82?'🏆':'W'}</b></div>`).join(''):`<p class="muted">No completed seasons yet.</p>${window.__draftLeaderboardSaveStatus?`<p class="draftSaveStatus">${escapeDraftText(window.__draftLeaderboardSaveStatus)}</p>`:''}<p class="muted">If this is your first season, check the save status on the season-end screen and use RETRY SAVE.</p>`;
+  }catch(e){
+   host.innerHTML=`<p class="draftSaveStatus">LEADERBOARD ERROR: ${escapeDraftText(e?.message||e)}</p><p class="muted">Check that the secure table exists and that SELECT access is enabled for anon/authenticated users.</p>`;
+   console.warn('Secure draft leaderboard load failed:',e.message);
+  }
+ }
+ function escapeDraftText(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function renderSeasonEnd(){
+  const qualified=state.wins>=41;
+  stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">REGULAR SEASON COMPLETE</div><h3>${state.wins}–${state.losses}</h3><small>${qualified?'PLAYOFFS QUALIFIED':'SEASON OVER · MISSED PLAYOFFS'}</small></div><div style="font-size:40px">${qualified?'🏆':'📊'}</div></div>
+  <div class="draftScoreboard"><div class="draftScore">WINS<b>${state.wins}</b></div><div class="draftScore">LOSSES<b>${state.losses}</b></div></div>
+  <div class="draftTile" style="margin-top:12px"><h3>🏆 DRAFT SEASON LEADERBOARD</h3><p>Best regular-season record per nickname. Each device gets a protected anonymous player identity. 82–0 is the perfect season.</p><div id="draftSaveStatus" class="draftSaveStatus">${escapeDraftText(window.__draftLeaderboardSaveStatus||'Checking leaderboard save…')}</div><div id="draftLeaderboardRows"></div><button class="secondary" id="retryDraftSave" style="width:100%;margin-top:10px">RETRY SAVE</button></div>
+  ${qualified?'<button class="primary" id="startPlayoffs" style="width:100%;margin-top:12px">START PLAYOFFS</button>':'<button class="primary" id="newDraft" style="width:100%;margin-top:12px">NEW DRAFT</button>'}`;
+  $('retryDraftSave')?.addEventListener('click',async()=>{const b=$('retryDraftSave');b.disabled=true;b.textContent='SAVING…';await saveDraftSeasonScore();const st=$('draftSaveStatus');if(st)st.textContent=window.__draftLeaderboardSaveStatus||'Save finished.';b.disabled=false;b.textContent='RETRY SAVE';loadDraftLeaderboard()});
+  $('startPlayoffs')?.addEventListener('click',()=>{state.playoff=true;state.playoffRound=0;state.playoffOpponents=[];ensurePlayoffOpponents();state.playoffPlayerStats={};state.seriesW=0;state.seriesL=0;state.game=1;state.quarter=1;state.gamePts=0;state.oppPts=0;renderPlayoff()});
+  $('newDraft')?.addEventListener('click',()=>{resetDraft();renderDraft()});
+  loadDraftLeaderboard();
+ }
+ const nbaOpponentPool=[
+  'Boston Celtics','Los Angeles Lakers','Golden State Warriors','Chicago Bulls','Miami Heat',
+  'New York Knicks','Philadelphia 76ers','Milwaukee Bucks','Denver Nuggets','Phoenix Suns',
+  'Dallas Mavericks','San Antonio Spurs','Houston Rockets','Cleveland Cavaliers','Detroit Pistons',
+  'Atlanta Hawks','Brooklyn Nets','Toronto Raptors','Indiana Pacers','Orlando Magic',
+  'Minnesota Timberwolves','Oklahoma City Thunder','Portland Trail Blazers','Sacramento Kings',
+  'Utah Jazz','Memphis Grizzlies','New Orleans Pelicans','Charlotte Hornets','Washington Wizards','LA Clippers'
+ ];
+ function ensurePlayoffOpponents(){
+  if(state.playoffOpponents?.length===3)return;
+  const pool=nbaOpponentPool.filter(name=>name!==state.franchiseTeam);
+  state.playoffOpponents=[0,1,2].map(()=>pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+ }
+ const nbaTeamStyle={
+ 'Boston Celtics':['BOS','#008348','☘'],'Los Angeles Lakers':['LAL','#552583','LA'],'Golden State Warriors':['GSW','#1d428a','G'],'Chicago Bulls':['CHI','#ce1141','BULLS'],
+ 'Miami Heat':['MIA','#98002e','🔥'],'New York Knicks':['NYK','#f58426','NY'],'Philadelphia 76ers':['PHI','#006bb6','76'],'Milwaukee Bucks':['MIL','#00471b','M'],
+ 'Denver Nuggets':['DEN','#0e2240','DEN'],'Phoenix Suns':['PHX','#1d1160','☀'],'Dallas Mavericks':['DAL','#00538c','M'],'San Antonio Spurs':['SAS','#c4ced4','SAS'],
+ 'Houston Rockets':['HOU','#ce1141','R'],'Cleveland Cavaliers':['CLE','#6f263d','C'],'Detroit Pistons':['DET','#c8102e','D'],'Atlanta Hawks':['ATL','#e03a3e','A'],
+ 'Brooklyn Nets':['BKN','#111111','B'],'Toronto Raptors':['TOR','#ce1141','R'],'Indiana Pacers':['IND','#002d62','P'],'Orlando Magic':['ORL','#0077c0','M'],
+ 'Minnesota Timberwolves':['MIN','#0c2340','W'],'Oklahoma City Thunder':['OKC','#007ac1','OKC'],'Portland Trail Blazers':['POR','#e03a3e','P'],'Sacramento Kings':['SAC','#5a2d81','S'],
+ 'Utah Jazz':['UTA','#002b5c','J'],'Memphis Grizzlies':['MEM','#5d76a9','M'],'New Orleans Pelicans':['NOP','#0c2340','P'],'Charlotte Hornets':['CHA','#1d1160','H'],
+ 'Washington Wizards':['WAS','#002b5c','W'],'LA Clippers':['LAC','#c8102e','LAC']
+ };
+ function teamCrest(name,large=false){
+  const [abbr,color,mark]=nbaTeamStyle[name]||[String(name).slice(0,3).toUpperCase(),'#334155','NBA'];
+  return `<div class="nbaCrest ${large?'nbaCrestLarge':''}" style="--crest:${color}"><span>${mark}</span><b>${abbr}</b></div>`;
+ }
+ const playerHeadshots={
+ 'LeBron James':2544,'Stephen Curry':201939,'Luka Dončić':1629029,'Nikola Jokić':203999,'Michael Jordan':893,
+ 'Kyrie Irving':202681,'Jamal Murray':1627750,'Shai Gilgeous-Alexander':1628983,'Jayson Tatum':1628369,
+ 'Kevin Durant':201142,'Giannis Antetokounmpo':203507,'Anthony Edwards':1630162,'Joel Embiid':203954,
+ 'Magic Johnson':77142,'Kareem Abdul-Jabbar':76003,'Tim Duncan':1495,'Klay Thompson':202691,
+ 'Paul Pierce':1718,'Ray Allen':951,'Dwyane Wade':2548,'Scottie Pippen':937,'Dennis Rodman':23
+ };
+ function playerPortrait(player){
+  const id=playerHeadshots[player?.name];
+  if(id)return `<img class="mvpPortrait" src="https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png" alt="${escapeDraftText(player.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`;
+  return '';
+ }
+ function playerMvpCard(){
+  const players=positions.map(pos=>state.picked[pos]).filter(Boolean);
+  const mvp=[...players].sort((a,b)=>(state.playoffGamePlayerPts[b.name]||0)-(state.playoffGamePlayerPts[a.name]||0))[0];
+  if(!mvp)return '';
+  const pts=state.playoffGamePlayerPts[mvp.name]||0;
+  const photo=playerPortrait(mvp);
+  return `<div class="mvpFeature"><div class="mvpGlow"></div><div class="mvpLabel">⭐ PLAYER OF THE GAME ⭐</div><div class="mvpPhotoWrap">${photo}<div class="mvpFallback" ${photo?'style="display:none"':''}>🏀<b>${escapeDraftText(mvp.name.split(' ').map(x=>x[0]).join('').slice(0,3))}</b></div></div><div class="mvpTag">MVP</div><h2>${escapeDraftText(mvp.name)}</h2><div class="mvpBigStat">${pts}<small>POINTS</small></div><div class="mvpExtraStats"><span>${mvp.ovr} OVR</span><span>${mvp.pos}</span><span>${state.playoffGamePlayerPts[mvp.name]||0} PTS</span></div></div>`;
+ }
+ function currentPlayoffOpponent(){ensurePlayoffOpponents();return state.playoffOpponents[state.playoffRound]||'NBA All-Stars'}
+ function addRandomPlayerPoints(total){
+  const players=positions.map(pos=>state.picked[pos]).filter(Boolean);
+  if(!players.length)return;
+  const weights=players.map(p=>Math.max(1,Number(p.ovr)||70)*(0.75+Math.random()*0.5));
+  const weightSum=weights.reduce((a,b)=>a+b,0);
+  let remaining=total;
+  players.forEach((p,i)=>{
+   const pts=i===players.length-1?remaining:Math.min(remaining,Math.round(total*weights[i]/weightSum));
+   remaining-=pts;
+   state.playoffPlayerStats[p.name]=(state.playoffPlayerStats[p.name]||0)+pts;
+   state.playoffGamePlayerPts[p.name]=(state.playoffGamePlayerPts[p.name]||0)+pts;
+  });
+ }
+ function renderPlayoffPlayerStats(){
+  const rows=positions.map(pos=>state.picked[pos]).filter(Boolean).map(p=>({name:p.name,pos:p.pos,pts:state.playoffPlayerStats[p.name]||0}));
+  rows.sort((a,b)=>b.pts-a.pts);
+  return `<div class="draftTile playoffStats"><div class="eyebrow">PLAYOFF PLAYER STATS</div><h3>📊 TOP SCORERS</h3><div class="playoffStatRows">${rows.map((p,i)=>`<div class="playoffStatRow"><span class="playoffRank">${i+1}</span><span class="playoffPlayerName"><b>${escapeDraftText(p.name)}</b><small>${p.pos}</small></span><strong>${p.pts} PTS</strong></div>`).join('')}</div><small class="muted">Randomly generated player points · cumulative playoff total</small></div>`;
+ }
+ const playoffRounds=[
+  {name:'QUARTER-FINALS',opponent:'Quarter-final opponent'},
+  {name:'SEMI-FINALS',opponent:'Semi-final opponent'},
+  {name:'FINALS',opponent:'Final opponent'}
+ ];
+ function renderChampion(){
+  const playoffMvp=positions.map(pos=>state.picked[pos]).filter(Boolean).sort((a,b)=>(state.playoffPlayerStats[b.name]||0)-(state.playoffPlayerStats[a.name]||0))[0];
+  stage.innerHTML=`<div class="championCelebration"><div class="fireworks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="championContent"><div class="championTrophy">🏆</div><div class="eyebrow">NBA CHAMPIONS</div><h2>YOU ARE THE CHAMPION!</h2><p>You won the Finals ${state.seriesW}–${state.seriesL} and conquered the playoffs.</p><div class="championConfetti">🎆 ✨ 🎇 ✨ 🎆</div>${playoffMvp?`<div class="championTournamentMvp">${playerPortrait(playoffMvp)}<b>PLAYOFF MVP</b><strong>${escapeDraftText(playoffMvp.name)}</strong><span>${state.playoffPlayerStats[playoffMvp.name]||0} TOTAL POINTS</span></div>`:''}<button class="primary" id="newDraft">NEW DRAFT</button></div></div>`;
+  $('newDraft').onclick=()=>{resetDraft();renderDraft()};
+ }
+ function renderHalftime(){
+  state.halftimeUsed=true;
+  stage.innerHTML=`<div class="halftimeHero"><div class="eyebrow">HALFTIME · LOCKER ROOM</div><h2>THE SECOND HALF STARTS NOW</h2><p>Choose what you want to say to the team. The players' reaction will be revealed after your choice.</p><div class="halftimeScore"><span>${state.gamePts}</span><b>HALF-TIME</b><span>${state.oppPts}</span></div></div>
+  <div class="speechGrid">
+   <button class="speechCard speechGood" data-speech="inspire"><span class="speechIcon">🔥</span><b>LIGHT A FIRE</b><small>“We belong here. Leave everything on this court!”</small></button>
+   <button class="speechCard speechTactic" data-speech="tactic"><span class="speechIcon">🧠</span><b>TACTICAL TALK</b><small>“Stay disciplined. Move the ball and trust the system.”</small></button>
+   <button class="speechCard speechRisk" data-speech="tough"><span class="speechIcon">💢</span><b>HARD TRUTH</b><small>“This effort isn't good enough. Wake up!”</small></button>
+  </div>`;
+  stage.querySelectorAll('[data-speech]').forEach(btn=>btn.onclick=()=>{
+   const choice=btn.dataset.speech;
+   let title='',message='',result='';
+   if(choice==='inspire'){
+    state.morale=Math.min(5,state.morale+3);state.halftimeBoost=8;
+    title='THE TEAM IS FIRED UP!';message='Your speech brought the group together. The players are responding with energy.';result='TEAM MORALE INCREASED · SECOND-HALF BOOST';
+   }else if(choice==='tactic'){
+    state.morale=Math.min(5,state.morale+2);state.halftimeBoost=5;
+    title='THE TEAM BOUGHT INTO THE PLAN';message='The players look focused and ready to execute.';result='TEAM MORALE INCREASED · TACTICAL BOOST';
+   }else{
+    state.morale=Math.max(-5,state.morale-3);state.halftimeBoost=-5;
+    title='THE SPEECH BACKFIRED';message='The criticism hurt the mood in the locker room. The team looks less confident.';result='TEAM MORALE DROPPED · PERFORMANCE PENALTY';
+   }
+   stage.innerHTML=`<div class="halftimeResult"><div class="eyebrow">LOCKER ROOM REACTION</div><div class="halftimeReactionIcon">${choice==='inspire'?'🔥':choice==='tactic'?'🧠':'💢'}</div><h2>${title}</h2><p>${message}</p><strong>${result}</strong><button class="primary" id="backToGame" style="width:100%;margin-top:18px">BACK TO THE COURT</button></div>`;
+   $('backToGame').onclick=renderPlayoff;
+  });
+ }
+ function renderGameRecap(){
+  const won=state.gamePts>state.oppPts;
+  const mvp=positions.map(pos=>state.picked[pos]).filter(Boolean).sort((a,b)=>(state.playoffGamePlayerPts[b.name]||0)-(state.playoffGamePlayerPts[a.name]||0))[0];
+  const mvpPts=mvp?(state.playoffGamePlayerPts[mvp.name]||0):0;
+  const box=positions.map(pos=>state.picked[pos]).filter(Boolean).sort((a,b)=>(state.playoffGamePlayerPts[b.name]||0)-(state.playoffGamePlayerPts[a.name]||0));
+  stage.innerHTML=`<div class="gameRecapHero"><div class="eyebrow">${roundNameSafe()} · GAME ${state.game} FINAL</div><div class="recapScore"><div>${teamCrest(state.franchiseTeam||state.team?.team)}<b>${state.gamePts}</b><small>${escapeDraftText(state.franchiseTeam||state.franchiseTeam||state.team?.team||'YOUR TEAM')}</small></div><span>—</span><div>${teamCrest(currentPlayoffOpponent())}<b>${state.oppPts}</b><small>${escapeDraftText(currentPlayoffOpponent())}</small></div></div><h2>${won?'BIG WIN!':'TOUGH LOSS'}</h2><p>Series now ${state.seriesW}–${state.seriesL}</p></div>
+   ${playerMvpCard()}
+   <div class="draftTile"><div class="eyebrow">FULL BOX SCORE</div><h3>PLAYER POINTS</h3>${box.map((p,i)=>`<div class="playoffStatRow"><span class="playoffRank">${i+1}</span><span class="playoffPlayerName"><b>${escapeDraftText(p.name)}</b><small>${p.pos}</small></span><strong>${state.playoffGamePlayerPts[p.name]||0} PTS</strong></div>`).join('')}</div>
+   <button class="primary" id="continuePlayoff" style="width:100%;margin-top:12px">CONTINUE PLAYOFFS</button>`;
+  $('continuePlayoff').onclick=()=>{
+   if(state.seriesW===4||state.seriesL===4){finishPlayoffSeries();return}
+   state.game++;state.quarter=1;state.gamePts=0;state.oppPts=0;state.boost=false;state.halftimeUsed=false;state.halftimeBoost=0;state.playoffGamePlayerPts={};renderPlayoff();
+  };
+ }
+ function roundNameSafe(){return playoffRounds[state.playoffRound]?.name||'PLAYOFFS'}
+ function finishPlayoffSeries(){
+  const won=state.seriesW===4;
+  const round=playoffRounds[state.playoffRound];
+  if(!won){
+   stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">${round.name} · ELIMINATED</div><h3>PLAYOFFS OVER</h3><small>You lost the series ${state.seriesW}–${state.seriesL}</small></div><div style="font-size:40px">💔</div></div><button class="primary" id="newDraft" style="width:100%">NEW DRAFT</button>`;
+   $('newDraft').onclick=()=>{resetDraft();renderDraft()};
+   return;
+  }
+  if(state.playoffRound===2){renderChampion();return}
+  const next=playoffRounds[state.playoffRound+1];
+  stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">${round.name} · SERIES WON</div><h3>YOU ADVANCE!</h3><small>vs. ${currentPlayoffOpponent()} · Series result ${state.seriesW}–${state.seriesL}</small></div><div style="font-size:40px">🏆</div></div><div class="draftTile"><h3>NEXT UP: ${next.name}</h3><p>Your next opponent: <b>${state.playoffOpponents[state.playoffRound+1]}</b>. You are one step closer to the NBA championship.</p><button class="primary" id="nextPlayoffRound" style="width:100%">START ${next.name}</button></div>`;
+  $('nextPlayoffRound').onclick=()=>{state.playoffRound++;state.seriesW=0;state.seriesL=0;state.game=1;state.quarter=1;state.gamePts=0;state.oppPts=0;state.boost=false;renderPlayoff()};
+ }
+ function renderPlayoff(){
+  const round=playoffRounds[state.playoffRound];
+  stage.innerHTML=`<div class="playoffHero"><div class="playoffHeroTop"><span>NBA PLAYOFFS</span><b>${round.name}</b></div><div class="playoffMatchup"><div class="playoffSide">${teamCrest(state.franchiseTeam||state.team?.team,true)}<strong>${escapeDraftText(state.franchiseTeam||state.franchiseTeam||state.team?.team||'YOUR TEAM')}</strong><small>YOUR SQUAD</small></div><div class="playoffVs"><span>GAME ${state.game}</span><b>VS</b><small>BEST OF 7</small></div><div class="playoffSide">${teamCrest(currentPlayoffOpponent(),true)}<strong>${escapeDraftText(currentPlayoffOpponent())}</strong><small>NBA OPPONENT</small></div></div><div class="playoffSeriesLine">SERIES <b>${state.seriesW} – ${state.seriesL}</b><span>${state.morale>=2?'🔥 HIGH MORALE':state.morale<=-2?'⚠️ LOW MORALE':'TEAM MORALE: '+(state.morale>=0?'GOOD':'SHAKY')}</span></div></div>
+  <div class="draftScoreboard"><div class="draftScore">YOUR TEAM<b>${state.gamePts}</b></div><div class="draftScore">OPPONENT<b>${state.oppPts}</b></div></div>
+  <div class="draftTile" style="margin-top:10px"><h3>QUARTER ${state.quarter}</h3><p>Simulate this quarter. Use your one boost in any quarter of this game to improve your chance of a big scoring run.</p><div class="draftActions"><button class="primary" id="simulateQuarter">SIMULATE QUARTER</button><button class="secondary" id="useBoost" ${state.boost?'disabled':''}>🔥 USE BOOST</button></div></div>
+  ${renderPlayoffPlayerStats()}`;
+  $('useBoost').onclick=()=>{state.boost=true;$('useBoost').disabled=true;$('useBoost').textContent='BOOST USED'};
+  $('simulateQuarter').onclick=()=>{
+   const moraleBonus=state.quarter>=3?state.halftimeBoost:0;
+   const own=Math.max(5,Math.floor(Math.random()*31)+10+(state.boost?Math.floor(Math.random()*15)+1:0)+moraleBonus);
+   const opp=Math.max(5,Math.floor(Math.random()*31)+10+(state.quarter>=3&&state.morale<0?Math.floor(Math.random()*5):0));
+   state.gamePts+=own;state.oppPts+=opp;addRandomPlayerPoints(own);state.quarter++;
+   if(state.quarter===3&&!state.halftimeUsed){renderHalftime();return}
+   if(state.quarter<=4){renderPlayoff();return}
+   if(state.gamePts===state.oppPts){state.gamePts+=1;}
+   if(state.gamePts>state.oppPts)state.seriesW++;else state.seriesL++;
+   if(state.seriesW===4||state.seriesL===4){renderGameRecap();return}
+   renderGameRecap();
+  };
+ }
+ $('draftModeBtn').addEventListener('click',()=>{ $('modeMenu').classList.add('hidden');overlay.classList.remove('hidden');menu()});
+ $('threePtMode').addEventListener('click',()=>{$('modeMenu').classList.add('hidden');$('threePtMenu').classList.remove('hidden')});
+ $('threePtBackMenu').addEventListener('click',()=>{$('threePtMenu').classList.add('hidden');$('modeMenu').classList.remove('hidden')});
+ $('fantasyModeBtn').addEventListener('click',()=>{});
+ $('draftBackMenu').addEventListener('click',()=>{overlay.classList.add('hidden');$('modeMenu').classList.remove('hidden')});
+})();
+</script>
+
+
+<script>
+/* v0.25 navigation fix: close the 3PT submenu before launching any selected feature.
+   The submenu had a higher z-index than the game screens and intercepted all clicks. */
+document.addEventListener('DOMContentLoaded', function () {
+  const submenu = document.getElementById('threePtMenu');
+  if (!submenu) return;
+  submenu.addEventListener('click', function (event) {
+    const button = event.target.closest('button');
+    if (!button || button.id === 'threePtBackMenu' || button.disabled) return;
+    submenu.classList.add('hidden');
+  }, true);
+});
+</script>
 </body></html>
