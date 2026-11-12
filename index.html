@@ -71,6 +71,18 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
     flex:0 0 auto;
   }
 }
+
+#badgeCollectionModal,#specialChallengeModal,#dailyPreviewModal{z-index:45}
+#badgeCollectionModal .modal,#specialChallengeModal .modal,#dailyPreviewModal .modal{max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}\n.challengeOptions{display:grid;gap:8px;margin-top:14px}
+.challengeOption{display:flex;align-items:center;gap:11px;text-align:left;background:#0c1828;color:#f6f8fc;border:1px solid #ffffff22;padding:12px;border-radius:12px;width:100%}
+.challengeOption .cIcon{font-size:25px;width:34px;text-align:center}
+.challengeOption b{display:block;font-size:12px}
+.challengeOption small{display:block;color:#a8b6c8;font-size:10px;margin-top:3px;font-weight:500}
+.dailyBanner{margin:10px 0;padding:12px;border:1px solid #ffd16688;border-radius:12px;background:linear-gradient(120deg,#273a50,#59451f);text-align:center}
+.dailyBanner b{display:block;color:#ffd166;letter-spacing:2px;font-size:10px}
+.dailyBanner strong{display:block;font-size:19px;margin:5px 0}
+.dailyBanner small{color:#e6edf7}
+
 </style>
 <style>
 #modeMenu{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 0%,#294966,#07111f 70%);display:flex;align-items:center;justify-content:center;padding:18px}
@@ -119,7 +131,40 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </aside>
 </div></div>
 
-<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKET <span style="color:#f28c28">3PT</span><br>CHALLENGE</h1><p>NBA EDITION · FIVE RACKS · TWENTY-FIVE SHOTS</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button><button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button><button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button><button class="secondary" id="leaderboardOpen">🏆 ALL-TIME LEADERBOARD</button></div></div></div>
+<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKET <span style="color:#f28c28">3PT</span><br>CHALLENGE</h1><p>NBA EDITION · FIVE RACKS · TWENTY-FIVE SHOTS</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button><button class="primary" id="dailyChallengeBtn">📅 DAILY CHALLENGE</button><button class="secondary" id="specialChallengesBtn">⚡ SPECIAL CHALLENGES</button><button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button><button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button><button class="secondary" id="badgeCollectionOpen">🎖️ MY BADGE COLLECTION</button><button class="secondary" id="leaderboardOpen">🏆 ALL-TIME LEADERBOARD</button></div></div></div>
+
+
+<div class="overlay hidden" id="badgeCollectionModal">
+ <div class="modal">
+  <div class="eyebrow">YOUR PLAYER PROFILE</div>
+  <h2>🎖️ BADGE COLLECTION</h2>
+  <div id="badgeCollectionContent"></div>
+  <button class="secondary" id="badgeCollectionClose" style="width:100%;margin-top:12px">BACK TO MENU</button>
+ </div>
+</div>
+
+
+<div class="overlay hidden" id="dailyPreviewModal">
+ <div class="modal">
+  <div class="eyebrow">TODAY'S ARENA EVENT · <span id="dailyPreviewDate"></span></div>
+  <h2 id="dailyPreviewTitle">📅 DAILY CHALLENGE</h2>
+  <p id="dailyPreviewDesc"></p>
+  <div class="dailyBanner"><b>TODAY'S RULES</b><strong id="dailyPreviewRule"></strong><small id="dailyPreviewPlayer"></small></div>
+  <button class="primary" id="dailyPreviewStart">START DAILY CHALLENGE</button>
+  <button class="secondary" id="dailyPreviewBack" style="width:100%;margin-top:10px">BACK TO MENU</button>
+ </div>
+</div>
+
+<div class="overlay hidden" id="specialChallengeModal">
+ <div class="modal">
+  <div class="eyebrow">ARCADE MODE · PICK YOUR CHALLENGE</div>
+  <h2>⚡ SPECIAL CHALLENGES</h2>
+  <p>Poseben način igranja z drugačnimi pravili. Vsak poskus šteje!</p>
+  <div id="specialChallengeOptions" class="challengeOptions"></div>
+  <button class="secondary" id="specialChallengeBack" style="width:100%;margin-top:12px">BACK TO MENU</button>
+ </div>
+</div>
+
 <div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button></div></div>
 <div class="overlay hidden" id="draft"><div class="modal"><div class="eyebrow">PLAYER DRAFT · 3 PICKS</div><h2>Choose your shooter</h2><p id="draftPrompt">You have three random players to choose from. Pick your weapon.</p><div class="candidategrid" id="candidateGrid"></div></div></div>
 <div class="overlay hidden" id="between"><div class="modal"><div class="eyebrow" id="betweenEyebrow">ROUND COMPLETE</div><h2 id="betweenTitle">PLAYER 1 takes the round!</h2><p id="betweenText">Pass the phone to the next shooter.</p><div class="endbuttons"><button class="primary" id="nextTurn">NEXT PLAYER</button><button class="secondary" id="betweenMenu">MAIN MENU</button></div></div></div>
@@ -444,6 +489,221 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   requireName(document.getElementById('createRoom'),online);
   requireName(document.getElementById('joinRoom'),online);
   requireName(document.getElementById('localStart'),online);
+})();
+</script>
+
+
+<script>
+/* v0.19: Daily Challenge, local Daily Streak, Achievement Collection, Special Challenges */
+(()=>{
+ const $=id=>document.getElementById(id);
+ if(!$('dailyChallengeBtn')||!$('shootBtn'))return;
+
+ const DAY_KEY=()=>new Date().toLocaleDateString('en-CA');
+ const profile=()=>String(names?.[0]||$('menuNick')?.value||'').trim().toLowerCase().slice(0,16);
+ const storeKey=kind=>'basket3pt_'+kind+'_'+(profile()||'guest');
+ const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(e){return fallback}};
+ const write=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch(e){}};
+ let activeMode='normal',activeChallenge=null,modeShotStart=0,modeMadeStart=0,challengeSummary='';
+
+ const dailyChallenges=[
+  {id:'clutch',icon:'⏱️',name:'CLUTCH SHOOTER',desc:'Zaključi močno! Zadnjih pet metov je lažjih.',rule:'Zadnjih 5 metov: +25 odstotnih točk.',player:'Dnevni igralec se izbere za vse enako.'},
+  {id:'money',icon:'💰',name:'MONEYBALL MADNESS',desc:'Danes so moneyballi še posebej pomembni.',rule:'Vsak zadeti moneyball prinese dodatno točko.',player:'Vsak peti met je moneyball.'},
+  {id:'streak',icon:'🔥',name:'HOT HAND',desc:'Ujemi ritem in zadeni več zapored.',rule:'Niz zadetkov prinaša dodaten bonus možnosti zadetka.',player:'Izberi svojega strelca.'},
+  {id:'steady',icon:'🎯',name:'PURE SHOOTING',desc:'Brez naključnih olajšav – samo natančnost.',rule:'Brez naključnega HOT ZONE bonusa.',player:'Izberi svojega strelca.'},
+  {id:'double',icon:'✨',name:'DOUBLE POINTS',desc:'Vsak koš šteje dvojno.',rule:'Vsak zadetek prinese 2 točki.',player:'Izberi svojega strelca.'},
+  {id:'comeback',icon:'🚀',name:'SECOND HALF',desc:'Najboljše prihrani za konec.',rule:'Zadnjih 10 metov: +18 odstotnih točk.',player:'Izberi svojega strelca.'},
+  {id:'midrange',icon:'🎯',name:'MID-RANGE MASTER',desc:'Danes zapustimo črto za tri točke in mečemo z razdalje sredine.',rule:'Mid-range challenge: večja osnovna možnost zadetka, 25 metov.',player:'Luka Dončić in Stephen Curry dobita posebne mid-range ocene.'}
+ ];
+ const specials=[
+  {id:'sudden',icon:'☠️',name:'SUDDEN DEATH',desc:'Prvi zgrešeni met konča izziv.',rule:'Igra se konča ob prvem zgrešenem metu.'},
+  {id:'perfect',icon:'💯',name:'PERFECT RACK',desc:'Zadeni vseh pet metov v vsakem racku.',rule:'Cilj: pet zaporednih zadetkov v vsakem racku.'},
+  {id:'double',icon:'✨',name:'DOUBLE TROUBLE',desc:'Vsak zadetek šteje dvojno.',rule:'Vsi zadetki so vredni 2 točki.'},
+  {id:'clutch',icon:'⏱️',name:'CLUTCH MODE',desc:'Zadnjih pet metov odloči vse.',rule:'Zadnjih 5 metov: +25 odstotnih točk.'},
+  {id:'noboost',icon:'🧊',name:'NO BOOST',desc:'Brez naključnih bonusov.',rule:'Brez naključnega HOT ZONE bonusa.'},
+  {id:'hot',icon:'🔥',name:'HOT HAND',desc:'Nizi zadetkov prinašajo večji bonus.',rule:'Dodaten bonus za vsak zadetek v nizu.'},
+  {id:'midrange',icon:'🎯',name:'MID-RANGE MASTER',desc:'Meti z razdalje sredine.',rule:'Mid-range ocene igralcev; Curry in Dončić sta med najboljšimi.'}
+ ];
+ const dateCode=()=>{let d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()};
+ const daily=()=>dailyChallenges[dateCode()%dailyChallenges.length];
+ let pendingDaily=daily();
+ function launch(mode,challenge){
+  const nick=String($('menuNick').value||'').trim();
+  if(!nick){$('menuNick').focus();$('menuNick').placeholder='Please enter your nickname';return}
+  activeMode=mode;activeChallenge=challenge||null;challengeSummary='';
+  soloMode=true;remoteMode=false;names=[nick,'—'];wins=[0,0];round=1;turn=0;roundScores=[null,null];
+  $('modeMenu').classList.add('hidden');$('setup').classList.add('hidden');
+  $('specialChallengeModal').classList.add('hidden');$('dailyPreviewModal').classList.add('hidden');
+  $('roomBanner').classList.add('hidden');
+  beginTurn();
+ }
+ function drawSpecials(){
+  const host=$('specialChallengeOptions');host.innerHTML='';
+  const completed=read(storeKey('special_completed'),[]);
+  const progress=document.createElement('div');progress.className='dailyBanner';
+  progress.innerHTML='<b>CHALLENGE COLLECTION</b><strong>'+completed.length+'/'+specials.length+' COMPLETED</strong><small>Dokončaj različne izzive in zberi vse značke.</small>';
+  host.append(progress);
+  specials.forEach(c=>{
+   const done=completed.includes(c.id);
+   const b=document.createElement('button');b.className='challengeOption';
+   b.innerHTML='<span class="cIcon">'+c.icon+'</span><span style="flex:1"><b>'+c.name+(done?' ✓':'')+'</b><small>'+c.desc+'</small></span><small>'+(done?'COMPLETED':'PLAY')+'</small>';
+   b.onclick=()=>launch('special',c);host.appendChild(b);
+  });
+  $('specialChallengeModal').classList.remove('hidden');
+ }
+ $('dailyChallengeBtn').addEventListener('click',()=>{
+  pendingDaily=daily();
+  $('dailyPreviewDate').textContent=DAY_KEY();
+  $('dailyPreviewTitle').textContent=pendingDaily.icon+' '+pendingDaily.name;
+  $('dailyPreviewDesc').textContent=pendingDaily.desc;
+  $('dailyPreviewRule').textContent=pendingDaily.rule;
+  $('dailyPreviewPlayer').textContent=pendingDaily.player||'Izberi svojega strelca.';
+  $('dailyPreviewModal').classList.remove('hidden');
+ });
+ $('dailyPreviewStart').addEventListener('click',()=>launch('daily',pendingDaily));
+ $('dailyPreviewBack').addEventListener('click',()=>$('dailyPreviewModal').classList.add('hidden'));
+ $('specialChallengesBtn').addEventListener('click',drawSpecials);
+ $('specialChallengeBack').addEventListener('click',()=>$('specialChallengeModal').classList.add('hidden'));
+ $('badgeCollectionOpen').addEventListener('click',()=>{
+  const nick=String($('menuNick').value||'').trim();
+  if(!nick){$('menuNick').focus();$('menuNick').placeholder='Enter your nickname first';return}
+  names[0]=nick;
+  const data=getCollection(),st=streakData(),host=$('badgeCollectionContent');
+  host.innerHTML='<div class="dailyBanner"><b>🔥 DAILY STREAK</b><strong>'+st.count+' DAY(S)</strong><small>Best streak: '+st.best+' · Last played: '+(st.last||'Not yet')+'</small></div>';
+  appendCollection(host);
+  $('badgeCollectionModal').classList.remove('hidden');
+ });
+ $('badgeCollectionClose').addEventListener('click',()=>$('badgeCollectionModal').classList.add('hidden'));
+ // Selecting the standard solo/local modes exits any previous challenge rules.
+ $('soloMode').addEventListener('click',()=>{activeMode='normal';activeChallenge=null});
+ $('localMode').addEventListener('click',()=>{activeMode='normal';activeChallenge=null});
+
+ // Challenge-aware shot logic wraps the existing game logic, retaining all original effects.
+ const previousShoot=shoot;
+ shoot=function(){
+  if(!activeMode||activeMode==='normal')return previousShoot();
+  if(locked||shot>=25||!player)return previousShoot();
+  const beforeShot=shot,beforeScore=score,beforeMade=made;
+  const p=player,originalPct=p.pct;
+  let boost=0;
+  const id=activeChallenge?.id;
+  if(id==='midrange'){
+   const midRangeRatings={'Stephen Curry':91,'Luka Dončić':90,'Kevin Durant':89,'Devin Booker':88,'Kyrie Irving':90,'Jayson Tatum':84,'Damian Lillard':86,'Klay Thompson':85};
+   p.pct=midRangeRatings[p.name]||Math.min(86,Math.max(76,Math.round(originalPct*1.9)));
+  }
+  if((activeMode==='daily'&&id==='clutch')||(activeMode==='special'&&id==='clutch')){if(shot>=20)boost=25}
+  if(activeMode==='daily'&&id==='comeback'&&shot>=15)boost=18;
+  if((activeMode==='daily'&&id==='streak')||(activeMode==='special'&&id==='hot'))boost=Math.min(24,Math.max(0,streak)*5);
+  if(id==='midrange')$('playerPct').textContent=p.pct.toFixed(1)+'% MID-RANGE';
+  if(boost)p.pct=Math.min(99.5,p.pct+boost);
+  const oldRandom=Math.random;
+  if((activeMode==='daily'&&id==='steady')||(activeMode==='special'&&id==='noboost')){
+    // The base game uses Math.random for its random boost and shot roll; keep shot roll random,
+    // but neutralize only the first random draw used for the boost.
+    let first=true;Math.random=()=>{if(first){first=false;return .99}return oldRandom()};
+  }
+  try{previousShoot()}finally{p.pct=originalPct;Math.random=oldRandom}
+  if(shot>beforeShot&&made>beforeMade){
+   if((activeMode==='daily'&&id==='double')||(activeMode==='special'&&id==='double'))score+=1;
+   if(activeMode==='daily'&&id==='money'&&beforeShot%5===4)score+=1;
+   update();
+  }
+  // Sudden death ends cleanly on the first miss while keeping shot history accurate.
+  if(activeMode==='special'&&id==='sudden'&&shot>beforeShot&&results.length&&results[results.length-1]===false){
+    locked=true;$('shootBtn').disabled=true;
+    $('status').textContent='SUDDEN DEATH · FIRST MISS';
+    setTimeout(()=>endTurn(),450);
+  }
+ };
+
+ function streakData(){return read(storeKey('daily_streak'),{last:'',count:0,best:0,freezeUsed:''})}
+ function updateDailyStreak(){
+  const today=DAY_KEY(),data=streakData();
+  if(data.last===today)return data;
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const y=yesterday.toLocaleDateString('en-CA');
+  data.count=data.last===y?data.count+1:1;data.best=Math.max(data.best||0,data.count);data.last=today;
+  write(storeKey('daily_streak'),data);return data;
+ }
+ const collection=[
+  ['daily1','📅','DAILY DEBUT','Complete your first Daily Challenge.'],
+  ['streak3','🔥','3-DAY STREAK','Play Daily Challenge 3 days in a row.'],
+  ['streak7','🌟','WEEK WARRIOR','Play Daily Challenge 7 days in a row.'],
+  ['suddenWin','☠️','ICE NERVES','Score at least 15 points in Sudden Death.'],
+  ['special3','⚡','CHALLENGE HUNTER','Complete 3 different Special Challenges.'],
+  ['daily20','🎯','DAILY ELITE','Score 20+ points in a Daily Challenge.'],
+  ['dailyPerfect','💯','PERFECT DAY','Make 25/25 in a Daily Challenge.'],
+  ['comeback','🚀','CLUTCH FINISH','Score 8+ points in the final 5 shots.'],
+  ['perfectRack','💯','PERFECT RACK','Make all 5 shots in every rack in Perfect Rack challenge.'],
+  ['midrange20','🎯','MID-RANGE ACE','Score 20+ points in Mid-Range Master.']
+ ];
+ function getCollection(){return read(storeKey('collection'),{})}
+ function unlockCollection(id){
+  const data=getCollection();if(data[id])return;
+  data[id]=true;write(storeKey('collection'),data);
+  const item=collection.find(x=>x[0]===id);if(!item)return;
+  const toast=$('achievementToast');if(toast){$('achievementToastName').textContent=item[1]+' '+item[2];$('achievementToastDesc').textContent=item[3];toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2600)}
+ }
+ function appendCollection(parent){
+  const data=getCollection(),panel=document.createElement('div');panel.className='achievementPanel';
+  panel.innerHTML='<h3>🏅 ACHIEVEMENT COLLECTION · '+collection.filter(x=>data[x[0]]).length+'/'+collection.length+'</h3><div class="achievementGrid">'+collection.map(x=>'<div class="achievementItem '+(data[x[0]]?'unlocked':'locked')+'"><div class="aIcon">'+x[1]+'</div><b>'+x[2]+(data[x[0]]?' ✓':'')+'</b><small>'+x[3]+'</small></div>').join('')+'</div>';
+  parent.append(panel);
+ }
+ function renderChallengeResult(){
+  const host=$('betweenText');if(!host)return;
+  const madeShots=made,pts=score,hits=results.filter(Boolean).length;
+  if(activeMode==='daily'){
+   const data=updateDailyStreak();unlockCollection('daily1');
+   if(data.count>=3)unlockCollection('streak3');if(data.count>=7)unlockCollection('streak7');
+   if(pts>=20)unlockCollection('daily20');if(hits===25)unlockCollection('dailyPerfect');
+   const box=document.createElement('div');box.className='dailyBanner';
+   box.innerHTML='<b>📅 DAILY CHALLENGE COMPLETE</b><strong>'+pts+' PTS · '+hits+'/25 MADE</strong><small>🔥 Daily streak: '+data.count+' day(s) · Best: '+data.best+'</small>';
+   host.append(box);
+  }
+  if(activeMode==='special'){
+   const done=read(storeKey('special_completed'),[]);
+   if(!done.includes(activeChallenge.id)){done.push(activeChallenge.id);write(storeKey('special_completed'),done)}
+   const progressBox=document.createElement('div');progressBox.className='dailyBanner';
+   progressBox.innerHTML='<b>⚡ SPECIAL CHALLENGE COLLECTION</b><strong>'+done.length+'/'+specials.length+' COMPLETED</strong><small>'+done.length+' unique challenges finished on this device.</small>';
+   host.append(progressBox);
+   if(activeChallenge.id==='perfect'&&[0,1,2,3,4].every(r=>results.slice(r*5,r*5+5).every(Boolean)))unlockCollection('perfectRack');
+   if(activeChallenge.id==='midrange'&&pts>=20)unlockCollection('midrange20');
+   if(done.length>=3)unlockCollection('special3');
+   if(activeChallenge.id==='sudden'&&pts>=15)unlockCollection('suddenWin');
+  }
+  const lastFive=results.slice(-5).filter(Boolean).length;
+  if(lastFive>=4)unlockCollection('comeback');
+  appendCollection(host);
+ }
+ const previousEnd=endTurn;
+ endTurn=function(){
+  const mode=activeMode,challenge=activeChallenge;
+  previousEnd();
+  if(soloMode&&!remoteMode&&mode!=='normal'){
+   renderChallengeResult();
+   const title=$('betweenTitle');
+   if(title&&mode==='daily')title.textContent='DAILY CHALLENGE · '+score+' POINTS!';
+   if(title&&mode==='special')title.textContent=(challenge?.name||'SPECIAL CHALLENGE')+' COMPLETE!';
+  }
+ };
+ const oldBegin=beginTurn;
+ beginTurn=function(){
+  if(window.__dailyChallengeBanner){window.__dailyChallengeBanner.remove();window.__dailyChallengeBanner=null}
+  oldBegin();
+  modeShotStart=shot;modeMadeStart=made;
+  if(activeMode==='daily'&&activeChallenge){
+   let p;
+   if(activeChallenge.id==='midrange')p=(dateCode()%2===0)?players.find(x=>x.name==='Stephen Curry'):players.find(x=>x.name==='Luka Dončić');
+   else p=players[dateCode()%players.length];
+   $('draft').classList.add('hidden');
+   selectPlayer(p);
+   const b=document.createElement('div');b.className='dailyBanner';
+   b.innerHTML='<b>📅 DAILY CHALLENGE · '+DAY_KEY()+'</b><strong>'+activeChallenge.name+'</strong><small>'+activeChallenge.rule+'</small>';
+   $('feedback').insertAdjacentElement('afterend',b);
+   window.__dailyChallengeBanner=b;
+  }
+ };
+ // Sudden Death can end before shot 25; avoid waiting for the normal 25-shot timer.
 })();
 </script>
 
