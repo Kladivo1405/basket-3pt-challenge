@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827"><title>Basket 3PT Challenge</title>
+<style>
+:root{--bg:#0b1422;--panel:#17263a;--panel2:#20344c;--orange:#f28c28;--gold:#ffd166;--green:#42e695;--red:#ff647c;--muted:#a8b6c8;--white:#f6f8fc}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#334e6b 0,#0b1422 52%);color:var(--white);font-family:Arial,sans-serif;min-height:100vh}
+.wrap{max-width:1000px;margin:auto;padding:16px 14px 40px}.top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff20;padding:8px 2px 15px;gap:10px}.brand{font-size:24px;font-weight:1000;letter-spacing:1px}.brand span{color:var(--orange)}.topright{display:flex;gap:8px;align-items:center}.tag{font-size:10px;letter-spacing:2px;color:var(--muted)}
+button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:pointer;letter-spacing:.4px}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(135deg,#ffc05a,#ef791c);color:#261507;box-shadow:0 6px 20px #f28c2838}.secondary{background:#ffffff12;color:var(--white);border:1px solid #ffffff22}.smallbtn{padding:9px 11px;font-size:11px}
+.targetstrip{display:flex;align-items:center;gap:13px;background:#ffffff0b;border:1px solid #ffffff18;border-radius:10px;padding:9px 12px;margin:0 0 9px}
+.targetstrip small{display:block;font-size:8px;color:var(--muted);letter-spacing:1.2px;font-weight:900}
+.targetstrip b{display:block;font-size:21px;color:var(--gold);line-height:1.15}
+.targetdivider{height:30px;width:1px;background:#ffffff25}
+.targethint{margin-left:auto;text-align:right;color:var(--muted);font-size:10px}
+.candidategrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.candidate{background:#ffffff0b;border:1px solid #ffffff25;border-radius:12px;padding:12px 7px;color:var(--white);text-align:center;cursor:pointer;min-width:0}
+.candidate:hover{border-color:var(--orange);background:#f28c281c}
+.candidate strong{display:block;font-size:13px;line-height:1.2;margin:7px 0 5px}
+.candidate span{display:block;color:var(--muted);font-size:10px}
+.candidate em{display:block;color:var(--gold);font-style:normal;font-size:18px;font-weight:1000;margin-top:8px}
+.sound-on{color:var(--green)!important;border-color:#42e69566!important}
+.hero{text-align:center;padding:20px 0 15px}.eyebrow{font-size:10px;letter-spacing:3px;color:var(--orange);font-weight:900}h1{font-size:clamp(29px,7vw,48px);font-style:italic;margin:7px 0 4px;line-height:1}.subtitle{color:var(--muted);font-size:13px;margin:0}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.8fr);gap:14px;align-items:start}.panel{background:linear-gradient(145deg,#1b2d43,#142237);border:1px solid #ffffff1c;border-radius:17px;padding:15px;box-shadow:0 15px 36px #0003}.panel h3{font-size:13px;letter-spacing:1px;margin:0 0 12px}
+.scoreline{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:12px}.person{background:#ffffff09;border:1px solid #ffffff17;border-radius:12px;padding:11px}.person.active{border-color:var(--orange);box-shadow:0 0 0 1px #f28c2860 inset}.person .name{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.person .wins{font-size:25px;font-weight:1000;color:var(--gold);margin-top:4px}.person small{font-size:9px;color:var(--muted);letter-spacing:1px}.vs{font-size:11px;color:var(--muted);font-weight:900}
+.courtbox{padding:12px;background:#101c2c;border-radius:15px;border:1px solid #ffffff15}.court-title{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}.court-title strong{font-size:12px;letter-spacing:1px}.court-title span{font-size:10px;color:var(--muted)}
+.court{position:relative;height:300px;overflow:hidden;border-radius:10px;border:3px solid #e5a45e;background:repeating-linear-gradient(0deg,#bd7942 0px,#bd7942 28px,#c9874c 29px,#c9874c 56px);box-shadow:inset 0 0 0 2px #5a321e,inset 0 0 55px #63371680}
+.court:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.7%,#f5d3a2 50%,transparent 50.3%),linear-gradient(0deg,transparent 49.7%,#f5d3a2 50%,transparent 50.3%);opacity:.38}
+.centerline{position:absolute;left:50%;top:50%;width:100px;height:100px;transform:translate(-50%,-50%);border:2px solid #f7d8ad88;border-radius:50%}
+.key{position:absolute;left:50%;top:0;transform:translateX(-50%);height:88px;width:45%;border:2px solid #f7d8ad;background:#e9b77a38;border-top:0;border-radius:0 0 48% 48%}
+.hoop-area{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:110px;text-align:center;z-index:2}
+.backboard{width:54px;height:7px;background:#f7f7f7;border:1px solid #6a7888;margin:auto auto 3px;box-shadow:0 0 6px #fff8}
+.rim{width:39px;height:10px;border:3px solid #ed5b2c;border-top:0;border-radius:0 0 50% 50%;margin:auto;transition:filter .15s,box-shadow .15s,transform .15s}
+.net{height:15px;width:25px;margin:auto;background:repeating-linear-gradient(70deg,transparent 0 5px,#fff9 6px 7px,transparent 8px 11px);clip-path:polygon(0 0,100% 0,78% 100%,22% 100%)}
+.hoop-area.glow .rim{filter:brightness(2);box-shadow:0 0 10px 5px var(--green),0 0 28px 10px var(--green);transform:scale(1.15)}
+.hoop-area.miss .rim{box-shadow:0 0 12px 4px var(--red)}
+.arc{position:absolute;width:80%;height:220px;border:2px dashed #f7d8ad9c;border-bottom:0;border-radius:50% 50% 0 0;bottom:-125px;left:10%}
+.spots{position:absolute;left:5%;right:5%;bottom:22px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;z-index:2}
+.spot{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}.spotlabel{font-size:9px;font-weight:900;color:#fff;text-shadow:0 1px 3px #39200e}.rack{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:60px;padding:5px 3px;background:#633b24aa;border:1px solid #f5d3a2;border-radius:5px;min-height:25px}
+.ball{width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffd18a,#e56c20 65%,#8d3e13);border:1px solid #78380e;position:relative}.ball.money{background:radial-gradient(circle at 30% 25%,#fff4b3,#e5b42e 70%,#926817)}.ball.hit{background:var(--green);border-color:#176b43}.ball.miss{background:#596577;border-color:#344154}
+.ball.hit:after{content:"✓";font-size:8px;color:#092b1b;position:absolute;inset:-2px;text-align:center;font-weight:bold}.ball.miss:after{content:"×";font-size:9px;color:white;position:absolute;inset:-2px;text-align:center}
+.activeSpot .rack{outline:2px solid var(--gold);box-shadow:0 0 12px #ffd16699}
+.flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:4}.flash.hit{background:radial-gradient(circle at 50% 8%,#42e69588,transparent 48%);animation:flash .55s}.flash.miss{background:radial-gradient(circle at 50% 8%,#ff647c66,transparent 48%);animation:flash .55s}@keyframes flash{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+.controlrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}.shooter{font-size:12px;color:var(--muted)}.shooter b{color:white}.shoot{min-width:170px;font-size:15px;padding:15px 24px}.feedback{min-height:48px;text-align:center;padding:11px 5px 2px;font-weight:1000;font-size:clamp(17px,4vw,23px);font-style:italic}.feedback.good{color:var(--green);text-shadow:0 0 15px #42e69555}.feedback.bad{color:var(--red)}
+.meter{height:6px;background:#ffffff14;border-radius:10px;overflow:hidden;margin-top:5px}.meter div{height:100%;background:linear-gradient(90deg,var(--orange),var(--gold));width:0;transition:width .2s}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.stat{background:#ffffff09;border-radius:10px;padding:10px 5px;text-align:center}.stat small{display:block;font-size:9px;color:var(--muted);letter-spacing:1px}.stat b{font-size:22px}
+.playercard{display:flex;justify-content:space-between;align-items:center;gap:8px}.playercard h2{font-size:22px;margin:4px 0}.playercard .pct{font-size:29px;color:var(--gold);font-weight:1000}.muted{color:var(--muted);font-size:11px}
+.commentbox{margin-top:12px;min-height:126px}.comment{font-size:14px;line-height:1.45;font-weight:800}.comment small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.3px;margin-bottom:8px}
+.streak{margin-top:12px;background:#ffffff09;border:1px solid #ffffff15;border-radius:12px;padding:12px}.streakhead{display:flex;justify-content:space-between;font-size:11px;font-weight:900}.streak strong{color:var(--gold)}.streak p{margin:7px 0 0;font-size:11px;color:var(--muted)}
+.rules{font-size:11px;color:var(--muted);line-height:1.55;margin-top:12px}
+.overlay{position:fixed;inset:0;background:#050b14eF;display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}.modal{width:min(450px,100%);background:linear-gradient(145deg,#233b55,#142337);border:1px solid #ffffff25;border-radius:20px;padding:23px;box-shadow:0 25px 80px #0009}.modal h2{font-size:27px;margin:6px 0}.modal p{font-size:13px;color:var(--muted);line-height:1.5}.field{display:block;text-align:left;font-size:10px;color:var(--muted);letter-spacing:1px;font-weight:900;margin:13px 0 5px}input{width:100%;background:#0c1828;color:white;border:1px solid #ffffff25;border-radius:10px;padding:13px;font-size:16px;outline:none}input:focus{border-color:var(--orange)}.modal .primary{width:100%;margin-top:15px}.hidden{display:none!important}.finalnum{font-size:60px;color:var(--gold);font-weight:1000;text-align:center}.endbuttons{display:flex;gap:8px}.endbuttons button{flex:1}
+@media(max-width:740px){.layout{grid-template-columns:1fr}.court{height:270px}.tag{display:none}.panel{padding:12px}.wrap{padding:12px 10px 30px}}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div class="brand">BASKET <span>3PT</span></div><div class="topright"><span class="tag">HEAD TO HEAD · FIRST TO 5</span><button class="secondary smallbtn sound-on" id="soundBtn">🔊 SOUND ON</button><button class="secondary smallbtn" id="inviteBtn">↗ INVITE</button></div></header>
+<section class="hero"><div class="eyebrow">THE ULTIMATE SHOOTOUT</div><h1>3-POINT CONTEST</h1><p class="subtitle">Five racks. Twenty-five shots. No excuses.</p></section>
+<div class="scoreline">
+ <div class="person active" id="p1card"><small>PLAYER 1</small><div class="name" id="p1name">PLAYER 1</div><div class="wins" id="p1wins">0</div></div>
+ <div class="vs">VS</div>
+ <div class="person" id="p2card"><small>PLAYER 2</small><div class="name" id="p2name">PLAYER 2</div><div class="wins" id="p2wins">0</div></div>
+</div>
+<div class="layout">
+ <main class="panel">
+  <div class="courtbox">
+   <div class="court-title"><strong>🏀 THE COURT</strong><span id="roundLabel">ROUND 1 · PLAYER 1</span></div>
+   <div class="targetstrip"><div><small>TO BEAT</small><b id="targetScore">—</b></div><div class="targetdivider"></div><div><small>CURRENT SCORE</small><b id="currentScore">0</b></div><div class="targethint" id="targetHint">Set the pace.</div></div>
+   <div class="court" id="court">
+    <div class="centerline"></div><div class="key"></div><div class="arc"></div>
+    <div class="hoop-area" id="hoop"><div class="backboard"></div><div class="rim"></div><div class="net"></div></div>
+    <div class="spots" id="spots"></div><div class="flash" id="flash"></div>
+   </div>
+   <div class="controlrow"><div class="shooter">SHOOTER<br><b id="turnName">PLAYER 1</b></div><button class="primary shoot" id="shootBtn">🏀 SHOOT</button></div>
+   <div class="feedback" id="feedback">LET'S GET THIS W.</div>
+   <div class="meter"><div id="progress"></div></div>
+   <div class="stats"><div class="stat"><small>POINTS</small><b id="points">0</b></div><div class="stat"><small>MADE</small><b id="made">0</b></div><div class="stat"><small>LEFT</small><b id="left">25</b></div></div>
+  </div>
+  <div class="rules">🟠 Navadna žoga = 1 točka · 🟡 Moneyball = 2 točki. Vsak igralec meče 25-krat. Zmagovalec runde dobi 1 zmago. Prvi do 5 osvojenih rund zmaga dvoboj.</div>
+ </main>
+ <aside>
+  <section class="panel">
+   <h3>TONIGHT'S SHOOTER</h3>
+   <div class="playercard"><div><h2 id="playerName">Stephen Curry</h2><div class="muted" id="playerTeam">Golden State Warriors · G</div></div><div class="pct" id="playerPct">42.3%</div></div>
+   <div class="streak"><div class="streakhead"><span>🔥 HEAT CHECK</span><strong id="bonus">+0%</strong></div><p id="streakText">Make 2 in a row to start your streak bonus.</p></div>
+  </section>
+  <section class="panel commentbox"><div class="comment"><small>COURTSIDE COMMENTARY</small><div id="comment">The crowd is ready. Show us what you've got.</div></div></section>
+  <section class="panel" style="margin-top:12px"><h3>MATCH STATUS</h3><div class="muted" id="status">Waiting for tip-off.</div><div class="muted" style="margin-top:9px">WIN TARGET: <b style="color:var(--gold)">5 ROUNDS</b></div></section>
+ </aside>
+</div></div>
+
+<div class="overlay" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Set up your matchup</h2><p>Za zdaj lahko oba igrata izmenično na isti napravi. Ko poveževa spletno sobo, bo prijatelj lahko vstopil prek povabilne povezave na svojem telefonu.</p><label class="field" for="nick1">PLAYER 1 NICKNAME</label><input id="nick1" maxlength="16" placeholder="Your nickname" value="PLAYER 1"><label class="field" for="nick2">PLAYER 2 NICKNAME</label><input id="nick2" maxlength="16" placeholder="Friend's nickname" value="PLAYER 2"><button class="primary" id="start">TIP OFF</button></div></div>
+<div class="overlay hidden" id="draft"><div class="modal"><div class="eyebrow">PLAYER DRAFT · 3 PICKS</div><h2>Choose your shooter</h2><p id="draftPrompt">You have three random players to choose from. Pick your weapon.</p><div class="candidategrid" id="candidateGrid"></div></div></div>
+<div class="overlay hidden" id="between"><div class="modal"><div class="eyebrow" id="betweenEyebrow">ROUND COMPLETE</div><h2 id="betweenTitle">PLAYER 1 takes the round!</h2><p id="betweenText">Pass the phone to the next shooter.</p><button class="primary" id="nextTurn">NEXT PLAYER</button></div></div>
+<div class="overlay hidden" id="gameover"><div class="modal"><div class="eyebrow">FINAL BUZZER</div><h2 id="winnerTitle">CHAMPION!</h2><div class="finalnum" id="finalWins">5–3</div><p id="winnerText">What a contest.</p><button class="primary" id="rematch">REMATCH</button></div></div>
+<script>
+const players=[
+{name:"Stephen Curry",team:"Golden State Warriors",pos:"G",pct:42.3},
+{name:"Luka Dončić",team:"Los Angeles Lakers",pos:"G",pct:35.9},
+{name:"Klay Thompson",team:"Dallas Mavericks",pos:"G",pct:41.3},
+{name:"Kevin Durant",team:"Houston Rockets",pos:"F",pct:38.7},
+{name:"Damian Lillard",team:"Milwaukee Bucks",pos:"G",pct:37.1},
+{name:"Jayson Tatum",team:"Boston Celtics",pos:"F",pct:37.6},
+{name:"Devin Booker",team:"Phoenix Suns",pos:"G",pct:35.9},
+{name:"Buddy Hield",team:"Golden State Warriors",pos:"G",pct:39.6},
+{name:"Nikola Jokić",team:"Denver Nuggets",pos:"C",pct:35.9},
+{name:"LeBron James",team:"Los Angeles Lakers",pos:"F",pct:34.8},
+{name:"Desmond Bane",team:"Orlando Magic",pos:"G",pct:39.5},
+{name:"Donovan Mitchell",team:"Cleveland Cavaliers",pos:"G",pct:36.5},
+{name:"Tyler Herro",team:"Miami Heat",pos:"G",pct:38.5},
+{name:"Jamal Murray",team:"Denver Nuggets",pos:"G",pct:39.0},
+{name:"Trae Young",team:"Washington Wizards",pos:"G",pct:36.0}
+];
+const jokePlayer={name:"Gregor Hlebec",team:"Hlebec Hoopers",pos:"G",pct:1.0};
+/* Correct the final demo value explicitly; these are illustrative ratings, not live official data. */
+players[players.length-1].pct=36.0;
+const quips={
+hit:["CASH! 💰","NOTHING BUT NET! 🕸️","WET LIKE WATER! 💦","TOO EASY!","HE'S COOKING! 🔥","SPLASH!","AUTOMATIC!"],
+streak:["HE'S HEATING UP! 🔥","UNCONSCIOUS!","ON FIRE! DON'T BLINK!","CURRY MODE ACTIVATED! 🧑‍🍳"],
+miss:["BRICK CITY! 🧱","THE RIM SAID NO.","THAT ONE NEEDS A MAP.","OOF. NOT EVEN CLOSE."],
+tease:["SPAGHETTI HANDS! 🍝","FLOATER ALERT!","HANDS OF STONE!","BRO THINKS HE'S CURRY.","AIRBALL SPECIALIST!","SHOOTER? QUESTIONABLE.","BACK TO THE GYM!","WIDE OPEN… AND STILL MISSED!"]
+};
+let names=["PLAYER 1","PLAYER 2"],wins=[0,0],turn=0,round=1,shot=0,score=0,made=0,streak=0,results=[],player=null,roundScores=[null,null],locked=false,soundEnabled=true,audioCtx=null;
+const $=id=>document.getElementById(id);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function audio(){if(!soundEnabled)return null;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx}catch(e){return null}}
+function tone(freq,start,duration,type="sine",volume=.08,slideTo=null){let c=audio();if(!c)return;let o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+start);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,c.currentTime+start+duration);g.gain.setValueAtTime(.001,c.currentTime+start);g.gain.exponentialRampToValueAtTime(volume,c.currentTime+start+.025);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+start+duration);o.connect(g);g.connect(c.destination);o.start(c.currentTime+start);o.stop(c.currentTime+start+duration+.03)}
+function cheer(){tone(523,0,.16,"triangle",.09);tone(659,.12,.18,"triangle",.09);tone(784,.25,.32,"triangle",.1);tone(1046,.42,.42,"sine",.07)}
+function boo(){tone(260,0,.36,"sawtooth",.055,150);tone(190,.18,.55,"triangle",.06,95);tone(145,.42,.7,"sine",.06,85)}
+function startMatch(){names=[$("nick1").value.trim()||"PLAYER 1",$("nick2").value.trim()||"PLAYER 2"];wins=[0,0];round=1;turn=0;roundScores=[null,null];$("setup").classList.add("hidden");beginTurn()}
+function beginTurn(){shot=0;score=0;made=0;streak=0;results=[];locked=false;player=null;$("playerName").textContent="Choose your player";$("playerTeam").textContent="Three random choices";$("playerPct").textContent="—";$("turnName").textContent=names[turn];$("roundLabel").textContent="ROUND "+round+" · "+names[turn];$("feedback").className="feedback";$("feedback").textContent="Pick your shooter."; $("comment").textContent="Three players. One choice. Make it count.";$("status").textContent=names[turn]+" is choosing a shooter.";$("shootBtn").disabled=true;$("between").classList.add("hidden");$("gameover").classList.add("hidden");update();showDraft()}
+function showDraft(){let choices=[];while(choices.length<2){let candidate=pick(players);if(!choices.some(p=>p.name===candidate.name))choices.push(candidate)}choices.push(jokePlayer);$("draftPrompt").textContent=names[turn]+", izberi enega od dveh naključnih NBA igralcev ali pa Gregorja Hlebca. Pogumno!";$("candidateGrid").innerHTML="";choices.forEach((p,i)=>{let b=document.createElement("button");b.className="candidate";b.innerHTML="<span>OPTION "+(i+1)+(i===2?" · WILD CARD":"")+"</span><strong>"+p.name+"</strong><span>"+p.team+"</span><em>"+p.pct.toFixed(1)+"% 3P</em>";b.onclick=()=>selectPlayer(p);$("candidateGrid").appendChild(b)});$("draft").classList.remove("hidden")}
+function selectPlayer(p){player=p;$("draft").classList.add("hidden");$("playerName").textContent=p.name;$("playerTeam").textContent=p.team+" · "+p.pos;$("playerPct").textContent=p.pct.toFixed(1)+"%";$("feedback").textContent="LET'S GET THIS W.";$("comment").textContent=p.name+" is locked in. Time to cook."; $("shootBtn").disabled=false;$("status").textContent=names[turn]+" is shooting with "+p.name+".";update()}
+function update(){$("points").textContent=score;$("made").textContent=made;$("left").textContent=25-shot;$("progress").style.width=(shot/25*100)+"%";$("bonus").textContent="+"+Math.min(12,Math.max(0,streak-1)*3)+"%";$("streakText").textContent=streak>=2?streak+" in a row! Next shot gets +"+Math.min(12,(streak-1)*3)+"% make chance.":"Make 2 in a row to start your streak bonus.";$("p1name").textContent=names[0];$("p2name").textContent=names[1];$("p1wins").textContent=wins[0];$("p2wins").textContent=wins[1];$("p1card").classList.toggle("active",turn===0);$("p2card").classList.toggle("active",turn===1);
+let target=turn===1&&roundScores[0]!==null?roundScores[0]:"—";$("targetScore").textContent=target;$("currentScore").textContent=score;$("targetHint").textContent=turn===1&&roundScores[0]!==null?(score>target?"YOU'RE AHEAD!":score===target?"TIED — KEEP GOING":"NEED "+(target-score+1)+" MORE"):"Set the pace.";
+drawSpots()}
+function drawSpots(){let host=$("spots");host.innerHTML="";for(let r=0;r<5;r++){let s=document.createElement("div");s.className="spot"+(Math.floor(shot/5)===r&&shot<25?" activeSpot":"");let label=document.createElement("div");label.className="spotlabel";label.textContent="SPOT "+(r+1);let rack=document.createElement("div");rack.className="rack";for(let b=0;b<5;b++){let i=r*5+b,ball=document.createElement("span");ball.className="ball"+(b===4?" money":"");if(results[i]!==undefined)ball.classList.add(results[i]?"hit":"miss");rack.appendChild(ball)}s.append(label,rack);host.appendChild(s)}}
+function shoot(){if(locked||shot>=25||!player)return;audio();let bonus=Math.min(12,Math.max(0,streak-1)*3),chance=Math.min(95,player.pct+bonus),hit=Math.random()*100<chance,money=shot%5===4;results.push(hit);shot++;let feedback=$("feedback"),comment=$("comment"),hoop=$("hoop"),flash=$("flash");hoop.className="hoop-area";flash.className="flash";void flash.offsetWidth;
+if(hit){made++;score+=money?2:1;streak++;cheer();feedback.className="feedback good";feedback.textContent=money?"MONEYBALL! +2 🔥":"BUCKET! +1 🏀";comment.textContent=streak>=2?pick(quips.streak):pick(quips.hit);hoop.classList.add("glow");flash.classList.add("hit")}
+else{streak=0;boo();feedback.className="feedback bad";feedback.textContent="NO GOOD!";comment.textContent=Math.random()<.6?pick(quips.tease):pick(quips.miss);hoop.classList.add("miss");flash.classList.add("miss")}
+update();if(shot===25){locked=true;$("shootBtn").disabled=true;roundScores[turn]=score;$("status").textContent=names[turn]+" finished with "+score+" points ("+made+"/25 made).";setTimeout(endTurn,700)}}
+function endTurn(){if(turn===0){$("betweenEyebrow").textContent="PLAYER 1 FINISHED";$("betweenTitle").textContent=names[0]+" scored "+score+"!";$("betweenText").textContent="Pass the phone to "+names[1]+". They need "+(score+1)+" points to win the round.";$("nextTurn").textContent="LET "+names[1]+" SHOOT";$("between").classList.remove("hidden")}
+else{let a=roundScores[0],b=roundScores[1],msg;if(a>b){wins[0]++;msg=names[0]+" wins the round!"}else if(b>a){wins[1]++;msg=names[1]+" wins the round!"}else{msg="TIE GAME! No round point. Play another round."}update();if(wins[0]>=5||wins[1]>=5){$("winnerTitle").textContent=(wins[0]>wins[1]?names[0]:names[1])+" IS THE CHAMPION!";$("finalWins").textContent=wins[0]+" – "+wins[1];$("winnerText").textContent="The first to five round wins takes the crown. Rematch?";$("gameover").classList.remove("hidden")}else{$("betweenEyebrow").textContent="ROUND "+round+" RESULT";$("betweenTitle").textContent=msg;$("betweenText").textContent=names[0]+": "+a+" points · "+names[1]+": "+b+" points. Score: "+wins[0]+"–"+wins[1]+".";$("nextTurn").textContent="NEXT ROUND";$("between").classList.remove("hidden")}}}
+$("start").onclick=()=>{audio();startMatch()};
+$("shootBtn").onclick=shoot;
+$("nextTurn").onclick=()=>{if(turn===0){turn=1;beginTurn()}else{turn=0;round++;roundScores=[null,null];beginTurn()}};
+$("rematch").onclick=()=>{$("gameover").classList.add("hidden");$("setup").classList.remove("hidden");$("nick1").value=names[0];$("nick2").value=names[1]};
+$("inviteBtn").onclick=()=>alert("Povabilna povezava bo delovala, ko igro objaviva na spletu in dodava multiplayer strežnik. Trenutno je to lokalna pass-and-play verzija na eni napravi.");
+$("soundBtn").onclick=()=>{soundEnabled=!soundEnabled;$("soundBtn").textContent=soundEnabled?"🔊 SOUND ON":"🔇 SOUND OFF";$("soundBtn").classList.toggle("sound-on",soundEnabled);if(soundEnabled){audio();cheer()}};
+update();
+</script></body></html>
