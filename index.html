@@ -272,6 +272,76 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 .mdChampion>div{font-size:75px}.mdChampion>span{font-size:11px;letter-spacing:3px;color:#ffda88}.mdChampion h2{font-size:30px;color:#fff}.mdChampion>b{font-size:48px;color:#ffd16b}.mdChampion p{color:#c6d5e7}
 @media(max-width:380px){.mdRoster{grid-template-columns:1fr}.mdRoomCode{font-size:14px}}
 </style>
+<style>
+.gameInstructionsCard{max-width:520px}.gameInstructionsCard p{color:#c7d4e5;line-height:1.5;padding:9px 12px;background:#ffffff09;border-radius:10px}
+.ftModal{max-width:560px;text-align:center}
+.ftScore{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.ftScore>div{padding:10px;border-radius:12px;background:#0e1b2c;border:1px solid #ffffff1b;display:flex;flex-direction:column;gap:3px}
+.ftScore small{font-size:10px;letter-spacing:1.5px;color:#afc1d8}.ftScore b{font-size:30px;color:#ffd36c}
+.ftCourt{height:205px;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(180deg,#142b43,#243e5a 70%,#9a6236 71%,#744422);border:2px solid #ffffff22}
+.ftHoop{position:absolute;right:12%;top:23px;font-size:42px;filter:drop-shadow(0 4px 5px #0008)}
+.ftHoop span{position:absolute;right:4px;top:31px;font-size:32px;color:#ff7d42}
+.ftPlayer{position:absolute;left:17%;bottom:16px;font-size:54px;transition:transform .35s}
+.ftBall{position:absolute;left:24%;bottom:65px;font-size:27px;opacity:0;z-index:3}
+.ftCall{position:absolute;inset:12px 0 auto;font-weight:1000;font-size:22px;letter-spacing:3px;color:#fff;text-shadow:0 3px 10px #000;z-index:4}
+.ftCall.ftHit{color:#7dffb3}.ftCall.ftMissed{color:#ff9b9b}
+.ftRelease{transform:translateY(-20px) rotate(-12deg)}
+.ftBallFlight{opacity:1;animation:ftArc .75s ease-out forwards}
+@keyframes ftArc{0%{left:24%;bottom:65px;transform:scale(1)}55%{left:55%;bottom:145px;transform:scale(.8)}100%{left:83%;bottom:145px;transform:scale(.55)}}
+.ftNet{position:absolute;right:12%;top:70px;font-size:30px;opacity:.4;transition:.2s}
+.ftNetHit{opacity:1;transform:scale(1.3);filter:drop-shadow(0 0 10px #8cffb0)}
+.ftHint{color:#c6d4e6;font-size:13px}
+.ftMeter{height:28px;position:relative;border-radius:99px;background:linear-gradient(90deg,#b34b4b,#e1ad46,#43b77d,#e1ad46,#b34b4b);border:2px solid #ffffff66;overflow:hidden}
+.ftTarget{position:absolute;top:0;bottom:0;background:#ffe56b66;border-left:2px solid #fff2a0;border-right:2px solid #fff2a0;box-shadow:0 0 12px #ffe56b}
+.ftMarker{position:absolute;top:-4px;bottom:-4px;width:4px;background:#fff;box-shadow:0 0 8px #fff,0 0 15px #fff;left:0;z-index:2}
+.ftMeterLabels{display:flex;justify-content:space-between;color:#aebed2;font-size:9px;letter-spacing:1px;margin-top:5px}
+.ftDifficulty{font-size:11px;color:#ffd36c;font-weight:900;letter-spacing:1px;margin:12px}
+.ftHistory{min-height:22px;letter-spacing:5px;color:#ffd36c;font-weight:900}
+</style>
+<style>
+.ftCourt{height:245px;position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(180deg,#132b45 0%,#254767 72%,#a66a3c 73%,#704324 100%);border:2px solid #ffffff30;perspective:700px}
+.ftBackboard{position:absolute;right:10%;top:22px;width:76px;height:60px;border:5px solid #e9edf3;border-radius:4px;background:linear-gradient(135deg,#ffffff99,#b9d0e1aa);box-shadow:0 4px 12px #0008}
+.ftBackboard:after{content:"";position:absolute;left:20px;bottom:3px;width:28px;height:19px;border:3px solid #fff;background:#ffffff22}
+.ftRim{position:absolute;right:9%;top:87px;width:78px;height:12px;border:5px solid #ff7138;border-top:0;border-radius:0 0 50% 50%;transform:perspective(60px) rotateX(12deg);z-index:4;filter:drop-shadow(0 3px 2px #0008)}
+.ftNetMesh{position:absolute;right:11.5%;top:96px;width:56px;height:48px;border-left:2px solid #f4f4f4aa;border-right:2px solid #f4f4f4aa;border-bottom:2px solid #f4f4f4aa;clip-path:polygon(0 0,100% 0,72% 100%,28% 100%);background:repeating-linear-gradient(70deg,transparent 0 8px,#fff9 9px 10px),repeating-linear-gradient(-70deg,transparent 0 8px,#fff9 9px 10px);z-index:3;transform-origin:top;transition:transform .25s}
+.ftNetMesh.ftNetHit{animation:netSwish .55s ease-out}
+.ftPlayer{position:absolute;left:16%;bottom:18px;width:54px;height:108px;z-index:2}
+.ftHead{position:absolute;top:0;left:17px;width:23px;height:23px;border-radius:50%;background:#d99a6c;border:2px solid #472d22}
+.ftBody{position:absolute;top:25px;left:8px;width:42px;height:54px;border-radius:13px 13px 5px 5px;background:linear-gradient(90deg,#f5f5f5,#d8e2ee);border:2px solid #21364d}
+.ftArm{position:absolute;top:24px;right:-5px;width:12px;height:57px;border-radius:9px;background:#d99a6c;transform:rotate(-35deg);transform-origin:top}
+.ftBall{position:absolute;left:25%;bottom:100px;width:24px;height:24px;border-radius:50%;z-index:5;background:radial-gradient(circle at 30% 25%,#ffbd68,#d85c18 65%,#74300e);border:2px solid #54270e;opacity:0}
+.ftBall:before,.ftBall:after{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid #4c260f}
+.ftBall:before{width:9px;left:6px;border-top:0;border-bottom:0}
+.ftBall:after{height:9px;top:6px;border-left:0;border-right:0}
+.ftBallMade{opacity:1;animation:ballSwish .9s cubic-bezier(.2,.7,.25,1) forwards}
+.ftBallMiss{opacity:1;animation:ballMiss .9s cubic-bezier(.2,.7,.25,1) forwards}
+.ftCall{position:absolute;left:0;right:0;top:10px;text-align:center;font-weight:1000;font-size:22px;letter-spacing:3px;color:white;text-shadow:0 3px 10px #000;z-index:8}
+.ftRelease .ftArm{animation:armRelease .45s ease-out}
+@keyframes armRelease{to{transform:rotate(-95deg)}}
+@keyframes ballSwish{
+  0%{left:25%;bottom:100px;transform:scale(1) rotate(0);opacity:1}
+  34%{left:48%;bottom:190px;transform:scale(.88) rotate(120deg);opacity:1}
+  63%{left:78%;bottom:151px;transform:scale(.72) rotate(250deg);opacity:1}
+  72%{left:83%;bottom:123px;transform:scale(.62) rotate(310deg);opacity:1}
+  83%{left:83%;bottom:91px;transform:scale(.55) rotate(390deg);opacity:1}
+  100%{left:83%;bottom:34px;transform:scale(.48) rotate(520deg);opacity:.15}
+}
+@keyframes ballMiss{
+  0%{left:25%;bottom:100px;transform:scale(1) rotate(0);opacity:1}
+  38%{left:51%;bottom:188px;transform:scale(.88) rotate(130deg);opacity:1}
+  70%{left:82%;bottom:154px;transform:scale(.72) rotate(250deg);opacity:1}
+  100%{left:94%;bottom:92px;transform:scale(.62) rotate(420deg);opacity:0}
+}
+@keyframes netSwish{0%,100%{transform:scaleX(1) skewX(0) scaleY(1)}25%{transform:scaleX(.72) skewX(10deg) scaleY(1.2)}55%{transform:scaleX(1.12) skewX(-8deg) scaleY(.86)}80%{transform:scaleX(.92) skewX(4deg) scaleY(1.08)}}
+</style>
+<style>
+.ftMissScene{animation:missShake .42s ease-out}
+.ftMissCall{color:#ff6666!important;text-shadow:0 0 16px #ff2020,0 3px 10px #000!important;animation:missFlash .65s ease-in-out 2}
+.ftBallMiss{filter:drop-shadow(0 0 9px #ff3030)}
+.ftBoardRow{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;padding:12px 14px;margin:7px 0;background:#0b192a;border:1px solid #ffffff20;border-radius:12px}
+@keyframes missShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes missFlash{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
 </head>
 <body><div class="wrap">
 <header class="top"><div class="brand">BASKETBALL <span>UNIVERSE</span></div><div class="topright"><span class="tag">HEAD TO HEAD · FIRST TO 5</span><button class="secondary smallbtn sound-on" id="soundBtn">🔊 SOUND ON</button><button class="secondary smallbtn" id="inviteBtn">↗ INVITE</button></div></header>
@@ -311,7 +381,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </aside>
 </div></div>
 
-<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>BUILD YOUR TEAM · COMPETE · BECOME A LEGEND</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="threePtMode">🏀 3PT</button><button class="primary" id="draftModeBtn">🎲 DRAFT</button><button class="secondary" id="fantasyModeBtn" disabled>⭐ FANTASY · COMING SOON</button></div></div></div>
+<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>BUILD YOUR TEAM · COMPETE · BECOME A LEGEND</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="threePtMode">🏀 3PT</button><button class="primary" id="freeThrowMainBtn">🎯 FREE THROW</button><button class="primary" id="draftModeBtn">🎲 DRAFT</button><button class="secondary" id="fantasyModeBtn" disabled>⭐ FANTASY · COMING SOON</button></div></div></div>
 
 <div class="overlay hidden" id="threePtMenu" style="z-index:65">
  <div class="modal" style="width:min(560px,94vw)">
@@ -331,6 +401,20 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </div>
 </div>
 
+<div class="overlay hidden" id="freeThrowMenu" style="z-index:66">
+ <div class="modal" style="width:min(560px,94vw)">
+  <div class="eyebrow">BASKETBALL UNIVERSE</div>
+  <h2>🎯 FREE THROW</h2>
+  <p>Choose your game mode.</p>
+  <div class="modeBtns">
+   <button class="primary" id="freeThrowSoloBtn">🎯 SOLO CHALLENGE</button>
+   <button class="secondary" id="freeThrowBoardBtn">🏆 LEADERBOARD</button>
+  </div>
+  <button class="secondary" id="freeThrowBackBtn" style="width:100%;margin-top:12px">MAIN MENU</button>
+ </div>
+</div>
+
+<div class="overlay hidden" id="freeThrowLeaderboard" style="z-index:70"><div class="modal" style="width:min(560px,94vw)"><div class="eyebrow">BASKETBALL UNIVERSE</div><h2>🏆 FREE THROW LEADERBOARD</h2><p>Najdaljši niz zadetih metov brez zgrešenega meta.</p><div id="freeThrowLeaderboardRows"></div><button class="secondary" id="freeThrowBoardClose" style="width:100%;margin-top:14px">BACK TO MENU</button></div></div>
 <div class="overlay hidden" id="draftMode">
  <div class="modal draftModal">
   <div class="eyebrow">BASKETBALL UNIVERSE · ALL ERAS 1980–2026</div>
@@ -732,6 +816,103 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}catch(e){return fallback}};
  const write=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch(e){}};
  let activeMode='normal',activeChallenge=null,modeShotStart=0,modeMadeStart=0,challengeSummary='';
+ let ftGame=null,ftTimer=null,ftBusy=false;
+ function showGameInstructions(title,lines,onStart){
+  const modal=$('gameInstructionsModal');
+  if(!modal){
+   const el=document.createElement('div');el.id='gameInstructionsModal';el.className='overlay';el.style.zIndex='120';
+   el.innerHTML='<div class="modal gameInstructionsCard"><div class="eyebrow">HOW TO PLAY</div><h2 id="gameInstructionsTitle"></h2><div id="gameInstructionsBody"></div><button class="primary" id="gameInstructionsStart" style="width:100%;margin-top:16px">LET’S PLAY</button><button class="secondary" id="gameInstructionsClose" style="width:100%;margin-top:8px">BACK</button></div>';
+   document.body.append(el);
+  }
+  $('gameInstructionsModal').style.zIndex='120';
+  $('gameInstructionsTitle').textContent=title;
+  $('gameInstructionsBody').innerHTML=lines.map(x=>'<p>'+x+'</p>').join('');
+  $('gameInstructionsModal').classList.remove('hidden');
+  $('gameInstructionsStart').onclick=()=>{$('gameInstructionsModal').classList.add('hidden');onStart()};
+  $('gameInstructionsClose').onclick=()=>{$('gameInstructionsModal').classList.add('hidden')};
+ }
+ function startFreeThrow(){
+  ftGame={shot:0,made:0,missed:0,target:0.22,marker:0,direction:1,stopped:false,results:[]};
+  showFreeThrowScreen();
+ }
+ function showFreeThrowScreen(){
+  const old=$('freeThrowGame');if(old)old.remove();
+  const el=document.createElement('div');el.id='freeThrowGame';el.className='overlay';el.style.zIndex='130';
+  el.innerHTML=`<div class="modal ftModal"><div class="eyebrow">BASKETBALL UNIVERSE · GAME 3</div><h2>🎯 FREE THROW CHALLENGE</h2>
+   <div class="ftScore"><div><small>MADE</small><b id="ftMade">0</b></div><div><small>SHOT</small><b id="ftShot">0/10</b></div><div><small>MISS</small><b id="ftMiss">0</b></div></div>
+   <div class="ftCourt"><div class="ftBackboard"></div><div class="ftRim"></div><div class="ftNetMesh" id="ftNet"></div><div class="ftPlayer" id="ftPlayer"><span class="ftHead"></span><span class="ftBody"></span><span class="ftArm"></span></div><div class="ftBall" id="ftBall"></div><div class="ftCall" id="ftCall">GET READY</div></div>
+   <p class="ftHint">Ustavi črtico znotraj rumenega ciljnega območja!</p>
+   <div class="ftMeter" id="ftMeter"><div class="ftTarget" id="ftTarget"></div><div class="ftMarker" id="ftMarker"></div></div>
+   <div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div>
+   <button class="primary" id="ftShoot" style="width:100%;margin-top:14px">STOP & SHOOT</button>
+   <p class="ftDifficulty" id="ftDifficulty">Target zone: 22%</p><div class="ftHistory" id="ftHistory"></div>
+   <button class="primary" id="ftReplay" style="width:100%;margin-top:12px;display:none">PLAY AGAIN</button><button class="secondary" id="ftExit" style="width:100%;margin-top:10px">BACK TO MENU</button></div>`;
+  document.body.append(el);
+  $('freeThrowGame').classList.remove('hidden');
+  $('ftShoot').onclick=ftShoot;
+  $('ftExit').onclick=()=>{clearInterval(ftTimer);$('freeThrowGame').remove();$('freeThrowMenu').classList.remove('hidden')};
+  $('ftReplay').onclick=()=>startFreeThrow();
+  ftStartMeter();
+ }
+ function ftStartMeter(){
+  clearInterval(ftTimer);ftGame.stopped=false;ftGame.marker=0;ftGame.direction=1;
+  const target=$('ftTarget'),width=ftGame.target*100,left=(100-width)/2;
+  target.style.width=width+'%';target.style.left=left+'%';
+  $('ftDifficulty').textContent='TARGET ZONE '+Math.max(1,Math.round(width))+'% · STREAK '+ftGame.made;
+  ftTimer=setInterval(()=>{
+   if(!ftGame||ftGame.stopped)return;
+   ftGame.marker+=ftGame.direction*1.35;
+   if(ftGame.marker>=100){ftGame.marker=100;ftGame.direction=-1}
+   if(ftGame.marker<=0){ftGame.marker=0;ftGame.direction=1}
+   $('ftMarker').style.left=ftGame.marker+'%';
+  },16);
+ }
+ function ftPrepareNextShot(){
+  $('ftPlayer').classList.remove('ftRelease');
+  $('ftBall').className='ftBall';
+  $('ftNet').classList.remove('ftNetHit');
+  $('ftCall').className='ftCall';
+  $('ftCall').textContent='GET READY';
+  $('ftShoot').disabled=false;
+  $('ftShoot').textContent='STOP & SHOOT';
+  $('ftShoot').onclick=ftShoot;
+  ftStartMeter();
+ }
+ function ftShoot(){
+  if(!ftGame||ftGame.stopped)return;
+  ftGame.stopped=true;clearInterval(ftTimer);
+  const targetLeft=(100-ftGame.target*100)/2,targetRight=targetLeft+ftGame.target*100;
+  const hit=ftGame.marker>=targetLeft&&ftGame.marker<=targetRight;
+  if(hit)ftGame.made++;else ftGame.missed++;
+  ftGame.shot++;ftGame.results.push(hit);
+  $('ftMade').textContent=ftGame.made;$('ftMiss').textContent=ftGame.missed;$('ftShot').textContent=ftGame.shot;
+  $('ftCall').textContent='SHOT!';
+  $('ftCall').className='ftCall';
+  $('ftPlayer').classList.add('ftRelease');
+  $('ftBall').className='ftBall '+(hit?'ftBallMade':'ftBallMiss');
+  $('ftNet').classList.toggle('ftNetHit',hit);
+  $('ftHistory').textContent=ftGame.results.map(x=>x?'●':'×').join('  ');
+  if(hit)ftGame.target=Math.max(.005,ftGame.target*.77);
+  $('ftShoot').disabled=true;
+  if(!hit){
+   const player=(String($('menuNick')?.value||'').trim()||'PLAYER').slice(0,16),key='basketball_universe_free_throw_board_v1';
+   let board=[];try{board=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
+   const old=board.find(x=>x.name.toLowerCase()===player.toLowerCase());
+   if(!old)board.push({name:player,score:ftGame.made});else old.score=Math.max(old.score,ftGame.made);
+   board.sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
+   try{localStorage.setItem(key,JSON.stringify(board.slice(0,50)))}catch(e){}
+   $('ftShoot').textContent='RUN FINISHED';$('ftShoot').disabled=true;
+   $('ftDifficulty').textContent='FINAL STREAK: '+ftGame.made+' · TOTAL SHOTS: '+ftGame.shot;
+   $('ftCall').textContent=ftGame.made>=10?'INCREDIBLE STREAK!':ftGame.made>=5?'GREAT RUN!':'GOOD TRY!';
+   $('ftCall').className='ftCall ftMissCall';$('ftCourt').classList.add('ftMissScene');
+   $('ftReplay').style.display='block';
+  }else{
+   $('ftShoot').disabled=false;
+   $('ftShoot').textContent='NEXT SHOT';
+   $('ftShoot').onclick=ftPrepareNextShot;
+   $('ftDifficulty').textContent='NEXT TARGET ZONE: '+Math.max(1,Math.round(ftGame.target*100))+'%';
+  }
+ }
 
  const dailyChallenges=[
   {id:'clutch',icon:'⏱️',name:'CLUTCH SHOOTER',desc:'Zaključi močno! Zadnjih pet metov je lažjih.',rule:'Zadnjih 5 metov: +25 odstotnih točk.',player:'Dnevni igralec se izbere za vse enako.'},
@@ -762,7 +943,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   $('modeMenu').classList.add('hidden');$('setup').classList.add('hidden');
   $('specialChallengeModal').classList.add('hidden');$('dailyPreviewModal').classList.add('hidden');
   $('roomBanner').classList.add('hidden');
-  beginTurn();
+  showGameInstructions(mode==='special'?'SPECIAL CHALLENGE':mode==='daily'?'DAILY CHALLENGE':'3PT SHOOTOUT',['Zadeni čim več metov in zberi čim več točk.','Uporabi gumbe za met in spremljaj čas oziroma število metov.','Po koncu igre bo prikazan rezultat in statistika.'],beginTurn);
  }
  function drawSpecials(){
   const host=$('specialChallengeOptions');host.innerHTML='';
@@ -778,6 +959,23 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   });
   $('specialChallengeModal').classList.remove('hidden');
  }
+ function openFreeThrowBoard(){
+  let rows=[];try{rows=JSON.parse(localStorage.getItem('basketball_universe_free_throw_board_v1')||'[]')}catch(e){}
+  $('freeThrowLeaderboardRows').innerHTML=rows.length?rows.slice(0,20).map((r,i)=>'<div class="ftBoardRow"><b>#'+(i+1)+'</b><span>'+String(r.name).replace(/[&<>"]/g,'')+'</span><strong>'+r.score+'</strong></div>').join(''):'<p>Še ni rezultatov. Odigraj prvo igro!</p>';
+  $('freeThrowLeaderboard').classList.remove('hidden');
+ }
+ $('freeThrowMainBtn').addEventListener('click',()=>$('freeThrowMenu').classList.remove('hidden'));
+ $('freeThrowSoloBtn').addEventListener('click',()=>{
+  $('freeThrowMenu').classList.add('hidden');
+  showGameInstructions('FREE THROW CHALLENGE',['Črtica se premika levo in desno po merilniku.','Pritisni STOP & SHOOT, ko je črtica znotraj ciljnega območja.','Po vsakem zadetku se cilj zmanjša. Igra se konča ob prvem zgrešenem metu.'],startFreeThrow);
+ });
+ $('freeThrowBoardBtn').addEventListener('click',()=>{
+  $('freeThrowMenu').classList.add('hidden');openFreeThrowBoard();
+ });
+ $('freeThrowBackBtn').addEventListener('click',()=>$('freeThrowMenu').classList.add('hidden'));
+ $('freeThrowBoardClose').addEventListener('click',()=>{
+  $('freeThrowLeaderboard').classList.add('hidden');$('freeThrowMenu').classList.remove('hidden');
+ });
  $('dailyChallengeBtn').addEventListener('click',()=>{
   pendingDaily=daily();
   $('dailyPreviewDate').textContent=DAY_KEY();
@@ -983,6 +1181,11 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   if(!state.usedTeams.includes(key))state.usedTeams.push(key);
   state.roster=state.team.players.map(x=>({name:x[0],pos:x[1],ovr:x[2],ppg:x[3],rpg:x[4],apg:x[5],team:state.team.team,season:state.team.season}));
  }
+ function showDraftInstructions(start){
+  const modal=document.createElement('div');modal.className='overlay';modal.id='draftInstructionsModal';
+  modal.innerHTML=`<div class="modal gameInstructionsCard"><div class="eyebrow">DRAFT MODE · HOW TO PLAY</div><h2>🏀 BUILD YOUR TEAM</h2><p>Draft five players for PG, SG, SF, PF and C. Each pick comes from a randomly selected NBA team.</p><p>Then choose your NBA franchise and play an 82-game regular season.</p><p>Qualify for the playoffs, win the quarter-finals, semi-finals and Finals. Each series is first to four wins.</p><button class="primary" id="draftInstructionsGo" style="width:100%">START DRAFT</button></div>`;
+  document.body.append(modal);$('draftInstructionsGo').onclick=()=>{modal.remove();start()};
+ }
  function menu(){
   resetDraft();
   stage.innerHTML=`<div class="draftIntro">
@@ -990,7 +1193,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    <div class="draftTile"><div class="eyebrow">PLAY WITH FRIENDS</div><h3>🌐 MULTIPLAYER DRAFT</h3><p>Create a private room, invite a friend with a code, draft five players each and battle in an online series.</p><button class="primary" id="multiDraftInfo">🌐 PLAY ONLINE</button></div>
    <div class="draftTile"><div class="eyebrow">GLOBAL RANKING</div><h3>🏆 DRAFT LEADERBOARD</h3><p>See the best regular-season records from all players. A perfect 82–0 season is the ultimate target.</p><button class="primary" id="openDraftLeaderboard">VIEW LEADERBOARD</button></div>
   </div><p class="muted">Historic and modern NBA teams · 1980s–2020s<br>Roster library is currently a curated prototype; player ratings are game estimates.</p>`;
-  $('soloDraftStart').onclick=()=>{resetDraft();renderDraft()};
+  $('soloDraftStart').onclick=()=>{resetDraft();showDraftInstructions(()=>renderDraft())};
   $('openDraftLeaderboard').onclick=()=>{stage.innerHTML=`<div class="draftTeam"><div><div class="eyebrow">GLOBAL RANKING</div><h3>🏆 DRAFT LEADERBOARD</h3><small>Best regular-season record per player</small></div><div style="font-size:38px">🏀</div></div><div class="draftTile"><div id="draftLeaderboardRows"></div></div><button class="secondary" id="backDraftModes" style="width:100%;margin-top:12px">BACK TO DRAFT MENU</button>`;loadDraftLeaderboard();$('backDraftModes').onclick=menu};
   $('multiDraftInfo').onclick=renderMultiDraftLobby;
  }
