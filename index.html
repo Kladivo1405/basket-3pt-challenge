@@ -119,8 +119,8 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </aside>
 </div></div>
 
-<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKET <span style="color:#f28c28">3PT</span><br>CHALLENGE</h1><p>NBA EDITION · FIVE RACKS · TWENTY-FIVE SHOTS</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="PLAYER 1" placeholder="Your nickname"><div class="modeBtns"><button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button><button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button><button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button><button class="secondary" id="leaderboardOpen">🏆 ALL-TIME LEADERBOARD</button></div></div></div>
-<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Your nickname" value="PLAYER 1"><button class="primary" id="createRoom">CREATE ONLINE GAME</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button></div></div>
+<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKET <span style="color:#f28c28">3PT</span><br>CHALLENGE</h1><p>NBA EDITION · FIVE RACKS · TWENTY-FIVE SHOTS</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button><button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button><button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button><button class="secondary" id="leaderboardOpen">🏆 ALL-TIME LEADERBOARD</button></div></div></div>
+<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button></div></div>
 <div class="overlay hidden" id="draft"><div class="modal"><div class="eyebrow">PLAYER DRAFT · 3 PICKS</div><h2>Choose your shooter</h2><p id="draftPrompt">You have three random players to choose from. Pick your weapon.</p><div class="candidategrid" id="candidateGrid"></div></div></div>
 <div class="overlay hidden" id="between"><div class="modal"><div class="eyebrow" id="betweenEyebrow">ROUND COMPLETE</div><h2 id="betweenTitle">PLAYER 1 takes the round!</h2><p id="betweenText">Pass the phone to the next shooter.</p><div class="endbuttons"><button class="primary" id="nextTurn">NEXT PLAYER</button><button class="secondary" id="betweenMenu">MAIN MENU</button></div></div></div>
 <div class="overlay hidden" id="gameover"><div class="modal"><div class="eyebrow">FINAL BUZZER</div><h2 id="winnerTitle">CHAMPION!</h2><div class="finalnum" id="finalWins">5–3</div><p id="winnerText">What a contest.</p><button class="primary" id="rematch">REMATCH</button></div></div>
@@ -167,7 +167,7 @@ function update(){$("points").textContent=score;$("made").textContent=made;$("le
 let target=turn===1&&roundScores[0]!==null?roundScores[0]:"—";$("targetScore").textContent=target;$("currentScore").textContent=score;$("targetHint").textContent=turn===1&&roundScores[0]!==null?(score>target?"YOU'RE AHEAD!":score===target?"TIED — KEEP GOING":"NEED "+(target-score+1)+" MORE"):"Set the pace.";
 drawSpots()}
 function drawSpots(){let host=$("spots");host.innerHTML="";for(let r=0;r<5;r++){let s=document.createElement("div");s.className="spot"+(Math.floor(shot/5)===r&&shot<25?" activeSpot":"");let label=document.createElement("div");label.className="spotlabel";label.textContent="SPOT "+(r+1);let rack=document.createElement("div");rack.className="rack";for(let b=0;b<5;b++){let i=r*5+b,ball=document.createElement("span");ball.className="ball"+(b===4?" money":"");if(results[i]!==undefined)ball.classList.add(results[i]?"hit":"miss");rack.appendChild(ball)}s.append(label,rack);host.appendChild(s)}}
-function shoot(){if(locked||shot>=25||!player)return;audio();let bonus=Math.min(12,Math.max(0,streak-1)*3),chance=Math.min(95,player.pct+8+bonus),hit=Math.random()*100<chance,money=shot%5===4;results.push(hit);shot++;let feedback=$("feedback"),comment=$("comment"),hoop=$("hoop"),flash=$("flash");hoop.className="hoop-area";flash.className="flash";void flash.offsetWidth;
+function shoot(){if(locked||shot>=25||!player)return;audio();let bonus=Math.min(16,Math.max(0,streak-1)*4),randomBoost=Math.random()<0.22?18:0, chance=Math.min(99.5,player.pct+18+bonus+randomBoost),hit=Math.random()*100<chance,money=shot%5===4;window.__lastRandomBoost=randomBoost;results.push(hit);shot++;let feedback=$("feedback"),comment=$("comment"),hoop=$("hoop"),flash=$("flash");hoop.className="hoop-area";flash.className="flash";void flash.offsetWidth;
 if(hit){made++;score+=money?2:1;streak++;cheer();feedback.className="feedback good";feedback.textContent=money?"MONEYBALL! +2 🔥":"BUCKET! +1 🏀";comment.textContent=streak>=2?pick(quips.streak):pick(quips.hit);hoop.classList.add("glow");flash.classList.add("hit")}
 else{streak=0;boo();feedback.className="feedback bad";feedback.textContent="NO GOOD!";comment.textContent=Math.random()<.6?pick(quips.tease):pick(quips.miss);hoop.classList.add("miss");flash.classList.add("miss")}
 update();if(shot===25){locked=true;$("shootBtn").disabled=true;roundScores[turn]=score;$("status").textContent=names[turn]+" finished with "+score+" points ("+made+"/25 made).";setTimeout(endTurn,700)}}
@@ -338,7 +338,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  }
  selectPlayer=function(p){originalSelect(p);powerShot=1+Math.floor(Math.random()*25);power.style.display='inline-block';power.textContent='⭐ POWER BALL: SHOT '+powerShot+' = DOUBLE POINTS';hot.style.display='none';hotTriggered=0;crowd.classList.remove('hot');$('crowdMood').textContent='THE CROWD IS READY';$('introPlayer').textContent=p.name;$('introDetails').textContent=(p.team||'')+' · '+(p.pct||0).toFixed(1)+'% 3P';$('introOverlay').classList.remove('hidden');setTimeout(()=>{$('introOverlay').classList.add('hidden');startCountdown()},1250)};
  const originalShoot=shoot;
- shoot=function(){if(countdownActive)return;let before=shot,oldScore=score,oldStreak=streak;originalShoot();if(shot===before)return;let hit=!!results[results.length-1],isPower=shot===powerShot;
+ shoot=function(){if(countdownActive)return;let before=shot,oldScore=score,oldStreak=streak;originalShoot();if(shot===before)return;let hit=!!results[results.length-1],isPower=shot===powerShot;if(window.__lastRandomBoost>0){$('crowdMood').textContent='🔥 HOT ZONE! +18% SHOOTING BOOST';$('crowdIcon').textContent='🔥';$('crowd').classList.add('hot');}
   if(isPower&&hit){score+=1;update();$('feedback').textContent='POWER BALL! +2 POINTS ⭐';}
   if(hit){bestStreak=Math.max(bestStreak,streak);crowdLevel=Math.min(100,crowdLevel+18);$('crowdIcon').textContent='🙌';$('crowdMood').textContent=crowdLevel>=75?'THE ARENA IS EXPLODING! 🔊':crowdLevel>=40?'CROWD GOES WILD!':'NICE SHOT!';crowd.classList.remove('boo','cheer');void crowd.offsetWidth;crowd.classList.add('cheer');if(crowdLevel>=75)crowd.classList.add('hot');if(streak>=3&&hotTriggered!==streak){hotTriggered=streak;hot.style.display='block';if(typeof cheer==='function')cheer();setTimeout(()=>{if(streak<3)hot.style.display='none'},1800)}}
   else{crowdLevel=Math.max(0,crowdLevel-22);$('crowdIcon').textContent='😱';$('crowdMood').textContent=crowdLevel===0?'A QUIET ARENA…':'CROWD GOES OOOH!';crowd.classList.remove('cheer','boo','hot');void crowd.offsetWidth;crowd.classList.add('boo');hot.style.display='none'}
@@ -380,13 +380,29 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  function showToast(){let d=toastQueue[0];if(!d)return;$('achievementToastName').textContent=d.icon+' '+d.name;$('achievementToastDesc').textContent=d.desc;$('achievementToast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{$('achievementToast').classList.remove('show');setTimeout(()=>{toastQueue.shift();showToast()},260)},2600)}
  function unlock(n,id){let data=load(n);if(data[id])return false;data[id]=true;store(n,data);toast(id);return true}
  function addPanel(parent,n){let data=load(n),panel=document.createElement('div');panel.className='achievementPanel';panel.innerHTML='<h3>🏆 ACHIEVEMENTS · '+Object.keys(data).filter(k=>data[k]&&definitions[k]).length+'/'+Object.keys(definitions).length+'</h3><div class="achievementGrid">'+Object.entries(definitions).map(([id,d])=>'<div class="achievementItem '+(data[id]?'unlocked':'locked')+'"><div class="aIcon">'+d.icon+'</div><b>'+d.name+(data[id]?' ✓':'')+'</b><small>'+d.desc+'</small></div>').join('')+'</div>';parent.append(panel)}
+
+ function evaluateRoundAchievements(n){
+   const hits=Array.isArray(results)?results:[];
+   const madeCount=hits.filter(Boolean).length;
+   if(madeCount>=10)unlock(n,'sharpshooter');
+   let streak=0,perfect=false;
+   for(let i=0;i<hits.length;i++){
+     if(hits[i]){streak++;if(streak>=5)unlock(n,'onfire');}
+     else streak=0;
+   }
+   for(let i=0;i+4<hits.length;i++){
+     if(hits.slice(i,i+5).every(Boolean)){perfect=true;break;}
+   }
+   if(perfect)unlock(n,'perfectrack');
+   if(hits.length===25&&hits[24])unlock(n,'icecold');
+ }
  let runMade=0,runStreak=0,rackHits=0,shotPlayer='',lastShotHit=false,lastShotAt25=false;const finalShotByNick={};
  const baseBegin=beginTurn;
  beginTurn=function(){runMade=0;runStreak=0;rackHits=0;shotPlayer=String(names[turn]||'PLAYER 1');lastShotHit=false;lastShotAt25=false;baseBegin()};
  const baseShoot=shoot;
  shoot=function(){let oldShot=shot,oldMade=made;baseShoot();if(shot===oldShot||made===oldMade)return;let hit=!!results[results.length-1],nick=String(names[turn]||'PLAYER 1');shotPlayer=nick;lastShotHit=hit;lastShotAt25=shot===25;if(hit){runMade++;runStreak++;rackHits++;if(runMade>=10)unlock(nick,'sharpshooter');if(runStreak>=5)unlock(nick,'onfire');if(rackHits===5)unlock(nick,'perfectrack')}else{runStreak=0;rackHits=0}if(shot%5===0)rackHits=0};
  const baseEnd=endTurn;
- endTurn=function(){let isSolo=!!soloMode&&!remoteMode,wasSecond=turn===1, nick=String(names[turn]||'PLAYER 1'), a=String(names[0]||'PLAYER 1'),b=String(names[1]||'PLAYER 2'),s0=roundScores[0],s1=roundScores[1],winner=null; if(isSolo){if(lastShotAt25&&lastShotHit)unlock(nick,'icecold')}else if(wasSecond&&s0!==null&&s1!==null){if(s0>s1)winner=a;else if(s1>s0)winner=b;if(winner&&finalShotByNick[winner])unlock(winner,'icecold')};baseEnd();if(!isSolo&&!remoteMode&&wasSecond&&(wins[0]>=5||wins[1]>=5)){let champ=wins[0]>wins[1]?a:b;unlock(champ,'champion')}if(isSolo){let host=$('betweenText');if(host&&!host.querySelector('.achievementPanel'))addPanel(host,nick)}else if(!remoteMode&&wasSecond){let host=$('betweenText');if(host&&!host.querySelector('.achievementPanel'))addPanel(host,a)}};
+ endTurn=function(){let isSolo=!!soloMode&&!remoteMode,wasSecond=turn===1, nick=String(names[turn]||'PLAYER 1'), a=String(names[0]||'PLAYER 1'),b=String(names[1]||'PLAYER 2'),s0=roundScores[0],s1=roundScores[1],winner=null; if(isSolo){evaluateRoundAchievements(nick);if(lastShotAt25&&lastShotHit)unlock(nick,'icecold')}else if(wasSecond&&s0!==null&&s1!==null){if(s0>s1)winner=a;else if(s1>s0)winner=b;if(winner&&finalShotByNick[winner])unlock(winner,'icecold')};baseEnd();if(!isSolo&&!remoteMode&&wasSecond&&(wins[0]>=5||wins[1]>=5)){let champ=wins[0]>wins[1]?a:b;unlock(champ,'champion')}if(isSolo){let host=$('betweenText');if(host){host.querySelector('.achievementPanel')?.remove();addPanel(host,nick)}}else if(!remoteMode&&wasSecond){let host=$('betweenText');if(host){host.querySelector('.achievementPanel')?.remove();addPanel(host,a)}}};
  // Remember whether player 1's final shot was made, so the round winner can earn ICE COLD.
  const priorShoot=shoot;
  shoot=function(){let t=turn,before=shot;priorShoot();if(shot>before&&shot===25)finalShotByNick[String(names[t]||'PLAYER 1')]=!!results[results.length-1]};
@@ -395,7 +411,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
 
 
 <script>
-/* Remember each player's nickname on this device */
+/* Remember the chosen nickname on this device; never invent a default name. */
 (()=>{
   const menu=document.getElementById('menuNick');
   const online=document.getElementById('nick1');
@@ -403,23 +419,31 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   const KEY='basket3pt_saved_nickname_v1';
   let saved='';
   try{saved=(localStorage.getItem(KEY)||'').trim()}catch(e){}
-  if(saved){
-    if(!menu.value||menu.value==='PLAYER 1')menu.value=saved;
-    if(!online.value||online.value==='PLAYER 1')online.value=saved;
-  }
+  if(saved){menu.value=saved;online.value=saved;}
   const remember=value=>{
     const nick=String(value||'').trim().slice(0,16);
-    if(!nick)return;
-    try{localStorage.setItem(KEY,nick)}catch(e){}
+    if(nick){try{localStorage.setItem(KEY,nick)}catch(e){}}
   };
   menu.addEventListener('input',()=>remember(menu.value));
   online.addEventListener('input',()=>remember(online.value));
-  menu.addEventListener('change',()=>remember(menu.value));
   online.addEventListener('change',()=>remember(online.value));
-  document.getElementById('soloMode')?.addEventListener('click',()=>remember(menu.value));
-  document.getElementById('onlineMode')?.addEventListener('click',()=>remember(menu.value));
-  document.getElementById('createRoom')?.addEventListener('click',()=>remember(online.value));
-  document.getElementById('joinRoom')?.addEventListener('click',()=>remember(online.value));
+  const requireName=(button,field)=>{
+    if(!button)return;
+    const old=button.onclick;
+    button.onclick=function(e){
+      if(!field.value.trim()){
+        e.preventDefault();field.focus();field.placeholder='Please enter your nickname';return;
+      }
+      remember(field.value);
+      if(typeof old==='function')return old.call(this,e);
+    };
+  };
+  requireName(document.getElementById('soloMode'),menu);
+  requireName(document.getElementById('onlineMode'),menu);
+  requireName(document.getElementById('localMode'),menu);
+  requireName(document.getElementById('createRoom'),online);
+  requireName(document.getElementById('joinRoom'),online);
+  requireName(document.getElementById('localStart'),online);
 })();
 </script>
 
