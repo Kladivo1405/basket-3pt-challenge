@@ -530,7 +530,14 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </aside>
 </div></div>
 
-<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>BUILD YOUR TEAM · COMPETE · BECOME A LEGEND</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div class="modeBtns"><button class="primary" id="threePtMode">🏀 3PT</button><button class="primary" id="freeThrowMainBtn">🎯 FREE THROW</button><button class="primary" id="draftModeBtn">🎲 DRAFT</button><button class="secondary" id="fantasyModeBtn" disabled>⭐ FANTASY · COMING SOON</button></div></div></div>
+<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>BUILD YOUR TEAM · COMPETE · BECOME A LEGEND</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div id="buAccountBar" style="margin:18px 0 8px;padding:14px;border:1px solid #ffffff24;border-radius:16px;background:#0d1b2c;text-align:left">
+ <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+  <div><div style="font-size:10px;letter-spacing:2px;color:#ffc66d;font-weight:900">YOUR BASKETBALL ID</div><div id="buAccountSummary" style="font-weight:800;margin-top:4px">Playing as guest</div><div id="buLevelSummary" style="font-size:12px;color:#b5c5d8;margin-top:3px">LEVEL 1 · 0 XP</div></div>
+  <button class="secondary" id="buProfileOpen" style="min-width:112px">MY PROFILE</button>
+ </div>
+ <div style="height:7px;background:#24364b;border-radius:10px;overflow:hidden;margin-top:12px"><div id="buXpBar" style="height:100%;width:0%;background:linear-gradient(90deg,#f28c28,#ffd36d)"></div></div>
+</div>
+<div class="modeBtns"><button class="primary" id="threePtMode">🏀 3PT</button><button class="primary" id="freeThrowMainBtn">🎯 FREE THROW</button><button class="primary" id="draftModeBtn">🎲 DRAFT</button><button class="secondary" id="fantasyModeBtn" disabled>⭐ FANTASY · COMING SOON</button></div></div></div>
 
 <div class="overlay hidden" id="threePtMenu" style="z-index:65">
  <div class="modal" style="width:min(560px,94vw)">
@@ -714,6 +721,7 @@ const SUPABASE_KEY = "sb_publishable_AXMDnK0IJKolloeq-vmC7Q_gNlpMI3c";
 const sb = (window.supabase && typeof window.supabase.createClient === 'function')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
+window.buSupabase = sb;
 
 // --- PRIVACY-FRIENDLY VISIT ANALYTICS ---
 // Counts visits and anonymous browser sessions; no names, emails or IPs are written by this code.
@@ -1111,7 +1119,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   const el=document.createElement('div');el.id='freeThrowGame';el.className='overlay';el.style.zIndex='130';
   el.innerHTML=`<div class="modal ftModal"><div class="eyebrow">BASKETBALL UNIVERSE · GAME 3</div><h2>🎯 FREE THROW CHALLENGE</h2>
    <div class="ftScore"><div><small>MADE</small><b id="ftMade">0</b></div><div><small>SHOT</small><b id="ftShot">0/10</b></div><div><small>MISS</small><b id="ftMiss">0</b></div></div>
-   <div class="ftCourt"><div class="ftBackboard"></div><div class="ftRim"></div><div class="ftNetMesh" id="ftNet"></div><div class="ftPlayer" id="ftPlayer"><span class="ftHead"></span><span class="ftBody"></span><span class="ftArm"></span></div><div class="ftBall" id="ftBall"></div><div class="ftCall" id="ftCall">GET READY</div></div>
+   <div class="ftStage" id="ftCourt"><div class="ftCall" id="ftCall">GET READY</div></div>
    <p class="ftHint">Ustavi črtico znotraj rumenega ciljnega območja!</p>
    <div class="ftMeter" id="ftMeter"><div class="ftTarget" id="ftTarget"></div><div class="ftMarker" id="ftMarker"></div></div>
    <div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div>
@@ -1120,8 +1128,9 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    <button class="primary" id="ftReplay" style="width:100%;margin-top:12px;display:none">PLAY AGAIN</button><button class="secondary" id="ftExit" style="width:100%;margin-top:10px">BACK TO MENU</button></div>`;
   document.body.append(el);
   $('freeThrowGame').classList.remove('hidden');
+  if(window.FTAnim)FTAnim.mount($('ftCourt'));
   $('ftShoot').onclick=ftShoot;
-  $('ftExit').onclick=()=>{clearInterval(ftTimer);$('freeThrowGame').remove();$('freeThrowMenu').classList.remove('hidden')};
+  $('ftExit').onclick=()=>{clearInterval(ftTimer);if(window.FTAnim)FTAnim.destroy();$('freeThrowGame').remove();$('freeThrowMenu').classList.remove('hidden')};
   $('ftReplay').onclick=()=>startFreeThrow();
   ftStartMeter();
  }
@@ -1139,9 +1148,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   },16);
  }
  function ftPrepareNextShot(){
-  $('ftPlayer').classList.remove('ftRelease');
-  $('ftBall').className='ftBall';
-  $('ftNet').classList.remove('ftNetHit');
+  if(window.FTAnim)FTAnim.reset();
   $('ftCall').className='ftCall';
   $('ftCall').textContent='GET READY';
   $('ftShoot').disabled=false;
@@ -1151,44 +1158,43 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  }
  function ftShoot(){
   if(!ftGame||ftGame.stopped)return;
-  ftGame.stopped=true;clearInterval(ftTimer);
-  const targetLeft=(100-ftGame.target*100)/2,targetRight=targetLeft+ftGame.target*100;
-  const hit=ftGame.marker>=targetLeft&&ftGame.marker<=targetRight;
-  if(hit)ftGame.made++;else ftGame.missed++;
-  ftGame.shot++;ftGame.results.push(hit);
-  $('ftMade').textContent=ftGame.made;$('ftMiss').textContent=ftGame.missed;$('ftShot').textContent=ftGame.shot;
-  $('ftCall').textContent='SHOT!';
-  $('ftCall').className='ftCall';
-  $('ftPlayer').classList.add('ftRelease');
-  $('ftBall').className='ftBall '+(hit?'ftBallMade':'ftBallMiss');
-  $('ftNet').classList.toggle('ftNetHit',hit);
-  $('ftHistory').textContent=ftGame.results.map(x=>x?'●':'×').join('  ');
-  if(hit)ftGame.target=Math.max(.005,ftGame.target*.77);
+  const g=ftGame;
+  g.stopped=true;clearInterval(ftTimer);
+  const targetLeft=(100-g.target*100)/2,targetRight=targetLeft+g.target*100;
+  const hit=g.marker>=targetLeft&&g.marker<=targetRight;
+  const err=(g.marker-50)/Math.max(1,g.target*50);
+  if(hit)g.made++;else g.missed++;
+  g.shot++;g.results.push(hit);
+  $('ftMade').textContent=g.made;$('ftMiss').textContent=g.missed;$('ftShot').textContent=g.shot;
+  $('ftHistory').textContent=g.results.map(x=>x?'●':'×').join('  ');
+  if(hit)g.target=Math.max(.005,g.target*.77);
   $('ftShoot').disabled=true;
-  if(!hit){
-   const player=(String($('menuNick')?.value||'').trim()||'PLAYER').slice(0,16),key='basketball_universe_free_throw_board_v1';
-   // Keep a local fallback, but the permanent/global record is saved to Supabase.
-   let board=[];try{board=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
-   const old=board.find(x=>x.name.toLowerCase()===player.toLowerCase());
-   if(!old)board.push({name:player,score:ftGame.made});else old.score=Math.max(old.score,ftGame.made);
-   board.sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
-   try{localStorage.setItem(key,JSON.stringify(board.slice(0,50)))}catch(e){}
-   window.__ftLeaderboardSaveStatus='Saving your solo Free Throw record…';
-   saveFreeThrowRecord(player,ftGame.made).then(ok=>{
-    window.__ftLeaderboardSaveStatus=ok?'Saved to global leaderboard.':'Could not save online. Check connection and Supabase setup.';
-   });
-   $('ftShoot').textContent='RUN FINISHED';$('ftShoot').disabled=true;$('ftShoot').style.display='none';
-   $('ftReplay').textContent='↻ PLAY AGAIN';$('ftReplay').style.display='block';$('ftReplay').focus?.();
-   $('ftDifficulty').textContent='FINAL STREAK: '+ftGame.made+' · TOTAL SHOTS: '+ftGame.shot;
-   $('ftCall').textContent=ftGame.made>=10?'INCREDIBLE STREAK!':ftGame.made>=5?'GREAT RUN!':'GOOD TRY!';
-   $('ftCall').className='ftCall ftMissCall';$('ftCourt').classList.add('ftMissScene');
-   $('ftReplay').style.display='block';
-  }else{
-   $('ftShoot').disabled=false;
-   $('ftShoot').textContent='NEXT SHOT';
-   $('ftShoot').onclick=ftPrepareNextShot;
-   $('ftDifficulty').textContent='NEXT TARGET ZONE: '+Math.max(1,Math.round(ftGame.target*100))+'%';
-  }
+  const done=()=>{
+   if(ftGame!==g||!$('ftShoot'))return;
+   if(!hit){
+    const player=(String($('menuNick')?.value||'').trim()||'PLAYER').slice(0,16),key='basketball_universe_free_throw_board_v1';
+    let board=[];try{board=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
+    const old=board.find(x=>x.name.toLowerCase()===player.toLowerCase());
+    if(!old)board.push({name:player,score:g.made});else old.score=Math.max(old.score,g.made);
+    board.sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
+    try{localStorage.setItem(key,JSON.stringify(board.slice(0,50)))}catch(e){}
+    window.__ftLeaderboardSaveStatus='Saving your solo Free Throw record…';
+    saveFreeThrowRecord(player,g.made).then(ok=>{
+     window.__ftLeaderboardSaveStatus=ok?'Saved to global leaderboard.':'Could not save online. Check connection and Supabase setup.';
+    });
+    $('ftShoot').textContent='RUN FINISHED';$('ftShoot').disabled=true;$('ftShoot').style.display='none';
+    $('ftReplay').textContent='↻ PLAY AGAIN';$('ftReplay').style.display='block';$('ftReplay').focus?.();
+    $('ftDifficulty').textContent='FINAL STREAK: '+g.made+' · TOTAL SHOTS: '+g.shot;
+    $('ftCall').textContent=g.made>=10?'INCREDIBLE STREAK!':g.made>=5?'GREAT RUN!':'GOOD TRY!';
+    $('ftCall').className='ftCall ftMissCall';$('ftCourt').classList.add('ftMissScene');
+   }else{
+    $('ftShoot').disabled=false;
+    $('ftShoot').textContent='NEXT SHOT';
+    $('ftShoot').onclick=ftPrepareNextShot;
+    $('ftDifficulty').textContent='NEXT TARGET ZONE: '+Math.max(1,Math.round(g.target*100))+'%';
+   }
+  };
+  if(window.FTAnim)FTAnim.shoot({hit,err,streak:g.made},done);else done();
  }
 
  const dailyChallenges=[
@@ -1381,6 +1387,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  let pkMeterTimer=null,pkMarker=0,pkDirection=1;
  function pkStartMeter(target){
   clearInterval(pkMeterTimer);pkMarker=0;pkDirection=1;
+  const stage=$('pkFTStage');if(stage&&window.FTAnim)FTAnim.mount(stage);
   const zone=$('pkTargetZone'),marker=$('pkShotMarker');
   zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%';
   marker.style.left='0%';
@@ -1388,13 +1395,12 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  }
  function pkAnimateShot(hit){
   clearInterval(pkMeterTimer);
-  const ball=$('pkAnimBall'),call=$('pkAnimCall'),net=$('pkAnimNet');
-  if(!ball)return;
-  ball.className='pkAnimBall';void ball.offsetWidth;ball.classList.add(hit?'pkMade':'pkMiss');
-  net.classList.remove('pkNetHit');void net.offsetWidth;
-  call.textContent=hit?'SWISH!':'MISS!';
-  call.style.color=hit?'#8df0ad':'#ff7777';
-  if(hit)net.classList.add('pkNetHit');
+  const host=$('pkFTStage');if(!host||!window.FTAnim)return;
+  FTAnim.mount(host);
+  const pb=pkState?.shotPlayback||{};
+  const target=Number(pb.target||pkDistanceTarget(pb.spot||0,pkState?.players?.[pb.shooter]?.player)||.2);
+  const err=((pb.release??50)-50)/Math.max(1,target*50);
+  FTAnim.shoot({hit:!!hit,err,streak:(pkState?.scores&&pkState.scores[pb.shooter])||0},()=>{});
  }
  function pkPlayShot(me,hit){
   clearInterval(pkMeterTimer);
@@ -1443,7 +1449,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   return '<div class="pkScoreboard"><div class="pkScoreTitle">LIVE SCOREBOARD <span>FIRST TO 7</span></div><div class="pkScoreGrid">'+players.map((p,i)=>'<div class="pkScoreCard '+(alive.includes(i)||pkState.phase!=="survivor"?'':'pkOut')+'"><div class="pkScoreName">'+(p.name)+'</div><div class="pkScoreNum">'+(pkState.scores?.[i]||0)+'</div><div class="pkScorePlayer">'+(p.player?.name||'NBA PLAYER')+' · '+(p.player?.team||'')+'</div><div class="pkScoreOvr">OVR '+(p.player?.ovr||'—')+'</div></div>').join('')+'</div></div>';
  }
  function pkShotScene(target,buttonId,buttonLabel,shooterName){
-  return '<div class="pkFirstPerson"><div class="pkShooterLabel">'+(shooterName||'PLAYER')+'</div><div class="pkSceneGlow"></div><div class="pkAnimCall" id="pkAnimCall">FOCUS · FIND YOUR RELEASE</div><div class="pkAnimHoop"><div class="pkAnimBackboard"></div><div class="pkAnimRim"></div><div class="pkAnimNet" id="pkAnimNet"></div></div><div class="pkAnimBall" id="pkAnimBall"></div><div class="pkDistanceTag">'+(pkState.phase==='shootout'?'FREE THROW':'SHOT · '+(pkState.spotName||'COURT'))+'</div></div><p class="pkShotHint">Stop the moving marker inside the target zone. Closer to the basket = larger target. Longer shots demand more precision.</p><div class="pkShotMeter"><div class="pkTargetZone" id="pkTargetZone"></div><div class="pkShotMarker" id="pkShotMarker"></div></div><div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div><button class="primary pkShootButton" id="'+buttonId+'">'+buttonLabel+'</button>';
+  return '<div class="ftStage pkFTStage" id="pkFTStage"><div class="pkShooterLabel">'+(shooterName||'PLAYER')+'</div><div class="ftCall" id="ftCall">FOCUS · FIND YOUR RELEASE</div><div class="pkDistanceTag">'+(pkState.phase==='shootout'?'FREE THROW':'SHOT · '+(pkState.spotName||'COURT'))+'</div></div><p class="pkShotHint">Stop the moving marker inside the target zone. Closer to the basket = larger target. Longer shots demand more precision.</p><div class="pkShotMeter"><div class="pkTargetZone" id="pkTargetZone"></div><div class="pkShotMarker" id="pkShotMarker"></div></div><div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div><button class="primary pkShootButton" id="'+buttonId+'">'+buttonLabel+'</button>';
  }
  function pkRenderGame(){
   $('parketLobby').classList.add('hidden');$('parketGame').classList.remove('hidden');
@@ -2554,5 +2560,561 @@ window.buShowMatchIntro=function(me,opponent){
   },1000);
  });
 };
+</script>
+
+<style>
+#buAccountModal{position:fixed;inset:0;z-index:1000010;display:none;align-items:center;justify-content:center;padding:16px;background:#030914eF;overflow:auto}
+#buAccountModal .buPanel{width:min(540px,100%);max-height:92dvh;overflow:auto;padding:22px;border:1px solid #ffffff30;border-radius:22px;background:linear-gradient(145deg,#203b5c,#0a192a);color:#fff;box-shadow:0 24px 80px #000b}
+#buAccountModal input{width:100%;box-sizing:border-box;padding:13px 14px;margin:6px 0 12px;border-radius:12px;border:1px solid #ffffff28;background:#0b1929;color:#fff;font-size:16px}
+#buAccountModal label{font-size:11px;letter-spacing:1.4px;color:#b8c9dc;font-weight:900}
+#buAccountModal .buActions{display:flex;gap:8px;flex-wrap:wrap}
+#buAccountModal button{cursor:pointer}
+#buAvatarChoices{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0}
+#buAvatarChoices button{font-size:25px;padding:8px 2px;border-radius:12px;border:1px solid #ffffff25;background:#10243a}
+#buAvatarChoices button.selected{outline:2px solid #ffc66d;background:#284666}
+.buStatGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:14px 0}
+.buStat{background:#0c1b2d;border:1px solid #ffffff18;border-radius:13px;padding:12px}
+.buStat small{display:block;color:#aebed0;font-size:10px;letter-spacing:1px}
+.buStat b{display:block;font-size:25px;color:#ffd16b;margin-top:3px}
+.buProgress{height:9px;border-radius:9px;background:#26384c;overflow:hidden;margin:9px 0}
+.buProgress>i{display:block;height:100%;background:linear-gradient(90deg,#f28c28,#ffd36d)}
+.buGameRow{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:1px solid #ffffff17;font-size:13px}
+.buMuted{color:#b3c4d7;font-size:12px}
+</style>
+<div id="buAccountModal">
+ <div class="buPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div style="font-size:10px;letter-spacing:3px;color:#ffc66d;font-weight:900">BASKETBALL UNIVERSE</div><h2 id="buPanelTitle" style="margin:5px 0 12px">MY PROFILE</h2></div><button id="buAccountClose" class="secondary" style="padding:8px 12px">✕</button></div>
+  <div id="buAccountContent"></div>
+  <p id="buAccountMessage" class="buMuted" aria-live="polite"></p>
+ </div>
+</div>
+<script>
+(()=>{
+ const sb=window.buSupabase, $=id=>document.getElementById(id);
+ if(!sb)return;
+ const APP_URL='https://kladivo1405.github.io/basket-3pt-challenge/';
+ const avatars=['🏀','🐐','🔥','⚡','🦁','🐺','🦅','👑','🤖','🐍','🦈','💎'];
+ let profile=null,stats=[],selectedAvatar='🏀',sessionUser=null;
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function levelInfo(xp){
+  let level=1,remaining=Math.max(0,Number(xp)||0),needed=100;
+  while(remaining>=needed&&level<1000){remaining-=needed;level++;needed=Math.round(100*Math.pow(level,1.38));}
+  return {level,into:remaining,needed,progress:Math.min(100,remaining/needed*100)};
+ }
+ function msg(t,bad=false){$('buAccountMessage').textContent=t||'';$('buAccountMessage').style.color=bad?'#ff9b9b':'#b3c4d7'}
+ function open(){ $('buAccountModal').style.display='flex';render();}
+ function close(){ $('buAccountModal').style.display='none';}
+ function currentNick(){return String($('menuNick')?.value||localStorage.getItem('bu_nickname')||'Rookie').trim().slice(0,16)||'Rookie'}
+ function updateMenu(){
+  if(!profile)return;
+  const lv=levelInfo(profile.xp);
+  $('buAccountSummary').textContent=(profile.avatar||'🏀')+' '+(profile.nickname||currentNick())+(sessionUser&&!sessionUser.is_anonymous?' · ACCOUNT':' · GUEST');
+  $('buLevelSummary').textContent=`LEVEL ${lv.level} · ${Number(profile.xp)||0} XP · ${lv.needed-lv.into} XP TO NEXT`;
+  $('buXpBar').style.width=lv.progress+'%';
+  if($('menuNick'))$('menuNick').value=profile.nickname||currentNick();
+ }
+ async function ensureGuest(){
+  let {data,error}=await sb.auth.getSession();if(error)throw error;
+  if(!data.session){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;data={session:r.data.session};}
+  sessionUser=data.session.user;return sessionUser;
+ }
+ async function loadProfile(){
+  await ensureGuest();
+  const {data,error}=await sb.from('bu_profiles').select('*').eq('user_id',sessionUser.id).maybeSingle();
+  if(error)throw error;
+  if(data)profile=data;
+  else{
+   const initial={user_id:sessionUser.id,nickname:currentNick(),avatar:'🏀',xp:0};
+   const r=await sb.from('bu_profiles').insert(initial).select().single();if(r.error)throw r.error;profile=r.data;
+  }
+  const sr=await sb.from('bu_game_stats').select('*').eq('user_id',sessionUser.id);
+  if(sr.error)throw sr.error;stats=sr.data||[];
+  updateMenu();
+ }
+ function render(){
+  const guest=!sessionUser||sessionUser.is_anonymous;
+  const lv=levelInfo(profile?.xp||0);
+  const total=stats.reduce((a,s)=>({played:a.played+(s.played||0),wins:a.wins+(s.wins||0),losses:a.losses+(s.losses||0)}),{played:0,wins:0,losses:0});
+  const rate=total.played?Math.round(total.wins/total.played*100):0;
+  const games=[['threept','3PT CHALLENGE'],['draft','DRAFT MODE'],['parket','PARKET SURVIVOR'],['blockout','3 HOOPS · BLOCKOUT']];
+  $('buPanelTitle').textContent='MY PROFILE';
+  $('buAccountContent').innerHTML=`
+   <div style="display:flex;gap:14px;align-items:center;background:#0b1a2b;padding:14px;border-radius:15px">
+    <div style="font-size:52px">${esc(profile?.avatar||'🏀')}</div><div><div style="font-size:21px;font-weight:950">${esc(profile?.nickname||currentNick())}</div><div style="color:#ffd16d;font-weight:900">LEVEL ${lv.level}</div><div class="buMuted">${Number(profile?.xp)||0} TOTAL XP</div></div>
+   </div>
+   <div class="buProgress"><i style="width:${lv.progress}%"></i></div><div class="buMuted">${lv.into} / ${lv.needed} XP to Level ${lv.level+1}</div>
+   <div class="buStatGrid"><div class="buStat"><small>GAMES PLAYED</small><b>${total.played}</b></div><div class="buStat"><small>WIN RATE</small><b>${rate}%</b></div><div class="buStat"><small>WINS</small><b>${total.wins}</b></div><div class="buStat"><small>LOSSES</small><b>${total.losses}</b></div></div>
+   <h3 style="margin:16px 0 7px">GAME STATS</h3>
+   ${games.map(([key,label])=>{const s=stats.find(x=>x.game_mode===key)||{};const pct=(s.played||0)?Math.round((s.wins||0)/s.played*100):0;return `<div class="buGameRow"><span>${label}<br><small class="buMuted">${s.wins||0} W · ${s.losses||0} L</small></span><b>${pct}%</b></div>`}).join('')}
+   <h3 style="margin:18px 0 7px">AVATAR</h3><div id="buAvatarChoices">${avatars.map(a=>`<button data-avatar="${a}" class="${(profile?.avatar||'🏀')===a?'selected':''}">${a}</button>`).join('')}</div>
+   <label>NICKNAME</label><input id="buEditNick" maxlength="16" value="${esc(profile?.nickname||currentNick())}">
+   <div class="buActions"><button class="primary" id="buSaveProfile">SAVE PROFILE</button></div>
+   <hr style="border-color:#ffffff20;margin:18px 0">
+   <h3>${guest?'SAVE YOUR PROGRESS':'ACCOUNT SETTINGS'}</h3>
+   ${guest?`<p class="buMuted">You are playing as a guest. Add an email and password to keep this same profile, level and progress on other devices.</p><label>EMAIL</label><input id="buEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>PASSWORD (at least 8 characters)</label><input id="buPassword" type="password" autocomplete="new-password" placeholder="Password"><div class="buActions"><button class="primary" id="buLinkAccount">CREATE ACCOUNT & SAVE PROGRESS</button><button class="secondary" id="buGoogleLink" style="width:100%;background:#fff;color:#182536">🌐 CONTINUE WITH GOOGLE</button></div><p class="buMuted">Already have an account? Use login below. Google can also link to this guest profile and preserve its progress.</p><button class="secondary" id="buShowLogin">LOGIN TO EXISTING ACCOUNT</button>`:
+   `<div class="buMuted">Signed in as ${esc(sessionUser.email||'registered player')}</div><button class="secondary" id="buLogout">SIGN OUT</button>`}
+  `;
+  $('buAvatarChoices').querySelectorAll('button').forEach(b=>b.onclick=async()=>{profile.avatar=b.dataset.avatar;await saveProfile();render()});
+  $('buSaveProfile').onclick=async()=>{profile.nickname=$('buEditNick').value.trim().slice(0,16)||'Rookie';await saveProfile();updateMenu();render();msg('Profile saved.')};
+  if(guest){
+   $('buLinkAccount').onclick=linkGuest;
+   $('buGoogleLink').onclick=async()=>{try{const {error}=await sb.auth.linkIdentity({provider:'google',options:{redirectTo:APP_URL}});if(error)throw error;}catch(e){msg(e.message,true)}};
+   $('buShowLogin').onclick=renderLogin;
+  }else $('buLogout').onclick=async()=>{await sb.auth.signOut();sessionUser=null;profile=null;stats=[];await loadProfile();render();msg('Signed out. You are now a guest.')};
+ }
+ async function saveProfile(){
+  const {error}=await sb.from('bu_profiles').upsert({user_id:sessionUser.id,nickname:profile.nickname,avatar:profile.avatar,xp:profile.xp||0,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(error)throw error;updateMenu();
+ }
+ async function linkGuest(){
+  const email=$('buEmail').value.trim(),password=$('buPassword').value;
+  if(!email||password.length<8){msg('Enter a valid email and a password with at least 8 characters.',true);return}
+  try{
+   const {data,error}=await sb.auth.updateUser({email,password},{emailRedirectTo:APP_URL});if(error)throw error;
+   msg('Account linked! Check your email to confirm the address. Your guest profile and progress stay on this account.');
+   await loadProfile();render();
+  }catch(e){msg(e.message,true)}
+ }
+ function renderLogin(){
+  $('buAccountContent').innerHTML=`<p class="buMuted">Sign in to your existing Basketball Universe account.</p><label>EMAIL</label><input id="buLoginEmail" type="email" autocomplete="email"><label>PASSWORD</label><input id="buLoginPassword" type="password" autocomplete="current-password"><button id="buForgotPassword" style="border:0;background:none;color:#ffd078;padding:4px 0 12px;text-decoration:underline;font-weight:800">FORGOT PASSWORD?</button><div class="buActions"><button class="primary" id="buLoginBtn">LOGIN</button><button class="secondary" id="buGoogleLogin" style="width:100%;background:#fff;color:#182536">🌐 CONTINUE WITH GOOGLE</button><button class="secondary" id="buBackGuest">BACK</button></div>`;
+  $('buLoginBtn').onclick=async()=>{try{const {data,error}=await sb.auth.signInWithPassword({email:$('buLoginEmail').value.trim(),password:$('buLoginPassword').value});if(error)throw error;sessionUser=data.user;await loadProfile();render();msg('Welcome back!')}catch(e){msg(e.message,true)}};
+  $('buGoogleLogin').onclick=async()=>{try{const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:APP_URL,queryParams:{prompt:'select_account'}}});if(error)throw error;}catch(e){const m=e.message||String(e);msg(m.includes('provider is not enabled')?'Google prijava še ni omogočena v Supabase: Authentication → Sign In / Providers → Google.':m,true)}};
+  $('buForgotPassword').onclick=renderForgotPassword;
+  $('buBackGuest').onclick=async()=>{await sb.auth.signOut();await loadProfile();render()};
+ }
+
+ function renderForgotPassword(){
+  $('buPanelTitle').textContent='RESET PASSWORD';
+  $('buAccountContent').innerHTML=`<p class="buMuted">Enter the email address linked to your account. Supabase will send you a password reset link.</p><label>EMAIL</label><input id="buResetEmail" type="email" autocomplete="email" placeholder="you@example.com"><div class="buActions"><button class="primary" id="buSendReset">SEND RESET LINK</button><button class="secondary" id="buBackLogin">BACK TO LOGIN</button></div>`;
+  $('buSendReset').onclick=async()=>{const email=$('buResetEmail').value.trim();if(!email){msg('Enter your email address.',true);return}try{const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:APP_URL});if(error)throw error;msg('If an account exists for this email, a reset link has been sent. Check your inbox and spam folder.')}catch(e){msg(e.message,true)}};
+  $('buBackLogin').onclick=renderLogin;
+ }
+ function renderSetNewPassword(){
+  $('buPanelTitle').textContent='CHOOSE NEW PASSWORD';
+  $('buAccountModal').style.display='flex';
+  $('buAccountContent').innerHTML=`<p class="buMuted">Choose a new password for your Basketball Universe account.</p><label>NEW PASSWORD (at least 8 characters)</label><input id="buNewPassword" type="password" autocomplete="new-password"><label>CONFIRM PASSWORD</label><input id="buConfirmPassword" type="password" autocomplete="new-password"><div class="buActions"><button class="primary" id="buSaveNewPassword">SAVE NEW PASSWORD</button></div>`;
+  $('buSaveNewPassword').onclick=async()=>{const a=$('buNewPassword').value,b=$('buConfirmPassword').value;if(a.length<8){msg('Password must be at least 8 characters.',true);return}if(a!==b){msg('Passwords do not match.',true);return}try{const {error}=await sb.auth.updateUser({password:a});if(error)throw error;msg('Password updated successfully. You can now log in with your new password.');}catch(e){msg(e.message,true)}};
+ }
+ window.BU={
+  async recordResult(mode,won,details={}){
+   try{
+    await loadProfile();
+    const current=stats.find(s=>s.game_mode===mode)||{played:0,wins:0,losses:0};
+    const next={user_id:sessionUser.id,game_mode:mode,played:(current.played||0)+1,wins:(current.wins||0)+(won?1:0),losses:(current.losses||0)+(won?0:1),updated_at:new Date().toISOString()};
+    const {error}=await sb.from('bu_game_stats').upsert(next,{onConflict:'user_id,game_mode'});if(error)throw error;
+    const xp=won?50:20;profile.xp=(Number(profile.xp)||0)+xp;await saveProfile();
+    await sb.from('bu_match_history').insert({user_id:sessionUser.id,game_mode:mode,result:won?'win':'loss',xp_earned:xp,details});
+    const oldLevel=levelInfo(profile.xp-xp).level,newLevel=levelInfo(profile.xp).level;
+    await loadProfile();updateMenu();if(newLevel>oldLevel){msg('LEVEL UP! You reached Level '+newLevel+' 🎉')}
+   }catch(e){console.warn('Profile stats save failed:',e.message)}
+  }
+ };
+ $('buProfileOpen').onclick=open;$('buAccountClose').onclick=close;
+ $('buAccountModal').addEventListener('click',e=>{if(e.target===$('buAccountModal'))close()});
+ sb.auth.onAuthStateChange((event,session)=>{if(session?.user){sessionUser=session.user;loadProfile().catch(e=>console.warn(e));if(event==='PASSWORD_RECOVERY')renderSetNewPassword();}});
+ (async()=>{try{await loadProfile();}catch(e){console.warn('Account module:',e.message);$('buAccountSummary').textContent='Profile setup needed · check SQL';$('buLevelSummary').textContent=e.message}})();
+})();
+</script>
+
+<style>
+.ftStage{position:relative;border-radius:16px;overflow:hidden;border:2px solid #ffffff30;background:#0a1626;box-shadow:0 10px 30px #0006}
+.ftStage canvas{display:block;width:100%;height:auto;aspect-ratio:640/420}
+.ftStage .ftCall{top:12px;font-size:24px;pointer-events:none}
+
+.pkFTStage{margin:12px 0 14px;min-height:220px}
+.pkFTStage .pkShooterLabel{position:absolute;left:12px;bottom:10px;z-index:4;font-size:11px;font-weight:900;text-shadow:0 2px 5px #000}
+.pkFTStage .pkDistanceTag{position:absolute;right:10px;bottom:10px;z-index:4;font-size:10px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 5px #000}
+</style>
+<script>
+/* FTAnim v1 - realistic free throw animation (canvas, side view, simulated ball physics) */
+(function(){
+'use strict';
+const W=640,H=420,RAD=Math.PI/180;
+const C={floor:388,rimY:132,rimNear:471,rimFar:509,boardX:522,boardTop:56,boardBot:144,r:10,g:860,px:112};
+C.rimCx=(C.rimNear+C.rimFar)/2;
+const LS=40,LT=38,LB=50,UA=27,FA=25,HA=9;
+const RELT=0.62;
+// keyframes: t,k(knee bend),tau(torso lean),lift(on toes),a,f,h (shooting arm),a2,f2 (guide arm),bx,by (ball offset from wrist)
+const KEYS=[
+ [0.00,14,6,0, 30,135,150, 28,130, 8,-4],
+ [0.30,50,13,0, 95,180,170, 90,150, -1,-11],
+ [0.46,38,9,0, 110,180,172, 95,150, -1,-11],
+ [0.62,8,0,9, 150,165,165, 100,140, 2,-10],
+ [0.72,5,-2,11, 152,160,95, 95,120, 2,-10],
+ [1.00,10,2,0, 150,150,60, 70,100, 2,-10]
+];
+const F=['k','tau','lift','a','f','h','a2','f2','bx','by'];
+function poseAt(T){
+ let a,b,u;
+ if(T<=KEYS[0][0]){a=b=KEYS[0];u=0}
+ else if(T>=KEYS[KEYS.length-1][0]){a=b=KEYS[KEYS.length-1];u=0}
+ else{let i=0;while(T>KEYS[i+1][0])i++;a=KEYS[i];b=KEYS[i+1];u=(T-a[0])/(b[0]-a[0]);u=u*u*(3-2*u)}
+ const p={};F.forEach((n,i)=>p[n]=a[i+1]+(b[i+1]-a[i+1])*u);
+ return p;
+}
+function joints(p){
+ const b=p.k*RAD/2,ax=C.px,ay=C.floor-7-p.lift;
+ const ankle={x:ax,y:ay};
+ const knee={x:ax+LS*Math.sin(b),y:ay-LS*Math.cos(b)};
+ const hip={x:knee.x-LT*Math.sin(b),y:knee.y-LT*Math.cos(b)};
+ const t=p.tau*RAD;
+ const sh={x:hip.x+LB*Math.sin(t),y:hip.y-LB*Math.cos(t)};
+ const hd=(p.tau+8)*RAD;
+ const head={x:sh.x+19*Math.sin(hd),y:sh.y-19*Math.cos(hd)};
+ const arm=(a,f,h)=>{
+  const e={x:sh.x+UA*Math.sin(a*RAD),y:sh.y+UA*Math.cos(a*RAD)};
+  const w={x:e.x+FA*Math.sin(f*RAD),y:e.y+FA*Math.cos(f*RAD)};
+  const tip={x:w.x+HA*Math.sin(h*RAD),y:w.y+HA*Math.cos(h*RAD)};
+  return {e,w,tip};
+ };
+ const near=arm(p.a,p.f,p.h),far=arm(p.a2,p.f2,p.h-15);
+ return {ankle,knee,hip,sh,head,near,far,wrist:near.w,
+  toe:{x:ax+16,y:C.floor-3},heel:{x:ax-6,y:ay+4},
+  knee2:{x:knee.x-9,y:knee.y},ankle2:{x:ax-17,y:ay},toe2:{x:ax-1,y:C.floor-3},heel2:{x:ax-23,y:ay+4}};
+}
+/* ---------- ball physics simulation ---------- */
+function simulate(x0,y0,tx,ty,theta,spin){
+ const dx=tx-x0,dy=y0-ty,th=theta*RAD,c=Math.cos(th),tn=Math.tan(th);
+ const den=2*c*c*(dx*tn-dy);if(den<=0)return null;
+ const v=Math.sqrt(C.g*dx*dx/den);
+ let x=x0,y=y0,vx=v*c,vy=-v*Math.sin(th),ang=0,w=spin,t=0,made=false,rim=false,board=false,fl=0,lastRim=-1;
+ const dt=1/480,frames=[],ev=[],pts=[C.rimNear,C.rimFar];
+ while(t<3.6){
+  const py=y;
+  vy+=C.g*dt;x+=vx*dt;y+=vy*dt;ang+=w*dt;t+=dt;
+  for(const rx of pts){
+   const ddx=x-rx,ddy=y-C.rimY,d=Math.hypot(ddx,ddy),mn=C.r+2.5;
+   if(d<mn&&d>1e-6){
+    const nx=ddx/d,ny=ddy/d,vn=vx*nx+vy*ny;
+    x=rx+nx*mn;y=C.rimY+ny*mn;
+    if(vn<0){vx-=1.55*vn*nx;vy-=1.55*vn*ny;vx*=.94;w*=.8;rim=true;
+     if(t-lastRim>.04){ev.push({t,type:'rim',s:Math.min(1,-vn/450)});lastRim=t}}
+   }
+  }
+  if(vx>0&&x+C.r>C.boardX&&x<C.boardX+6&&y>C.boardTop-4&&y<C.boardBot+4){
+   x=C.boardX-C.r;ev.push({t,type:'board',s:Math.min(1,vx/450)});vx=-vx*.55;vy*=.92;w*=.7;board=true;
+  }
+  if(!made&&py<C.rimY&&y>=C.rimY&&vy>0&&x>C.rimNear+2&&x<C.rimFar-2){made=true;ev.push({t,type:'swish'})}
+  if(made&&y>C.rimY+4&&y<C.rimY+62&&x>C.rimNear-4&&x<C.rimFar+4){
+   vx*=1-6*dt;vx+=(C.rimCx-x)*30*dt;if(vy>180)vy-=(vy-180)*6*dt;
+  }
+  if(y+C.r>C.floor){
+   y=C.floor-C.r;
+   if(vy>0){ev.push({t,type:'floor',s:Math.min(1,vy/600)});vy=-vy*.6;vx*=.82;w*=.6;fl++}
+  }
+  frames.push(x,y,ang);
+  if(fl>=2||x>W+40||x<-40)break;
+ }
+ return {frames,ev,made,rim,board,dt,tEnd:t};
+}
+function plan(hit,err,x0,y0){
+ let best=null;
+ for(let i=0;i<500;i++){
+  const theta=50+Math.random()*7;let off;
+  if(hit)off=Math.random()<.78?(Math.random()+Math.random()-1)*7:(Math.random()-.5)*26;
+  else{const sg=err<0?-1:1,m=12+Math.min(Math.max(Math.abs(err)-1,0),3)*9+Math.random()*10;off=sg*m}
+  const r=simulate(x0,y0,C.rimCx+off,C.rimY,theta,-(10+Math.random()*8));
+  if(r&&r.made===hit)return r;
+  if(r&&!best)best=r;
+ }
+ return best;
+}
+/* ---------- net (verlet) ---------- */
+const NC=7,NR=6;
+function makeNet(){
+ const pts=[],cons=[];
+ for(let r=0;r<NR;r++)for(let c=0;c<NC;c++){
+  const w=(C.rimFar-C.rimNear-4)*(1-0.38*r/(NR-1));
+  const x=C.rimCx+(c/(NC-1)-.5)*w,y=C.rimY+2+r*8;
+  pts.push({x,y,px:x,py:y,hx:x,hy:y,pin:r===0});
+ }
+ const P=(r,c)=>pts[r*NC+c];
+ const add=(a,b)=>cons.push({a,b,l:Math.hypot(a.x-b.x,a.y-b.y)});
+ for(let r=0;r<NR;r++)for(let c=0;c<NC;c++){
+  if(c<NC-1)add(P(r,c),P(r,c+1));
+  if(r<NR-1){add(P(r,c),P(r+1,c));if(c<NC-1){add(P(r,c),P(r+1,c+1));add(P(r,c+1),P(r+1,c))}}
+ }
+ return {pts,cons};
+}
+function netStep(net,dt,ball,dip){
+ const gdt=dt*dt*650;
+ net.pts.forEach(p=>{
+  if(p.pin){p.px=p.x=p.hx;p.py=p.y=p.hy+dip;return}
+  const vx=(p.x-p.px)*.975,vy=(p.y-p.py)*.975;
+  p.px=p.x;p.py=p.y;
+  p.x+=vx+(p.hx-p.x)*.02;p.y+=vy+gdt+(p.hy-p.y)*.012;
+ });
+ for(let it=0;it<4;it++){
+  net.cons.forEach(k=>{
+   const dx=k.b.x-k.a.x,dy=k.b.y-k.a.y,d=Math.hypot(dx,dy)||1e-6,df=(d-k.l)/d*.5*.7;
+   if(!k.a.pin){k.a.x+=dx*df;k.a.y+=dy*df}
+   if(!k.b.pin){k.b.x-=dx*df;k.b.y-=dy*df}
+  });
+  if(ball&&ball.y>C.rimY-14&&ball.y<C.rimY+90){
+   const mn=C.r+2;
+   net.pts.forEach(p=>{
+    if(p.pin)return;
+    const dx=p.x-ball.x,dy=p.y-ball.y,d=Math.hypot(dx,dy);
+    if(d<mn&&d>.01){p.x=ball.x+dx/d*mn;p.y=ball.y+dy/d*mn}
+   });
+  }
+ }
+}
+/* ---------- background ---------- */
+let BG=null;
+function buildBg(){
+ const c=document.createElement('canvas');c.width=W*2;c.height=H*2;
+ const g=c.getContext('2d');g.scale(2,2);
+ let gr=g.createLinearGradient(0,0,0,H);
+ gr.addColorStop(0,'#070d18');gr.addColorStop(.55,'#12263d');gr.addColorStop(1,'#1d3a56');
+ g.fillStyle=gr;g.fillRect(0,0,W,H);
+ let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ for(let row=0;row<9;row++){
+  const y=40+row*24;
+  for(let x=-10;x<W+10;x+=9+row*.4){
+   const px=x+rnd()*6,py=y+rnd()*8-4+Math.sin(x*.07+row)*3,hue=[20,210,0,45,280][Math.floor(rnd()*5)];
+   g.fillStyle='hsla('+hue+',35%,'+(22+rnd()*22)+'%,'+(.35+row*.04)+')';
+   g.beginPath();g.arc(px,py,3+row*.25,0,6.3);g.fill();
+   g.fillStyle='rgba(230,200,170,.22)';g.beginPath();g.arc(px,py-5-row*.3,2+row*.15,0,6.3);g.fill();
+  }
+ }
+ gr=g.createLinearGradient(0,0,0,300);
+ gr.addColorStop(0,'rgba(5,9,17,.85)');gr.addColorStop(.5,'rgba(5,9,17,.25)');gr.addColorStop(1,'rgba(5,9,17,.1)');
+ g.fillStyle=gr;g.fillRect(0,0,W,300);
+ [120,330,540].forEach(x=>{
+  const rg=g.createRadialGradient(x,0,0,x,120,260);
+  rg.addColorStop(0,'rgba(255,240,210,.20)');rg.addColorStop(1,'rgba(255,240,210,0)');
+  g.fillStyle=rg;g.fillRect(0,0,W,H);
+ });
+ g.fillStyle='#0a1220';g.fillRect(0,330,W,58);
+ g.fillStyle='#f28c28';g.fillRect(0,330,W,2);
+ g.font='900 17px Arial';g.textBaseline='middle';
+ for(let x=-20;x<W;x+=210){
+  g.fillStyle='rgba(242,140,40,.85)';g.fillText('BASKETBALL',x,359);
+  g.fillStyle='rgba(255,255,255,.75)';g.fillText('UNIVERSE',x+104,359);
+ }
+ gr=g.createLinearGradient(0,388,0,H);
+ gr.addColorStop(0,'#c98a4d');gr.addColorStop(1,'#7b4a26');
+ g.fillStyle=gr;g.fillRect(0,388,W,H-388);
+ g.strokeStyle='rgba(60,30,10,.35)';g.lineWidth=1;g.beginPath();
+ for(let x=0;x<W;x+=46){g.moveTo(x,388);g.lineTo(x-10,H)}
+ g.stroke();
+ g.fillStyle='rgba(255,230,190,.55)';g.fillRect(0,388,W,1.5);
+ g.fillStyle='rgba(255,255,255,.8)';g.fillRect(C.px+30,390,3,14);
+ // stanchion
+ const pg=g.createLinearGradient(562,0,574,0);
+ pg.addColorStop(0,'#5d6b7c');pg.addColorStop(.5,'#aab6c4');pg.addColorStop(1,'#4c5866');
+ g.fillStyle=pg;g.fillRect(562,80,12,308);
+ g.fillRect(528,94,38,6);
+ g.fillStyle='#a62b2b';g.fillRect(552,320,32,68);
+ g.fillStyle='rgba(255,255,255,.15)';g.fillRect(552,320,32,3);
+ return c;
+}
+/* ---------- drawing ---------- */
+function limb(g,a,b,w,col){g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()}
+function mid(a,b,t){return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}}
+function drawBall(g,x,y,ang,alpha){
+ const r=C.r;
+ g.save();g.globalAlpha=alpha==null?1:alpha;g.translate(x,y);g.rotate(ang);
+ g.beginPath();g.arc(0,0,r,0,6.2832);g.clip();
+ const rg=g.createRadialGradient(-r*.35,-r*.4,1,0,0,r*1.15);
+ rg.addColorStop(0,'#ffb870');rg.addColorStop(.55,'#e06a1c');rg.addColorStop(1,'#8a3a0f');
+ g.fillStyle=rg;g.fillRect(-r,-r,2*r,2*r);
+ g.strokeStyle='#3a1805';g.lineWidth=1.3;
+ g.beginPath();g.moveTo(0,-r);g.lineTo(0,r);g.moveTo(-r,0);g.lineTo(r,0);g.stroke();
+ g.beginPath();g.arc(-r*1.5,0,r*1.15,-1,1);g.stroke();
+ g.beginPath();g.arc(r*1.5,0,r*1.15,Math.PI-1,Math.PI+1);g.stroke();
+ g.restore();
+ g.save();g.globalAlpha=(alpha==null?1:alpha)*.5;
+ g.fillStyle='#fff';g.beginPath();g.arc(x-r*.35,y-r*.4,r*.22,0,6.2832);g.fill();
+ g.restore();
+}
+function drawPlayer(g,p,j,held){
+ const SK='#c98d62',SKD='#9c6a47',JER='#f28c28',SHO='#14304c';
+ // shadow
+ g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(C.px-6,C.floor+5,36,6,0,0,6.2832);g.fill();
+ // far leg
+ limb(g,j.hip,j.knee2,12,SKD);limb(g,j.knee2,j.ankle2,9,SKD);
+ limb(g,j.heel2,j.toe2,9,'#d8dde4');
+ // far arm
+ limb(g,j.sh,j.far.e,8,SKD);limb(g,j.far.e,j.far.w,7,SKD);limb(g,j.far.w,j.far.tip,7,SKD);
+ // torso
+ limb(g,j.hip,j.sh,25,JER);
+ limb(g,mid(j.hip,j.sh,.15),mid(j.hip,j.sh,.85),3,'rgba(255,255,255,.45)');
+ // near leg
+ limb(g,j.hip,j.knee,13,SK);limb(g,j.knee,j.ankle,9.5,SK);
+ limb(g,j.heel,j.toe,10,'#f4f6fa');limb(g,{x:j.heel.x,y:j.heel.y+3.5},{x:j.toe.x,y:j.toe.y+3.5},3,'#222');
+ // shorts
+ limb(g,j.hip,mid(j.hip,j.knee,.55),24,SHO);limb(g,j.hip,mid(j.hip,j.knee2,.45),20,'#0f2439');
+ // neck + head
+ limb(g,j.sh,j.head,8,SK);
+ const hc=j.head;
+ g.fillStyle=SK;g.beginPath();g.arc(hc.x,hc.y,10,0,6.2832);g.fill();
+ g.fillStyle='#2a1a12';g.beginPath();g.arc(hc.x-1,hc.y-1,10.5,Math.PI*.95,Math.PI*1.95);g.closePath();g.fill();
+ g.fillStyle=SKD;g.beginPath();g.arc(hc.x-2,hc.y+1,2.4,0,6.2832);g.fill();
+ g.fillStyle='#fff';g.beginPath();g.arc(hc.x+5,hc.y-1.5,2,0,6.2832);g.fill();
+ g.fillStyle='#1b1b1b';g.beginPath();g.arc(hc.x+5.8,hc.y-1.6,1,0,6.2832);g.fill();
+ g.fillStyle=SK;g.beginPath();g.arc(hc.x+10,hc.y+1.5,1.8,0,6.2832);g.fill();
+ // shoulder cap
+ g.fillStyle=JER;g.beginPath();g.arc(j.sh.x,j.sh.y,11,0,6.2832);g.fill();
+ // held ball between far hand and near arm
+ if(held)drawBall(g,j.wrist.x+p.bx,j.wrist.y+p.by,0,1);
+ // near arm
+ limb(g,j.sh,j.near.e,9.5,SK);limb(g,j.near.e,j.near.w,8.5,SK);limb(g,j.near.w,j.near.tip,8,SK);
+ limb(g,{x:j.near.e.x,y:j.near.e.y},mid(j.near.e,j.sh,.35),11,'rgba(0,0,0,0)');
+}
+function drawBoard(g,sx){
+ g.save();g.translate(sx,0);
+ g.fillStyle='#cfd8e0';g.fillRect(C.rimFar,C.rimY-3,C.boardX-C.rimFar+1,5);
+ const gr=g.createLinearGradient(C.boardX,0,C.boardX+7,0);
+ gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(1,'rgba(170,200,220,.8)');
+ g.fillStyle=gr;g.fillRect(C.boardX,C.boardTop,7,C.boardBot-C.boardTop);
+ g.fillStyle='rgba(255,255,255,.35)';g.fillRect(C.boardX-2,C.boardTop,2,C.boardBot-C.boardTop);
+ g.restore();
+}
+function drawRim(g,dip,front){
+ const cx=C.rimCx,rx=(C.rimFar-C.rimNear)/2+1.5;
+ g.strokeStyle='#ff6a2a';g.lineWidth=3.4;g.lineCap='round';
+ g.beginPath();
+ if(front)g.ellipse(cx,C.rimY+dip,rx,4.2,0,0,Math.PI);
+ else g.ellipse(cx,C.rimY+dip,rx,4.2,0,Math.PI,2*Math.PI);
+ g.stroke();
+}
+function drawNet(g,net){
+ g.strokeStyle='rgba(255,255,255,.85)';g.lineWidth=1.1;g.beginPath();
+ const P=(r,c)=>net.pts[r*NC+c];
+ for(let r=0;r<NR-1;r++)for(let c=0;c<NC-1;c++){
+  g.moveTo(P(r,c).x,P(r,c).y);g.lineTo(P(r+1,c+1).x,P(r+1,c+1).y);
+  g.moveTo(P(r,c+1).x,P(r,c+1).y);g.lineTo(P(r+1,c).x,P(r+1,c).y);
+ }
+ g.stroke();
+}
+/* ---------- engine ---------- */
+const S={canvas:null,ctx:null,dpr:1,raf:0,last:0,mode:'idle',T:0,idleT:0,sim:null,pt:0,ev:0,slow:1,cb:null,opts:null,
+ trail:[],net:null,rimAmp:0,rimPh:0,bAmp:0,bPh:0,glow:0,bp:null,endT:0,fin:false,callSet:false};
+function setCall(text,cls){const el=document.getElementById('ftCall');if(el){el.textContent=text;el.className='ftCall '+(cls||'')}}
+function snd(type,s){
+ if(typeof tone!=='function')return;
+ try{
+  if(type==='rim')tone(300+Math.random()*60,0,.14,'triangle',.07*(.5+s),180);
+  else if(type==='board')tone(150,0,.1,'square',.045*(.5+s));
+  else if(type==='swish')tone(2200,0,.22,'sine',.025,700);
+  else if(type==='floor')tone(110,0,.12,'sine',.05*(.4+s));
+ }catch(e){}
+}
+function onEvent(e){
+ if(e.type==='rim'){S.rimAmp=Math.min(6,2+4*e.s);S.rimPh=0;snd('rim',e.s)}
+ else if(e.type==='board'){S.bAmp=Math.min(2.5,.8+2*e.s);S.bPh=0;snd('board',e.s)}
+ else if(e.type==='swish'){
+  S.glow=1;snd('swish',1);
+  S.net.pts.forEach((p,i)=>{if(!p.pin){const r=Math.floor(i/NC);p.py-=3+r*.8;p.px+=(Math.random()-.5)*1.5}});
+  S.callSet=true;
+  setCall(S.sim.rim?'BUCKET!':((S.opts&&S.opts.streak>=3)?'ON FIRE! 🔥':'SWISH!'),'ftHit');
+ }
+ else if(e.type==='floor')snd('floor',e.s);
+}
+function finish(){
+ if(S.fin)return;S.fin=true;S.mode='post';
+ if(!S.callSet)setCall(S.sim.rim||S.sim.board?'RIM OUT!':'AIRBALL!','ftMissed');
+ const cb=S.cb;S.cb=null;
+ setTimeout(()=>{if(cb)cb({hit:S.sim.made,rim:S.sim.rim})},420);
+}
+function update(dt){
+ S.idleT+=dt;
+ if(S.mode==='shot'||S.mode==='post')S.T+=dt;
+ S.bp=null;
+ if(S.mode==='shot'&&S.T>=RELT){
+  const sim=S.sim,n=sim.frames.length/3;
+  const i=Math.min(n-1,Math.floor(S.pt/sim.dt));
+  const bx=sim.frames[3*i],by=sim.frames[3*i+1];
+  const d=Math.hypot(bx-C.rimCx,by-C.rimY);
+  const want=(d<80&&bx>C.rimNear-60&&S.pt<S.endT-.15)?.42:1;
+  S.slow+=(want-S.slow)*Math.min(1,dt*10);
+  S.pt+=dt*S.slow;
+  while(S.ev<sim.ev.length&&sim.ev[S.ev].t<=S.pt){onEvent(sim.ev[S.ev]);S.ev++}
+  if(S.pt>=S.endT)finish();
+ }else S.slow+=(1-S.slow)*Math.min(1,dt*10);
+ if((S.mode==='shot'&&S.T>=RELT)||S.mode==='post'){
+  const sim=S.sim,n=sim.frames.length/3,i=Math.min(n-1,Math.floor(S.pt/sim.dt));
+  S.bp={x:sim.frames[3*i],y:sim.frames[3*i+1],a:sim.frames[3*i+2]};
+  if(S.mode==='shot'){S.trail.push({x:S.bp.x,y:S.bp.y});if(S.trail.length>14)S.trail.shift()}
+ }
+ const sdt=dt*S.slow;
+ S.rimPh+=sdt*55;S.rimAmp*=Math.exp(-6*sdt);
+ S.bPh+=sdt*60;S.bAmp*=Math.exp(-7*sdt);
+ S.glow=Math.max(0,S.glow-dt*1.6);
+ const dip=S.rimAmp*Math.sin(S.rimPh);
+ for(let k=0;k<2;k++)netStep(S.net,sdt/2,S.bp,dip);
+}
+function draw(){
+ const g=S.ctx;
+ g.setTransform(S.dpr,0,0,S.dpr,0,0);g.clearRect(0,0,W,H);
+ g.drawImage(BG,0,0,W,H);
+ const idle=S.mode==='idle';
+ const p=poseAt(idle?0:S.T);
+ if(idle){const s=Math.sin(S.idleT*2.2);p.k+=2.5*s;p.a+=1.5*s;p.f+=1.5*s}
+ const j=joints(p);
+ const dip=S.rimAmp*Math.sin(S.rimPh),sx=S.bAmp*Math.sin(S.bPh);
+ drawBoard(g,sx);
+ drawRim(g,dip,false);
+ const held=idle||S.T<RELT;
+ drawPlayer(g,p,j,held);
+ if(!held&&S.bp){
+  S.trail.forEach((t,i)=>{g.fillStyle='rgba(255,170,90,'+(i/S.trail.length*.16)+')';g.beginPath();g.arc(t.x,t.y,C.r*.75,0,6.2832);g.fill()});
+  const sh=Math.max(.15,1-(C.floor-S.bp.y)/360);
+  g.fillStyle='rgba(0,0,0,'+(.28*sh)+')';g.beginPath();g.ellipse(S.bp.x,C.floor+5,C.r*(.6+sh*.6),3,0,0,6.2832);g.fill();
+  drawBall(g,S.bp.x,S.bp.y,S.bp.a,1);
+ }
+ drawNet(g,S.net);
+ drawRim(g,dip,true);
+ if(S.glow>0){
+  const rg=g.createRadialGradient(C.rimCx,C.rimY+10,2,C.rimCx,C.rimY+10,70);
+  rg.addColorStop(0,'rgba(66,230,149,'+(.55*S.glow)+')');rg.addColorStop(1,'rgba(66,230,149,0)');
+  g.fillStyle=rg;g.fillRect(C.rimCx-80,C.rimY-60,160,160);
+ }
+ const sl=1-S.slow;
+ if(sl>.02){
+  const vg=g.createRadialGradient(W*.75,C.rimY,60,W*.5,H*.5,W*.75);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,'+(.5*sl/.58)+')');
+  g.fillStyle=vg;g.fillRect(0,0,W,H);
+ }
+}
+function frame(ts){
+ if(!S.canvas||!S.canvas.isConnected){S.raf=0;return}
+ const dt=Math.min(.033,(ts-S.last)/1000||.016);S.last=ts;
+ update(dt);draw();
+ S.raf=requestAnimationFrame(frame);
+}
+const API={
+ mount(host){
+  API.destroy();
+  if(!BG)BG=buildBg();
+  const cv=document.createElement('canvas');
+  S.dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.round(W*S.dpr);cv.height=Math.round(H*S.dpr);
+  host.insertBefore(cv,host.firstChild);
+  S.canvas=cv;S.ctx=cv.getContext('2d');S.net=makeNet();
+  API.reset();
+  S.last=performance.now();S.raf=requestAnimationFrame(frame);
+ },
+ reset(){S.mode='idle';S.T=0;S.sim=null;S.pt=0;S.ev=0;S.trail=[];S.glow=0;S.fin=false;S.callSet=false;S.cb=null;S.bp=null},
+ shoot(o,cb){
+  if(!S.canvas||S.mode==='shot'){if(cb)cb({});return}
+  const pr=poseAt(RELT),jt=joints(pr);
+  const x0=jt.wrist.x+pr.bx,y0=jt.wrist.y+pr.by;
+  const sim=plan(!!o.hit,o.err||0,x0,y0);
+  if(!sim){if(cb)cb({});return}
+  let tf=-1;for(const e of sim.ev)if(e.type==='floor'){tf=e.t;break}
+  S.sim=sim;S.opts=o;S.cb=cb;S.mode='shot';S.T=0;S.pt=0;S.ev=0;S.slow=1;S.trail=[];S.fin=false;S.callSet=false;
+  S.endT=tf>0?Math.min(sim.tEnd,tf+.3):sim.tEnd;
+ },
+ destroy(){
+  if(S.raf)cancelAnimationFrame(S.raf);
+  S.raf=0;S.canvas=null;S.ctx=null;S.mode='idle';S.cb=null;
+ }
+};
+window.FTAnim=API;
+})();
+
 </script>
 </body></html>
