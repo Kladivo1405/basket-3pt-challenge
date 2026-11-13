@@ -1647,15 +1647,19 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    body=`<div class="mdTop"><div><span>ONLINE DRAFT · ROUND ${round}/5</span><h3>${round===5?'FINAL PICK · SEPARATE TEAM ROLLS':'SHARED TEAM · ALTERNATING FIRST PICK'}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
     <div class="mdPlayers"><div class="${turn===0?'mdActive':''}"><b>${escapeDraftText(p[0]||'PLAYER 1')}</b><small>${picks[0].length}/5 PLAYERS</small></div><div class="${turn===1?'mdActive':''}"><b>${escapeDraftText(p[1]||'PLAYER 2')}</b><small>${picks[1].length}/5 PLAYERS</small></div></div>
     ${active?`<div class="mdTeamReveal">${crest(active.team)}<div><span>${round===5?'YOUR PERSONAL TEAM':'THIS ROUND’S TEAM'}</span><h3>${escapeDraftText(active.team)}</h3><small>${escapeDraftText(active.season||'NBA ROSTER')}</small></div></div>`:`<div class="mdWaiting"><div>🎲</div><b>${round===5?'Spin your own team':'Spin the shared NBA team'}</b><small>${round===5?'Each player rolls a different team and picks one player.':'Both players choose from the same roster; who picks first alternates each round.'}</small></div>`}
-    ${active?`<div class="mdRoster">${current.map((pl,i)=>{const already=picks.some(arr=>arr.some(x=>x.name===pl.name));return `<button class="mdPlayerPick" data-md-pick="${i}" ${!myTurn||already?'disabled':''}><b>${escapeDraftText(pl.name)}</b><small>${pl.pos} · ${pl.ovr} OVR · ${pl.ppg} PPG</small>${already?'<em>ALREADY PICKED</em>':''}</button>`}).join('')}</div>`:''}
+    ${active?`<div class="mdRoster">${current.map((pl,i)=>{const already=picks.some(arr=>arr.some(x=>x.name===pl.name));const eligible=positionOf(pl).find(pos=>positions.includes(pos)&&!picks[mdSlot].some(x=>x.slot===pos));return `<button class="mdPlayerPick" data-md-pick="${i}" ${!myTurn||already||!eligible?'disabled':''}><b>${escapeDraftText(pl.name)}</b><small>${pl.pos} · ${pl.ovr} OVR · ${pl.ppg} PPG</small><small>${already?'ALREADY PICKED':eligible?'ELIGIBLE: '+eligible:'NO OPEN POSITION'}</small></button>`}).join('')}</div>`:''}
     <div class="mdControls">${!active?`<button class="primary" id="mdSpin" ${!myTurn||mdBusy?'disabled':''}>🎲 ${round===5?'SPIN MY TEAM':'ROLL SHARED TEAM'}</button>`:''}<p>${myTurn?'YOUR TURN':'WAITING FOR '+escapeDraftText(p[turn]||'OPPONENT')}</p></div>
     <div class="mdLineups"><section><h4>${escapeDraftText(p[0]||'PLAYER 1')} · LINEUP</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(p[1]||'PLAYER 2')} · LINEUP</h4>${mdLineup(picks[1])}</section></div>`;
   }else if(phase==='game'){
    const g=mdState.game||1,q=mdState.quarter||1,sc=mdState.score||[0,0],wins=mdState.wins||[0,0];
-   body=`<div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g}</span><h3>FIRST TO FOUR WINS</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
-    <div class="mdPlayers"><div>${crest(mdState.franchises?.[0]||'Boston Celtics')}<b>${escapeDraftText(mdState.players[0])}</b><small>${wins[0]} SERIES WINS</small></div><div>${crest(mdState.franchises?.[1]||'Los Angeles Lakers')}<b>${escapeDraftText(mdState.players[1])}</b><small>${wins[1]} SERIES WINS</small></div></div>
+   const homeSchedule=[0,0,1,1,0,1,0],home=homeSchedule[Math.min(6,g-1)],isHome=mdSlot===home;
+   body=`<div class="mdGameScore" style="margin-bottom:12px;border:2px solid #f2b95d"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div>
+    <div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g} / BEST OF 7</span><h3>HOME TEAM: ${escapeDraftText(p[home])}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
+    <div class="mdPlayers"><div>${crest(mdState.franchises?.[0]||'Boston Celtics')}<b>${escapeDraftText(mdState.players[0])}</b><small>${home===0?'🏠 HOME':'✈️ AWAY'}</small></div><div>${crest(mdState.franchises?.[1]||'Los Angeles Lakers')}<b>${escapeDraftText(mdState.players[1])}</b><small>${home===1?'🏠 HOME':'✈️ AWAY'}</small></div></div>
     <div class="mdGameScore"><div><small>${escapeDraftText(mdState.franchises?.[0]||'TEAM 1')}</small><b>${sc[0]}</b></div><span>–</span><div><small>${escapeDraftText(mdState.franchises?.[1]||'TEAM 2')}</small><b>${sc[1]}</b></div></div>
-    <div class="mdQuarter">QUARTER ${q} / 4</div><button class="primary" id="mdPlayQuarter" ${!myTurn||mdBusy?'disabled':''}>${myTurn?'SIMULATE QUARTER':'WAITING FOR OPPONENT'}</button>
+    <div class="mdQuarter">QUARTER ${q} / 4 · ${isHome?'YOU CAN SIMULATE':'WAITING FOR HOME TEAM'}</div>
+    <div class="draftActions"><button class="primary" id="mdPlayQuarter" ${!isHome||mdBusy?'disabled':''}>${isHome?'SIMULATE QUARTER':'WAIT FOR HOME TEAM'}</button><button class="secondary" id="mdUseBoost" ${!isHome||mdState.boostUsed||mdBusy?'disabled':''}>🔥 ${mdState.boostUsed?'BOOST USED':'USE BOOST THIS QUARTER'}</button></div>
+    <small class="muted">Home advantage: a small scoring bonus. One boost per game, used in the quarter you choose.</small>
     <div class="mdLineups"><section><h4>${escapeDraftText(mdState.players[0])} · TEAM</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(mdState.players[1])} · TEAM</h4>${mdLineup(picks[1])}</section></div>`;
   }else if(phase==='gameover'){
    const wins=mdState.wins||[0,0], winner=wins[0]>wins[1]?0:1;
@@ -1666,6 +1670,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   if($('mdSpin'))$('mdSpin').onclick=mdSpinTeam;
   stage.querySelectorAll('[data-md-pick]').forEach(btn=>btn.onclick=()=>mdPick(+btn.dataset.mdPick));
   if($('mdPlayQuarter'))$('mdPlayQuarter').onclick=mdPlayQuarter;
+  if($('mdUseBoost'))$('mdUseBoost').onclick=async()=>{if(mdBusy)return;await mdPersist({...mdState,boostUsed:true});mdSay('Boost activated for this quarter!')};
   if($('mdNewRoom'))$('mdNewRoom').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
  }
  function mdLineup(arr){
@@ -1706,8 +1711,8 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   const pl=mdState.currentRoster?.[index];if(!pl)return;
   const picks=(mdState.picks||[[],[]]).map(a=>[...a]);
   if(picks.some(a=>a.some(x=>x.name===pl.name)))return;
-  const slot=positions.find(pos=>!picks[mdSlot].some(x=>x.slot===pos));
-  if(!slot){mdSay('Your five positions are full.',true);return}
+  const slot=positionOf(pl).find(pos=>positions.includes(pos)&&!picks[mdSlot].some(x=>x.slot===pos));
+  if(!slot){mdSay('This player does not fit any of your remaining positions.',true);return}
   picks[mdSlot].push({...pl,slot,sourceTeam:mdState.activeTeam?.team});
   let next={...mdState,picks,turn:1-mdSlot,currentRoster:mdState.currentRoster,activeTeam:mdState.activeTeam};
   const round=mdState.round||1;
@@ -1715,7 +1720,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    // Both players have selected from this round's shared team. Alternate who starts next round.
    next.round=round+1;next.turn=(round%2===1)?1:0;next.currentRoster=[];next.activeTeam=null;
   }else if(round===5&&picks[0].length===5&&picks[1].length===5){
-   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.franchises=mdState.finalTeams.map(t=>t.team);
+   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.boostUsed=false;next.franchises=mdState.finalTeams.map(t=>t.team);
   }else if(round===5&&mdSlot===0){
    // The second player gets a completely separate team roll for the fifth pick.
    next.currentRoster=[];next.activeTeam=null;next.turn=1;
@@ -1723,14 +1728,20 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   await mdPersist(next);
  }
  async function mdPlayQuarter(){
-  if(mdBusy||mdSlot!==mdState.turn)return;
+  const game=mdState.game||1,homeSchedule=[0,0,1,1,0,1,0],home=homeSchedule[Math.min(6,game-1)];
+  if(mdBusy||mdSlot!==home)return;
   const score=[...(mdState.score||[0,0])],quarter=mdState.quarter||1;
-  score[0]+=Math.floor(Math.random()*26)+17;score[1]+=Math.floor(Math.random()*26)+17;
-  let next={...mdState,score,quarter:quarter+1,turn:1-mdSlot};
+  // Both teams score; home side receives a modest advantage, plus an optional one-quarter boost.
+  const base0=Math.floor(Math.random()*26)+17,base1=Math.floor(Math.random()*26)+17;
+  score[0]+=base0+(home===0?3:0)+(home===0&&mdState.boostUsed?Math.floor(Math.random()*8)+3:0);
+  score[1]+=base1+(home===1?3:0)+(home===1&&mdState.boostUsed?Math.floor(Math.random()*8)+3:0);
+  let next={...mdState,score,quarter:quarter+1};
   if(quarter===4){
-   if(score[0]===score[1])score[Math.floor(Math.random()*2)]+=1;
-   const wins=[...(mdState.wins||[0,0])];wins[score[0]>score[1]?0:1]++;
-   next={...next,lastGameScore:score,wins,score:[0,0],game:mdState.game+1,quarter:1,turn:0,phase:wins[0]===4||wins[1]===4?'gameover':'game'};
+   if(score[0]===score[1])score[home]+=1;
+   const wins=[...(mdState.wins||[0,0])],gameWinner=score[0]>score[1]?0:1;
+   wins[gameWinner]++;
+   const finished=wins[0]===4||wins[1]===4;
+   next={...next,lastGameScore:score,lastGameWinner:gameWinner,wins,score:[0,0],game:game+1,quarter:1,boostUsed:false,phase:finished?'gameover':'game'};
   }
   await mdPersist(next);
  }
