@@ -1241,13 +1241,30 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     }
    }
   }else if(pkState.phase==='survivor'){
-   if(!hit)pkState.alive=pkState.alive.filter(x=>x!==me);
-   if(pkState.alive.length===1){
-    const winner=pkState.alive[0];pkState.scores[winner]++;pkState.phase='roundwin';pkState.winner=winner;
-   }else if(pkState.alive.length===0){
-    pkState.alive=pkState.players.map((_,i)=>i);pkState.shotIndex=0;
+   const totalPlayers=pkState.players?.length||2;
+   if(totalPlayers===2){
+    pkState.headToHeadResults=pkState.headToHeadResults||{};
+    pkState.headToHeadResults[me]=!!hit;
+    pkState.shotIndex=(pkState.shotIndex||0)+1;
+    if(pkState.shotIndex>=2){
+     const a=!!pkState.headToHeadResults[0],b=!!pkState.headToHeadResults[1];
+     if(a!==b){
+      const winner=a?0:1;pkState.scores[winner]++;pkState.phase='roundwin';pkState.winner=winner;
+     }else{
+      // Both missed or both scored: same position, new sudden-death round.
+      pkState.shotIndex=0;pkState.headToHeadResults={};
+      pkState.alive=[0,1];pkState.round=(pkState.round||1)+1;
+     }
+    }
    }else{
-    pkState.shotIndex=(pkState.shotIndex+1)%pkState.alive.length;
+    if(!hit)pkState.alive=pkState.alive.filter(x=>x!==me);
+    if(pkState.alive.length===1){
+     const winner=pkState.alive[0];pkState.scores[winner]++;pkState.phase='roundwin';pkState.winner=winner;
+    }else if(pkState.alive.length===0){
+     pkState.alive=pkState.players.map((_,i)=>i);pkState.shotIndex=0;
+    }else{
+     pkState.shotIndex=(pkState.shotIndex+1)%pkState.alive.length;
+    }
    }
   }
   pkSave().then(pkRender);
@@ -1627,9 +1644,9 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   let body='';
   if(phase==='draft'){
    const round=mdState.round||1;
-   body=`<div class="mdTop"><div><span>ONLINE DRAFT · ROUND ${round}/5</span><h3>${round===5?'FINAL PICK · OWN TEAM SPIN':'SHARED TEAM ROSTER'}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
+   body=`<div class="mdTop"><div><span>ONLINE DRAFT · ROUND ${round}/5</span><h3>${round===5?'FINAL PICK · SEPARATE TEAM ROLLS':'SHARED TEAM · ALTERNATING FIRST PICK'}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
     <div class="mdPlayers"><div class="${turn===0?'mdActive':''}"><b>${escapeDraftText(p[0]||'PLAYER 1')}</b><small>${picks[0].length}/5 PLAYERS</small></div><div class="${turn===1?'mdActive':''}"><b>${escapeDraftText(p[1]||'PLAYER 2')}</b><small>${picks[1].length}/5 PLAYERS</small></div></div>
-    ${active?`<div class="mdTeamReveal">${crest(active.team)}<div><span>${round===5?'YOUR PERSONAL TEAM':'THIS ROUND’S TEAM'}</span><h3>${escapeDraftText(active.team)}</h3><small>${escapeDraftText(active.season||'NBA ROSTER')}</small></div></div>`:`<div class="mdWaiting"><div>🎲</div><b>${round===5?'Spin your own team':'Spin the shared NBA team'}</b><small>${round===5?'Each player gets a separate team for the final pick.':'Both players will choose from the same roster.'}</small></div>`}
+    ${active?`<div class="mdTeamReveal">${crest(active.team)}<div><span>${round===5?'YOUR PERSONAL TEAM':'THIS ROUND’S TEAM'}</span><h3>${escapeDraftText(active.team)}</h3><small>${escapeDraftText(active.season||'NBA ROSTER')}</small></div></div>`:`<div class="mdWaiting"><div>🎲</div><b>${round===5?'Spin your own team':'Spin the shared NBA team'}</b><small>${round===5?'Each player rolls a different team and picks one player.':'Both players choose from the same roster; who picks first alternates each round.'}</small></div>`}
     ${active?`<div class="mdRoster">${current.map((pl,i)=>{const already=picks.some(arr=>arr.some(x=>x.name===pl.name));return `<button class="mdPlayerPick" data-md-pick="${i}" ${!myTurn||already?'disabled':''}><b>${escapeDraftText(pl.name)}</b><small>${pl.pos} · ${pl.ovr} OVR · ${pl.ppg} PPG</small>${already?'<em>ALREADY PICKED</em>':''}</button>`}).join('')}</div>`:''}
     <div class="mdControls">${!active?`<button class="primary" id="mdSpin" ${!myTurn||mdBusy?'disabled':''}>🎲 ${round===5?'SPIN MY TEAM':'ROLL SHARED TEAM'}</button>`:''}<p>${myTurn?'YOUR TURN':'WAITING FOR '+escapeDraftText(p[turn]||'OPPONENT')}</p></div>
     <div class="mdLineups"><section><h4>${escapeDraftText(p[0]||'PLAYER 1')} · LINEUP</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(p[1]||'PLAYER 2')} · LINEUP</h4>${mdLineup(picks[1])}</section></div>`;
@@ -1694,11 +1711,13 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   picks[mdSlot].push({...pl,slot,sourceTeam:mdState.activeTeam?.team});
   let next={...mdState,picks,turn:1-mdSlot,currentRoster:mdState.currentRoster,activeTeam:mdState.activeTeam};
   const round=mdState.round||1;
-  if(round<5&&mdSlot===1){
-   next.round=round+1;next.turn=0;next.currentRoster=[];next.activeTeam=null;
+  if(round<5&&picks[0].length>=round&&picks[1].length>=round){
+   // Both players have selected from this round's shared team. Alternate who starts next round.
+   next.round=round+1;next.turn=(round%2===1)?1:0;next.currentRoster=[];next.activeTeam=null;
   }else if(round===5&&picks[0].length===5&&picks[1].length===5){
    next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.franchises=mdState.finalTeams.map(t=>t.team);
   }else if(round===5&&mdSlot===0){
+   // The second player gets a completely separate team roll for the fifth pick.
    next.currentRoster=[];next.activeTeam=null;next.turn=1;
   }
   await mdPersist(next);
