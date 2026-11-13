@@ -110,6 +110,23 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 .draftScore b{display:block;font-size:24px;color:#ffd166}
 @media(max-width:520px){.draftIntro{grid-template-columns:1fr}.draftSlots{grid-template-columns:repeat(3,1fr)}}
 
+
+/* v0.74: clean shooter selection layout */
+#draft .modal{width:min(520px,100%);max-height:calc(100dvh - 36px);overflow-y:auto;overflow-x:hidden;padding:clamp(16px,4vw,24px)}
+#draft .candidategrid{display:flex;flex-direction:column;gap:12px;width:100%;min-width:0}
+#draft .rollHero{display:flex;align-items:center;width:100%;min-width:0;box-sizing:border-box;margin:4px 0 0;padding:12px;gap:14px}
+#draft .rollHero img{width:clamp(88px,25vw,132px);height:clamp(88px,25vw,132px);flex:0 0 auto}
+#draft .rollHero>div{min-width:0;overflow-wrap:anywhere}
+#draft .rollHero .rollName{font-size:clamp(20px,5.5vw,30px);line-height:1.12;overflow-wrap:anywhere}
+#draft .rollActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin:0}
+#draft .rollActions button{width:100%;min-width:0;min-height:58px;margin:0;font-size:16px}
+@media(max-width:420px){
+ #draft .modal{padding:16px;border-radius:18px}
+ #draft .rollHero{gap:10px;padding:10px}
+ #draft .rollHero img{width:94px;height:94px}
+ #draft .rollHero .rollName{font-size:21px}
+ #draft .rollActions button{min-height:54px}
+}
 </style>
 <style>
 #modeMenu{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 0%,#294966,#07111f 70%);display:flex;align-items:center;justify-content:center;padding:18px}
@@ -272,6 +289,18 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 .mdChampion{text-align:center;padding:32px 15px;border-radius:20px;background:radial-gradient(circle at 50% 20%,#675021,#101c2e 70%);border:1px solid #ffd16b66}
 .mdChampion>div{font-size:75px}.mdChampion>span{font-size:11px;letter-spacing:3px;color:#ffda88}.mdChampion h2{font-size:30px;color:#fff}.mdChampion>b{font-size:48px;color:#ffd16b}.mdChampion p{color:#c6d5e7}
 @media(max-width:380px){.mdRoster{grid-template-columns:1fr}.mdRoomCode{font-size:14px}}
+
+.mdResultsList{display:flex;flex-direction:column;gap:5px;margin:10px 0 14px;padding:10px 12px;border-radius:12px;background:#0d1a2b;border:1px solid #ffffff20;text-align:left}
+.mdResultsList .mdResultsTitle{font-size:10px;letter-spacing:1.5px;font-weight:900;color:#ffcf78;margin-bottom:2px}
+.mdResultsList .mdResultRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 2px;border-bottom:1px solid #ffffff12;font-size:13px;color:#d6e1ef}
+.mdResultsList .mdResultRow:last-child{border-bottom:0}
+.mdResultsList .mdResultRow b{font-size:14px;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mdResultsList .mdResultRow small{font-size:10px;color:#aebed2}
+.mdChampion .mdResultsList{max-width:420px;margin:12px auto}
+.mdChampion .mdGameScore{padding:12px 8px;margin:10px 0}
+.mdChampion .mdGameScore b{font-size:34px}
+.mdChampion .mdGameScore small{font-size:9px}
+.mdChampion h2{font-size:26px;line-height:1.15}
 </style>
 <style>
 .gameInstructionsCard{max-width:520px}.gameInstructionsCard p{color:#c7d4e5;line-height:1.5;padding:9px 12px;background:#ffffff09;border-radius:10px}
@@ -542,6 +571,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
   <p>Ustvari sobo ali se pridruži z največ šestimi igralci. Ko so vsi READY, gostitelj začne igro.</p>
   <label class="field">ROOM CODE</label><input id="parketCodeInput" maxlength="6" placeholder="6-LETTER CODE" style="text-transform:uppercase">
   <div class="draftActions" style="margin-top:10px"><button class="primary" id="parketCreateBtn">CREATE ROOM</button><button class="secondary" id="parketJoinBtn">JOIN ROOM</button></div>
+  <button class="primary" id="parketQuickMatchBtn" style="width:100%;margin-top:9px">⚡ QUICK MATCH · FIND OPPONENT</button>
   <label class="field" style="margin-top:12px">BOT DIFFICULTY</label>
   <select id="parketBotDifficulty" style="width:100%;padding:12px;border-radius:10px;background:#0b192a;color:white;border:1px solid #ffffff30">
    <option value="easy">EASY</option><option value="medium" selected>MEDIUM</option><option value="hard">HARD</option>
@@ -561,7 +591,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
   <div class="eyebrow">FREE THROW · 3 HOOPS BLOCKOUT</div><h2>🛡️ THREE HOOPS</h2>
   <p>Choose one of three baskets, shoot with the 20% target, and try to outsmart your opponent's block.</p>
   <label class="field">ROOM CODE</label><input id="hdCode" maxlength="6" placeholder="6-LETTER CODE" style="text-transform:uppercase">
-  <div class="draftActions" style="margin-top:10px"><button class="primary" id="hdCreate">CREATE ROOM</button><button class="secondary" id="hdJoin">JOIN ROOM</button></div>
+  <div class="draftActions" style="margin-top:10px"><button class="primary" id="hdCreate">CREATE ROOM</button><button class="primary" id="hdQuickMatch" style="width:100%;margin-top:9px">⚡ QUICK MATCH · FIND OPPONENT</button><button class="secondary" id="hdJoin">JOIN ROOM</button></div>
   <label class="field" style="margin-top:12px">BOT DIFFICULTY</label>
   <select id="hdDifficulty" style="width:100%;padding:12px;border-radius:10px;background:#0b192a;color:white;border:1px solid #ffffff30">
    <option value="easy">EASY</option><option value="medium" selected>MEDIUM</option><option value="hard">HARD</option>
@@ -619,7 +649,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </div>
 </div>
 
-<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button><button class="secondary" id="setupBackToMenu" style="width:100%;margin-top:9px">← BACK TO MENU</button></div></div>
+<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><button class="primary" id="threePtQuickMatchBtn" style="width:100%;margin-top:9px">⚡ QUICK MATCH · FIND OPPONENT</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button><button class="secondary" id="setupBackToMenu" style="width:100%;margin-top:9px">← BACK TO MENU</button></div></div>
 <div class="overlay hidden" id="draft"><div class="modal"><div class="eyebrow">PLAYER DRAFT · 3 PICKS</div><h2>Choose your shooter</h2><p id="draftPrompt">You have three random players to choose from. Pick your weapon.</p><div class="candidategrid" id="candidateGrid"></div></div></div>
 <div class="overlay hidden" id="between"><div class="modal"><div class="eyebrow" id="betweenEyebrow">ROUND COMPLETE</div><h2 id="betweenTitle">PLAYER 1 takes the round!</h2><p id="betweenText">Pass the phone to the next shooter.</p><div class="endbuttons"><button class="primary" id="nextTurn">NEXT PLAYER</button><button class="secondary" id="betweenMenu">MAIN MENU</button></div></div></div>
 <div class="overlay hidden" id="gameover"><div class="modal"><div class="eyebrow">FINAL BUZZER</div><h2 id="winnerTitle">CHAMPION!</h2><div class="finalnum" id="finalWins">5–3</div><p id="winnerText">What a contest.</p><button class="primary" id="rematch">REMATCH</button></div></div>
@@ -729,7 +759,7 @@ function renderRemote(st){
 }
 async function saveRemote(){if(!remoteMode||!roomCode)return;let {error}=await sb.from('basket_matches').update({game_state:packGame(),player1_name:names[0],player2_name:names[1],player1_score:roundScores[0]??0,player2_score:roundScores[1]??0,player1_rounds:wins[0],player2_rounds:wins[1],current_turn:turn+1,status:remotePhase==='finished'?'finished':'playing'}).eq('room_code',roomCode);if(error){$('status').textContent='Sync error: '+error.message;console.error(error)}}
 function listenRoom(){if(remoteChannel)sb.removeChannel(remoteChannel);remoteChannel=sb.channel('match-'+roomCode).on('postgres_changes',{event:'UPDATE',schema:'public',table:'basket_matches',filter:'room_code=eq.'+roomCode},payload=>{if(payload.new&&payload.new.game_state)renderRemote(payload.new.game_state)}).subscribe();}
-async function createOnline(){try{if(!sb)throw new Error('Supabase knjižnica se ni naložila. Preveri internetno povezavo in osveži stran.');setConnectMsg('Creating room…');let myName=$('nick1').value.trim()||'PLAYER 1';roomCode=makeCode();localSlot=0;remoteMode=true;names=[myName,'WAITING…'];wins=[0,0];turn=0;round=1;shot=0;score=0;made=0;streak=0;results=[];player=null;roundScores=[null,null];locked=false;remoteCandidates=makeCandidates();remotePhase='waiting';let state=packGame();let {error}=await sb.from('basket_matches').insert({room_code:roomCode,player1_name:myName,player2_name:null,status:'waiting',game_state:state});if(error)throw error;$('setup').classList.add('hidden');$('roomBanner').classList.remove('hidden');$('roomCodeText').textContent=roomCode;$('onlineStatus').textContent='Waiting for player 2…';listenRoom();renderRemote(state);setConnectMsg('Room created! Send the code to your friend.');}catch(e){setConnectMsg('Napaka: '+e.message,true);console.error(e)}}
+async function createOnline(){try{if(!sb)throw new Error('Supabase knjižnica se ni naložila. Preveri internetno povezavo in osveži stran.');setConnectMsg('Creating room…');let myName=$('nick1').value.trim()||'PLAYER 1';roomCode=window.__threePtQuickRoomCode||makeCode();window.__threePtQuickRoomCode=null;localSlot=0;remoteMode=true;names=[myName,'WAITING…'];wins=[0,0];turn=0;round=1;shot=0;score=0;made=0;streak=0;results=[];player=null;roundScores=[null,null];locked=false;remoteCandidates=makeCandidates();remotePhase='waiting';let state=packGame();let {error}=await sb.from('basket_matches').insert({room_code:roomCode,player1_name:myName,player2_name:null,status:'waiting',game_state:state});if(error)throw error;$('setup').classList.add('hidden');$('roomBanner').classList.remove('hidden');$('roomCodeText').textContent=roomCode;$('onlineStatus').textContent='Waiting for player 2…';listenRoom();renderRemote(state);setConnectMsg('Room created! Send the code to your friend.');}catch(e){setConnectMsg('Napaka: '+e.message,true);console.error(e)}}
 async function joinOnline(){try{if(!sb)throw new Error('Supabase knjižnica se ni naložila. Preveri internetno povezavo in osveži stran.');let code=$('roomInput').value.trim().toUpperCase();if(code.length!==6)throw new Error('Vnesi 6-mestno kodo sobe.');setConnectMsg('Searching for room…');let {data,error}=await sb.from('basket_matches').select('*').eq('room_code',code).maybeSingle();if(error)throw error;if(!data)throw new Error('Soba s to kodo ne obstaja.');if(data.player2_name)throw new Error('Ta soba je že zasedena.');roomCode=code;localSlot=1;remoteMode=true;let myName=$('nick1').value.trim()||'PLAYER 2';let st=data.game_state||{};st.names=[data.player1_name||'PLAYER 1',myName];st.phase='draft';let {error:upErr}=await sb.from('basket_matches').update({player2_name:myName,status:'playing',game_state:st}).eq('room_code',code);if(upErr)throw upErr;$('setup').classList.add('hidden');$('roomBanner').classList.remove('hidden');$('roomCodeText').textContent=roomCode;listenRoom();renderRemote(st);setConnectMsg('Joined room! Good luck.');}catch(e){setConnectMsg('Napaka: '+e.message,true);console.error(e)}}
 async function remoteSelect(p){if(localSlot!==turn||remotePhase!=='draft')return;player=p;remotePhase='shooting';locked=false;$('draft').classList.add('hidden');$('playerName').textContent=p.name;$('playerTeam').textContent=p.team+' · '+p.pos;$('playerPct').textContent=p.pct.toFixed(1)+'%';$('feedback').textContent="LET'S GET THIS W.";$('comment').textContent=p.name+' is locked in. Time to cook.';$('shootBtn').disabled=false;$('status').textContent=names[turn]+' is shooting with '+p.name+'.';update();await saveRemote()}
 async function remoteEndTurn(){roundScores[turn]=score;locked=true;remotePhase='between';if(turn===0){$('betweenEyebrow').textContent='PLAYER 1 FINISHED';$('betweenTitle').textContent=names[0]+' scored '+score+'!';$('betweenText').textContent=names[1]+' needs '+(score+1)+' points to win the round.'}else{let a=roundScores[0],b=roundScores[1],msg;if(a>b){wins[0]++;msg=names[0]+' wins the round!'}else if(b>a){wins[1]++;msg=names[1]+' wins the round!'}else msg='TIE GAME! No round point.';if(wins[0]>=5||wins[1]>=5){remotePhase='finished';$('winnerTitle').textContent=(wins[0]>wins[1]?names[0]:names[1])+' IS THE CHAMPION!';$('finalWins').textContent=wins[0]+' – '+wins[1];$('winnerText').textContent='First to five round wins takes the crown.';$('gameover').classList.remove('hidden');$('between').classList.add('hidden')}else{$('betweenEyebrow').textContent='ROUND '+round+' RESULT';$('betweenTitle').textContent=msg;$('betweenText').textContent=names[0]+': '+a+' · '+names[1]+': '+b+' | '+wins[0]+'–'+wins[1]}}
@@ -741,10 +771,87 @@ showDraft=function(){if(remoteMode){renderRemote(packGame());return}localShowDra
 selectPlayer=function(p){if(remoteMode){remoteSelect(p);return}localSelectPlayer(p)};
 shoot=function(){if(remoteMode){if(localSlot!==turn||remotePhase!=='shooting')return;localShoot();if(shot<25)saveRemote();return}localShoot()};
 endTurn=function(){if(remoteMode){remoteEndTurn();return}localEndTurn()};
-$('createRoom').onclick=createOnline;$('joinRoom').onclick=joinOnline;$('localStart').onclick=()=>{remoteMode=false;roomCode=null;localSlot=null;$('roomBanner').classList.add('hidden');audio();startMatch()};
+
+$('createRoom').onclick=createOnline;$('joinRoom').onclick=joinOnline;
+(function setupThreePtQuickMatch(){
+ const btn=$('threePtQuickMatchBtn');if(!btn)return;
+ let active=false,queueId=null;
+ async function auth(){if(!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
+ async function cancel(){if(queueId)await sb.rpc('basket_quick_cancel',{p_queue_id:queueId});queueId=null;active=false;}
+ async function startRoom(code,slot,opponent){
+  await window.buShowMatchIntro($('nick1').value.trim()||'PLAYER 1',opponent||'Opponent');
+  if(slot===0){window.__threePtQuickRoomCode=code;await createOnline();}
+  else{$('roomInput').value=code;await joinOnline();}
+ }
+ btn.onclick=async()=>{
+  if(active)return;active=true;btn.disabled=true;setConnectMsg('🔎 Iščem nasprotnika … največ 10 sekund.');
+  try{
+   await auth();
+   const nickname=$('nick1').value.trim()||'PLAYER 1';
+   const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'threept',p_nickname:nickname});if(error)throw error;
+   queueId=data.queue_id;
+   if(data.status==='matched'){setConnectMsg('🏀 Nasprotnik najden! Odpiram tekmo …');await startRoom(data.room_code,data.slot,data.opponent);active=false;return;}
+   const start=Date.now();
+   while(active&&Date.now()-start<10000){
+    await new Promise(r=>setTimeout(r,500));
+    const {data:st,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:queueId});if(se)throw se;
+    if(st.status==='matched'){setConnectMsg('🏀 Nasprotnik '+(st.opponent||'')+' najden! Odpiram tekmo …');await startRoom(st.room_code,st.slot,st.opponent);active=false;return;}
+   }
+   if(active){await cancel();setConnectMsg('Nasprotnik najden!');const botName=['ClutchKing14','SplashMode','Hammer23','IceInMyVeins','Buckets99','DowntownAce','RimReaper7'][Math.floor(Math.random()*7)];await window.buShowMatchIntro($('nick1').value.trim()||'PLAYER 1',botName);startThreePtBotMatch(botName);active=false;}
+  }catch(e){await cancel();setConnectMsg('Quick Match napaka: '+e.message,true);}
+  finally{btn.disabled=false;}
+ };
+})();
+
+let threePtBotMode=false;
+function startThreePtBotMatch(botName){
+ stopThreePtBotShots();remoteMode=false;roomCode=null;localSlot=null;threePtBotMode=true;
+ const botNames=['ClutchKing14','SplashMode','Hammer23','IceInMyVeins','Buckets99','DowntownAce','RimReaper7'];
+ botName=botName||botNames[Math.floor(Math.random()*botNames.length)];
+ names=[$('nick1').value.trim()||'PLAYER 1',botName];
+ wins=[0,0];round=1;turn=0;roundScores=[null,null];
+ $('setup').classList.add('hidden');$('roomBanner').classList.add('hidden');
+ $('between').classList.add('hidden');$('gameover').classList.add('hidden');
+ beginTurn();
+ $('status').textContent='🏀 '+names[0]+' vs '+botName+' · BOT';
+ $('comment').textContent='Nasprotnik je pripravljen. Začnimo!';
+}
+
+
+let threePtBotShotTimer=null,threePtBotExecutingShot=false;
+function stopThreePtBotShots(){
+ if(threePtBotShotTimer!==null){clearTimeout(threePtBotShotTimer);threePtBotShotTimer=null;}
+}
+
+function startThreePtBotShooting(){
+ stopThreePtBotShots();
+ const bot=pick(players);
+ turn=1;beginTurn();
+ $('status').textContent=names[1]+' is choosing a shooter…';
+ $('comment').textContent=names[1]+' is warming up.';
+ setTimeout(()=>{
+  if(!threePtBotMode||turn!==1)return;
+  selectPlayer(bot);
+  $('status').textContent=names[1]+' is shooting with '+bot.name+'.';
+  $('shootBtn').disabled=true;
+  const botShootStep=()=>{
+   if(!threePtBotMode||turn!==1||shot>=25){stopThreePtBotShots();return;}
+   // Schedule first, then perform the same shot logic. A visual/audio exception cannot freeze the bot.
+   if(shot<24)threePtBotShotTimer=setTimeout(botShootStep,500);
+   try{shoot()}catch(err){console.warn('Bot shot visual error',err)}
+   if(shot>=25)stopThreePtBotShots();
+  };
+  threePtBotShotTimer=setTimeout(botShootStep,500);
+ },1100);
+}
+$('localStart').onclick=()=>{remoteMode=false;roomCode=null;localSlot=null;$('roomBanner').classList.add('hidden');audio();startMatch()};
 if($('start')) $('start').onclick=()=>{audio();startMatch()};
 $('shootBtn').onclick=shoot;
-$('nextTurn').onclick=()=>{if(remoteMode){remoteAdvance();return}if(turn===0){turn=1;beginTurn()}else{turn=0;round++;roundScores=[null,null];beginTurn()}};
+$('nextTurn').onclick=()=>{
+ if(remoteMode){remoteAdvance();return}
+ if(threePtBotMode&&turn===0){$('between').classList.add('hidden');startThreePtBotShooting();return}
+ if(turn===0){turn=1;beginTurn()}else{turn=0;round++;roundScores=[null,null];beginTurn()}
+};
 $('copyInvite').onclick=async()=>{let link=location.href.split('?')[0]+'?room='+roomCode;try{await navigator.clipboard.writeText(link);$('onlineStatus').textContent='Invite link copied! Code: '+roomCode}catch(e){$('onlineStatus').textContent='Send your friend this code: '+roomCode}};
 $('inviteBtn').onclick=()=>{if(remoteMode){$('onlineStatus').textContent='Room code: '+roomCode}else alert('Najprej ustvari spletno sobo.')};
 const roomFromUrl=new URLSearchParams(location.search).get('room');if(roomFromUrl){$('roomInput').value=roomFromUrl.toUpperCase()}
@@ -1373,7 +1480,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   }else if(pkState.phase==='finished'){const w=pkState.scores.indexOf(Math.max(...pkState.scores));s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">FINAL RESULT</div><h2>🏆 '+players[w].name+' <em>WINS PARKET!</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkRematch">REMATCH</button>'; $('pkRematch').onclick=()=>{pkState.phase='choose';pkState.scores=[0,0];pkState.order=[0,1];pkState.orderIndex=0;pkSave().then(pkRender)}}
  }
  async function pkCreate(){
-  try{pkLocal=false;if(!sb)throw Error('Supabase not available');pkRoom=pkCode();pkSlot=0;pkState={phase:'lobby',players:[{name:pkName(),ready:false}],scores:[],round:0};
+  try{pkLocal=false;if(!sb)throw Error('Supabase not available');pkRoom=window.__pkQuickRoomCode||pkCode();window.__pkQuickRoomCode=null;pkSlot=0;pkState={phase:'lobby',players:[{name:pkName(),ready:false}],scores:[],round:0};
    const {error}=await sb.from(pkTable).insert({room_code:pkRoom,host_name:pkName(),status:'waiting',game_state:pkState});if(error)throw error;pkSubscribe();pkRender();pkMsg('Room '+pkRoom+' created. Share the code.');
   }catch(e){pkMsg(e.message,true)}
  }
@@ -1383,12 +1490,64 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  }
  $('parketOpenBtn').onclick=()=>{$('parketLobby').classList.remove('hidden');$('parketLobbyStage').innerHTML='';pkMsg('Create a room or join with a code.')};
  $('parketCreateBtn').onclick=pkCreate;$('parketJoinBtn').onclick=pkJoin;
+ const pkQuickBtn=$('parketQuickMatchBtn');
+ let pkQuickActive=false,pkQuickQueueId=null,pkQuickTimer=null;
+ function pkQuickName(){return ['ClutchKing','SkyHook','HoopMaster','SwishPro','FastBreak','RimRunner'][Math.floor(Math.random()*6)]+Math.floor(10+Math.random()*89)}
+ async function pkQuickAuth(){
+  if(!sb)throw Error('Supabase ni na voljo.');
+  const {data}=await sb.auth.getSession();
+  if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}
+ }
+ async function pkQuickCancel(){
+  if(pkQuickQueueId&&sb)await sb.rpc('basket_quick_cancel',{p_queue_id:pkQuickQueueId});
+  pkQuickQueueId=null;pkQuickActive=false;if(pkQuickTimer)clearTimeout(pkQuickTimer);
+ }
+ async function pkQuickStartBot(){
+  if(!pkQuickActive)return;
+  await pkQuickCancel();
+  const botName=pkQuickName();window.__pkQuickBotName=botName;await window.buShowMatchIntro(pkName(),botName);pkMsg('Nasprotnik najden!');
+  setTimeout(()=>$('parketSoloTestBtn').click(),100);
+ }
+ async function pkQuickMatch(){
+  if(pkQuickActive)return;
+  pkQuickActive=true;pkQuickBtn.disabled=true;pkMsg('🔎 Iščem nasprotnika … največ 10 sekund.');
+  try{
+   await pkQuickAuth();
+   const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'parket',p_nickname:pkName()||pkQuickName()});
+   if(error)throw error;
+   pkQuickQueueId=data.queue_id;
+   if(data.status==='matched'){
+    await window.buShowMatchIntro(pkName(),data.opponent||'Opponent');
+    pkMsg('🏀 NAŠEL SEM NASPROTNIKA! Odpiram tekmo …');
+    if(data.slot===0){window.__pkQuickRoomCode=data.room_code;await pkCreate();}
+    else{$('parketCodeInput').value=data.room_code;await pkJoin();}
+    pkQuickActive=false;pkQuickBtn.disabled=false;return;
+   }
+   const started=Date.now();
+   while(pkQuickActive&&Date.now()-started<10000){
+    await new Promise(r=>setTimeout(r,500));
+    const {data:st,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:pkQuickQueueId});
+    if(se)throw se;
+    if(st.status==='matched'){
+     await window.buShowMatchIntro(pkName(),st.opponent||'Opponent');pkMsg('🏀 NAŠEL SEM NASPROTNIKA! '+(st.opponent||'Opponent')+' · odpiram tekmo …');
+     if(st.slot===0){window.__pkQuickRoomCode=st.room_code;await pkCreate();}
+     else{$('parketCodeInput').value=st.room_code;await pkJoin();}
+     pkQuickActive=false;pkQuickBtn.disabled=false;return;
+    }
+   }
+   if(pkQuickActive)await pkQuickStartBot();
+  }catch(e){await pkQuickCancel();pkMsg('Quick Match napaka: '+e.message,true);}
+  finally{pkQuickBtn.disabled=false;}
+ }
+ pkQuickBtn.onclick=pkQuickMatch;
+
  $('parketSoloTestBtn').onclick=()=>{
   try{
    pkLocal=true;pkRoom='SOLO';pkSlot=0;pkChannel=null;
    const difficulty=$('parketBotDifficulty')?.value||'medium';
    const humanPlayer=pkPickPlayer(),botPlayer=pkPickPlayer();
-   pkState={phase:'shootout',difficulty,players:[{name:pkName(),ready:true,player:humanPlayer},{name:'CPU · '+difficulty.toUpperCase(),ready:true,bot:true,player:botPlayer}],scores:[0,0],round:1,shootTurn:0,turns:[0,0],alive:[0,1]};
+   const quickBotName=window.__pkQuickBotName||null;window.__pkQuickBotName=null;
+   pkState={phase:'shootout',difficulty,players:[{name:pkName(),ready:true,player:humanPlayer},{name:quickBotName||('CPU · '+difficulty.toUpperCase()),ready:true,bot:true,player:botPlayer}],scores:[0,0],round:1,shootTurn:0,turns:[0,0],alive:[0,1]};
    $('parketLobby').classList.add('hidden');
    $('parketGame').classList.remove('hidden');
    pkRenderGame();
@@ -1645,7 +1804,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   let body='';
   if(phase==='draft'){
    const round=mdState.round||1;
-   body=`<div class="mdTop"><div><span>ONLINE DRAFT · ROUND ${round}/5</span><h3>${round===5?'FINAL PICK · SEPARATE TEAM ROLLS':'SHARED TEAM · ALTERNATING FIRST PICK'}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
+   body=`<div class="mdTop"><div><span>ONLINE DRAFT · ROUND ${round}/5</span><h3>${round===5?'FINAL PICK · SEPARATE TEAM ROLLS':'SHARED TEAM · ALTERNATING FIRST PICK'}</h3></div>${mdBotMode?'':`<div class="mdRoomCode">${mdRoom}</div>`}</div>
     <div class="mdPlayers"><div class="${turn===0?'mdActive':''}"><b>${escapeDraftText(p[0]||'PLAYER 1')}</b><small>${picks[0].length}/5 PLAYERS</small></div><div class="${turn===1?'mdActive':''}"><b>${escapeDraftText(p[1]||'PLAYER 2')}</b><small>${picks[1].length}/5 PLAYERS</small></div></div>
     ${active?`<div class="mdTeamReveal">${crest(active.team)}<div><span>${round===5?'YOUR PERSONAL TEAM':'THIS ROUND’S TEAM'}</span><h3>${escapeDraftText(active.team)}</h3><small>${escapeDraftText(active.season||'NBA ROSTER')}</small></div></div>`:`<div class="mdWaiting"><div>🎲</div><b>${round===5?'Spin your own team':'Spin the shared NBA team'}</b><small>${round===5?'Each player rolls a different team and picks one player.':'Both players choose from the same roster; who picks first alternates each round.'}</small></div>`}
     ${active?`<div class="mdRoster">${current.map((pl,i)=>{const already=picks.some(arr=>arr.some(x=>x.name===pl.name));const eligible=positionOf(pl).find(pos=>positions.includes(pos)&&!picks[mdSlot].some(x=>x.slot===pos));return `<button class="mdPlayerPick" data-md-pick="${i}" ${!myTurn||already||!eligible?'disabled':''}><b>${escapeDraftText(pl.name)}</b><small>${pl.pos} · ${pl.ovr} OVR · ${pl.ppg} PPG</small><small>${already?'ALREADY PICKED':eligible?'ELIGIBLE: '+eligible:'NO OPEN POSITION'}</small></button>`}).join('')}</div>`:''}
@@ -1657,7 +1816,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    const history=mdState.history||[];
    body=`<div class="mdGameScore" style="margin-bottom:6px;border:2px solid #f2b95d"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div>
     <div class="mdHistory"><small>GAME RESULTS</small><span>${history.length?history.map(h=>`G${h.game}: ${h.score[0]}–${h.score[1]}`).join('  ·  '):'No games played yet'}</span></div>
-    <div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g} / BEST OF 7</span><h3>HOME TEAM: ${escapeDraftText(p[home])}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
+    <div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g} / BEST OF 7</span><h3>HOME TEAM: ${escapeDraftText(p[home])}</h3></div>${mdBotMode?'':`<div class="mdRoomCode">${mdRoom}</div>`}</div>
     <div class="mdPlayers"><div>${crest(mdState.franchises?.[0]||'Boston Celtics')}<b>${escapeDraftText(mdState.players[0])}</b><small>${home===0?'🏠 HOME':'✈️ AWAY'}</small></div><div>${crest(mdState.franchises?.[1]||'Los Angeles Lakers')}<b>${escapeDraftText(mdState.players[1])}</b><small>${home===1?'🏠 HOME':'✈️ AWAY'}</small></div></div>
     <div class="mdGameScore"><div><small>${escapeDraftText(mdState.franchises?.[0]||'TEAM 1')}</small><b>${sc[0]}</b></div><span>–</span><div><small>${escapeDraftText(mdState.franchises?.[1]||'TEAM 2')}</small><b>${sc[1]}</b></div></div>
     <div class="mdQuarter">QUARTER ${q} / 4 · ${(mdState.quarterDone||[false,false])[mdSlot]?'YOUR SCORE RECORDED':'SIMULATE YOUR TEAM’S SCORE'}</div>
@@ -1667,10 +1826,10 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     <div class="mdLineups"><section><h4>${escapeDraftText(mdState.players[0])} · TEAM</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(mdState.players[1])} · TEAM</h4>${mdLineup(picks[1])}</section></div>`;
   }else if(phase==='gamecomplete'){
    const wins=mdState.wins||[0,0],sc=mdState.lastGameScore||mdState.score||[0,0],winner=mdState.lastGameWinner||0,history=mdState.history||[];
-   body=`<div class="mdChampion"><div>🏁</div><span>GAME ${mdState.game} · FINAL SCORE</span><h2>${sc[0]} – ${sc[1]}</h2><p>${escapeDraftText(p[0])} vs ${escapeDraftText(p[1])}</p><div class="mdGameScore"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div><div class="mdHistory"><small>ALL GAME RESULTS</small><span>${history.map(h=>`G${h.game}: ${h.score[0]}–${h.score[1]}`).join('  ·  ')}</span></div><button class="primary" id="mdNextGame">NEXT GAME</button></div>`;
+   body=`<div class="mdChampion"><div>🏁</div><span>GAME ${mdState.game} · FINAL SCORE</span><h2>${sc[0]} – ${sc[1]}</h2><p>${escapeDraftText(p[0])} vs ${escapeDraftText(p[1])}</p><div class="mdGameScore"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div><div class="mdResultsList"><div class="mdResultsTitle">GAME RESULTS</div>${history.map(g=>`<div class="mdResultRow"><span>GAME ${g.game}</span><b>${g.score[0]} – ${g.score[1]}</b><small>${g.winner===0?escapeDraftText(p[0]):escapeDraftText(p[1])} W</small></div>`).join('')}</div><button class="primary" id="mdNextGame">NEXT GAME</button></div>`;
   }else if(phase==='gameover'){
    const wins=mdState.wins||[0,0], winner=wins[0]>wins[1]?0:1,history=mdState.history||[];
-   body=`<div class="mdChampion"><div>🏆</div><span>ONLINE DRAFT CHAMPION</span><h2>${escapeDraftText(mdState.players[winner])}</h2><b>${wins[0]} – ${wins[1]}</b><p>${escapeDraftText(mdState.players[0])} vs ${escapeDraftText(mdState.players[1])}</p><div class="mdHistory"><small>ALL GAME RESULTS</small><span>${history.map(h=>`G${h.game}: ${h.score[0]}–${h.score[1]}`).join('  ·  ')}</span></div><button class="primary" id="mdNewRoom">BACK TO DRAFT MENU</button></div>`;
+   body=`<div class="mdChampion"><div>🏆</div><span>ONLINE DRAFT CHAMPION</span><h2>${escapeDraftText(mdState.players[winner])}</h2><b>${wins[0]} – ${wins[1]}</b><p>${escapeDraftText(mdState.players[0])} vs ${escapeDraftText(mdState.players[1])}</p><div class="mdResultsList"><div class="mdResultsTitle">GAME RESULTS</div>${history.map(g=>`<div class="mdResultRow"><span>GAME ${g.game}</span><b>${g.score[0]} – ${g.score[1]}</b><small>${g.winner===0?escapeDraftText(p[0]):escapeDraftText(p[1])} W</small></div>`).join('')}</div><button class="primary" id="mdNewRoom">BACK TO DRAFT MENU</button></div>`;
   }
   stage.innerHTML=`<div class="mdShell">${body}<p id="mdMessage" class="mdMessage">${phase==='draft'?(myTurn?'Your pick.':'Waiting for opponent…'):'Online room connected'}</p><button class="secondary" id="mdLeave" style="width:100%;margin-top:10px">LEAVE ROOM</button></div>`;
   $('mdLeave').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
@@ -1698,14 +1857,20 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    if(payload.new?.game_state){mdState=payload.new.game_state;mdRender()}
   }).subscribe();
  }
+ let mdBotMode=false,mdBotTimer=null;
  async function mdPersist(next){
   if(mdBusy)return false;
   mdBusy=true;
   try{
-   const {data,error}=await sb.from(mdTable).update({game_state:next,status:next.phase==='gameover'?'finished':'playing',updated_at:new Date().toISOString()}).eq('room_code',mdRoom);
-   if(error)throw error;
-   // Update locally immediately; Realtime broadcasts to the other player.
-   mdState={...next,updated_at:new Date().toISOString()};mdRender();return true;
+   if(!mdBotMode){
+    const {data,error}=await sb.from(mdTable).update({game_state:next,status:next.phase==='gameover'?'finished':'playing',updated_at:new Date().toISOString()}).eq('room_code',mdRoom);
+    if(error)throw error;
+   }
+   mdState={...next,updated_at:new Date().toISOString()};
+   mdBusy=false;
+   mdRender();
+   if(mdBotMode&&mdState.phase==='draft'&&mdState.turn===1)setTimeout(mdBotDraftAct,900);
+   return true;
   }catch(e){mdSay('Sync error: '+e.message,true);return false}
   finally{mdBusy=false}
  }
@@ -1755,6 +1920,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   if(used[mdSlot])points+=Math.floor(Math.random()*8)+3;
   score[mdSlot]+=points;
   done[mdSlot]=true;
+  if(mdBotMode){let botPts=Math.floor(Math.random()*26)+17;if(home===1)botPts+=3;if(used[1])botPts+=Math.floor(Math.random()*8)+3;score[1]+=botPts;done[1]=true;}
   let next={...mdState,score,quarterDone:done};
   // Advance only after both players have submitted their score for this quarter.
   if(done[0]&&done[1]){
@@ -1771,15 +1937,70 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   }
   await mdPersist(next);
  }
+
+ function mdStartBotDraft(nickname,chosenBotName){
+  mdBotMode=true;mdRoom='';mdSlot=0;
+  const botNames=['ClutchKing14','SplashMode','Hammer23','IceInMyVeins','Buckets99','DowntownAce','RimReaper7'];
+  mdState={players:[nickname||'PLAYER 1',chosenBotName||botNames[Math.floor(Math.random()*botNames.length)]],picks:[[],[]],round:1,turn:0,phase:'draft',currentRoster:[],activeTeam:null,finalTeams:[null,null],wins:[0,0],score:[0,0],game:1,quarter:1,quarterDone:[false,false],boostUsed:[false,false],history:[]};
+  mdRender();mdSay(mdState.players[1]+' is ready. You pick first!');
+ }
+ async function mdBotDraftAct(){
+  if(!mdBotMode||!mdState||mdState.turn!==1||mdBusy)return;
+  if(mdState.phase==='draft'){
+   if(!mdState.currentRoster?.length){
+    const t=rand([...teams]);const roster=t.players.map(x=>({name:x[0],pos:x[1],ovr:x[2],ppg:x[3],rpg:x[4],apg:x[5],slot:positionOf({pos:x[1]}).find(pos=>positions.includes(pos))||x[1]}));
+    if(mdState.round===5){const final=[...(mdState.finalTeams||[null,null])];final[1]={team:t.team,season:t.season};await mdPersist({...mdState,finalTeams:final,activeTeam:final[1],currentRoster:roster});}
+    else await mdPersist({...mdState,activeTeam:{team:t.team,season:t.season},currentRoster:roster});
+    return;
+   }
+   const picks=(mdState.picks||[[],[]]).map(a=>[...a]), roster=mdState.currentRoster||[];
+   const used=picks.flat().map(x=>x.name);
+   const options=roster.filter(pl=>!used.includes(pl.name)&&positionOf(pl).some(pos=>positions.includes(pos)&&!picks[1].some(x=>x.slot===pos)));
+   if(!options.length)return;
+   options.sort((a,b)=>(Number(b.ovr)||0)-(Number(a.ovr)||0));const pl=options[0],slot=positionOf(pl).find(pos=>positions.includes(pos)&&!picks[1].some(x=>x.slot===pos));
+   picks[1].push({...pl,slot,sourceTeam:mdState.activeTeam?.team});
+   let next={...mdState,picks,turn:0};
+   const round=mdState.round||1;
+   if(round<5&&picks[0].length>=round&&picks[1].length>=round){next.round=round+1;next.turn=(round%2===1)?1:0;next.currentRoster=[];next.activeTeam=null;}
+   else if(round===5&&picks[0].length===5&&picks[1].length===5){next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.history=[];next.turn=0;next.boostUsed=[false,false];next.quarterDone=[false,false];next.franchises=mdState.finalTeams.map(t=>t.team);}
+   else if(round===5){next.currentRoster=[];next.activeTeam=null;next.turn=0;}
+   await mdPersist(next);
+  }
+ }
  async function renderMultiDraftLobby(){
-  stage.innerHTML=`<div class="draftTile"><div class="eyebrow">ONLINE · TWO PLAYERS</div><h3>🌐 MULTIPLAYER DRAFT</h3><p>Create a room and invite your friend with a six-character code. Both players need to open Basketball Universe online.</p><label class="field">YOUR NICKNAME</label><input id="mdNick" maxlength="16" value="${escapeDraftText(mdName())}" placeholder="Your nickname"><button class="primary" id="mdCreate" style="width:100%;margin-top:12px">CREATE ROOM</button><div class="mdDivider">OR JOIN A ROOM</div><input id="mdCode" maxlength="6" placeholder="ROOM CODE" style="text-transform:uppercase"><button class="secondary" id="mdJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="mdMessage" class="mdMessage"></p><button class="secondary" id="backDraftModes" style="width:100%;margin-top:10px">BACK</button></div>`;
+  stage.innerHTML=`<div class="draftTile"><div class="eyebrow">ONLINE · TWO PLAYERS</div><h3>🌐 MULTIPLAYER DRAFT</h3><p>Create a room and invite your friend with a six-character code. Both players need to open Basketball Universe online.</p><label class="field">YOUR NICKNAME</label><input id="mdNick" maxlength="16" value="${escapeDraftText(mdName())}" placeholder="Your nickname"><button class="primary" id="mdCreate" style="width:100%;margin-top:12px">CREATE ROOM</button><button class="primary" id="mdQuickMatch" style="width:100%;margin-top:9px">⚡ QUICK MATCH · FIND OPPONENT</button><div class="mdDivider">OR JOIN A ROOM</div><input id="mdCode" maxlength="6" placeholder="ROOM CODE" style="text-transform:uppercase"><button class="secondary" id="mdJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="mdMessage" class="mdMessage"></p><button class="secondary" id="backDraftModes" style="width:100%;margin-top:10px">BACK</button></div>`;
   $('backDraftModes').onclick=menu;
-  $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
+  
+$('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
+ const qbtn=$('mdQuickMatch');let qactive=false,qid=null;
+ async function qauth(){if(!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
+ async function qcancel(){if(qid)await sb.rpc('basket_quick_cancel',{p_queue_id:qid});qid=null;qactive=false;}
+ async function qopen(code,slot,opponent){
+  await window.buShowMatchIntro($('mdNick').value.trim()||mdName(),opponent||'Opponent');
+  if(slot===0){window.__mdQuickRoomCode=code;await mdCreateRoom();}else{$('mdCode').value=code;await mdJoinRoom();}
+ }
+ qbtn.onclick=async()=>{
+  if(qactive)return;qactive=true;qbtn.disabled=true;mdSay('🔎 Iščem nasprotnika … največ 10 sekund.');
+  try{
+   await qauth();const nick=$('mdNick').value.trim().slice(0,16)||mdName();
+   const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'draft',p_nickname:nick});if(error)throw error;qid=data.queue_id;
+   if(data.status==='matched'){mdSay('🏀 Nasprotnik najden! Odpiram Draft …');await qopen(data.room_code,data.slot,data.opponent);qactive=false;return;}
+   const start=Date.now();
+   while(qactive&&Date.now()-start<10000){
+    await new Promise(r=>setTimeout(r,500));
+    const {data:st,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:qid});if(se)throw se;
+    if(st.status==='matched'){mdSay('🏀 Nasprotnik '+(st.opponent||'')+' najden! Odpiram Draft …');await qopen(st.room_code,st.slot,st.opponent);qactive=false;return;}
+   }
+   if(qactive){await qcancel();const botName='ClutchKing'+Math.floor(10+Math.random()*89);await window.buShowMatchIntro(nick,botName);mdStartBotDraft(nick,botName);qactive=false;}
+  }catch(e){await qcancel();mdSay('Quick Match napaka: '+e.message,true);}
+  finally{qbtn.disabled=false;}
+ };
+
  }
  async function mdCreateRoom(){
   try{
    if(!sb)throw new Error('Supabase client did not load.');
-   const nickname=$('mdNick').value.trim().slice(0,16)||'PLAYER 1';mdRoom=mdCode();mdSlot=0;
+   const nickname=$('mdNick').value.trim().slice(0,16)||'PLAYER 1';mdRoom=window.__mdQuickRoomCode||mdCode();window.__mdQuickRoomCode=null;mdSlot=0;
    const initial={players:[nickname,'WAITING…'],picks:[[],[]],round:1,turn:0,phase:'draft',currentRoster:[],activeTeam:null,finalTeams:[null,null],wins:[0,0],score:[0,0],game:1,quarter:1,quarterDone:[false,false],boostUsed:[false,false]};
    const {error}=await sb.from(mdTable).insert({room_code:mdRoom,host_name:nickname,guest_name:null,status:'waiting',game_state:initial});
    if(error)throw error;
@@ -2251,7 +2472,7 @@ document.addEventListener('DOMContentLoaded', function () {
  async function create(){
   try{
    if(!hsb)throw Error("Supabase is not available.");
-   local=false;room=code();slot=0;state={mode:"three_hoops_blockout",phase:"lobby",players:[{name:nick(),ready:true}],scores:[0,0]};
+   local=false;room=window.__hdQuickRoom||code();window.__hdQuickRoom=null;slot=0;state={mode:"three_hoops_blockout",phase:"lobby",players:[{name:nick(),ready:true}],scores:[0,0]};
    const {error}=await hsb.from(table).insert({room_code:room,host_name:nick(),status:"waiting",game_state:state});if(error)throw error;
    subscribe();render();msg("Room "+room+" created. Share the code with your opponent.");
   }catch(e){msg(e.message,true)}
@@ -2267,10 +2488,38 @@ document.addEventListener('DOMContentLoaded', function () {
   }catch(e){msg(e.message,true)}
  }
  $h("hoopDuelOpenBtn").onclick=()=>{$h("freeThrowMenu").classList.add("hidden");$h("hoopDuelLobby").classList.remove("hidden");msg("Create a room, join a friend, or play against the bot.")};
+
+ const hdQuick=$h("hdQuickMatch");let hdQuickBusy=false,hdQueueId=null;
+ async function hdQuickAuth(){if(!hsb)throw Error("Supabase is not available.");const {data}=await hsb.auth.getSession();if(!data?.session){const {error}=await hsb.auth.signInAnonymously();if(error)throw error;}}
+ async function hdQuickCancel(){if(hdQueueId)await hsb.rpc("basket_quick_cancel",{p_queue_id:hdQueueId});hdQueueId=null;hdQuickBusy=false;}
+ async function hdQuickStart(code,slotNo,opponent){
+  await window.buShowMatchIntro(nick(),opponent||"Opponent");
+  if(slotNo===0){window.__hdQuickRoom=code;await create();}
+  else{$h("hdCode").value=code;await join();}
+ }
+ hdQuick.onclick=async()=>{
+  if(hdQuickBusy)return;hdQuickBusy=true;hdQuick.disabled=true;msg("Searching for an opponent…");
+  try{
+   await hdQuickAuth();
+   const {data,error}=await hsb.rpc("basket_quick_match",{p_mode:"blockout",p_nickname:nick()});if(error)throw error;hdQueueId=data.queue_id;
+   if(data.status==="matched"){await hdQuickStart(data.room_code,data.slot,data.opponent);hdQuickBusy=false;return;}
+   const began=Date.now();
+   while(hdQuickBusy&&Date.now()-began<10000){
+    await new Promise(r=>setTimeout(r,500));
+    const {data:s,error:e}=await hsb.rpc("basket_quick_status",{p_queue_id:hdQueueId});if(e)throw e;
+    if(s.status==="matched"){await hdQuickStart(s.room_code,s.slot,s.opponent);hdQuickBusy=false;return;}
+   }
+   if(hdQuickBusy){
+    await hdQuickCancel();const botName="RimReaper"+Math.floor(10+Math.random()*89);
+    window.__hdQuickBotName=botName;await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();
+   }
+  }catch(e){await hdQuickCancel();msg("Quick Match error: "+e.message,true);}
+  finally{hdQuick.disabled=false;}
+ };
  $h("hdCreate").onclick=create;$h("hdJoin").onclick=join;
  $h("hdBot").onclick=()=>{
   local=true;room="BOT";slot=0;channel=null;
-  state={mode:"three_hoops_blockout",phase:"choose",difficulty:$h("hdDifficulty").value,players:[{name:nick()},{name:"CPU · "+$h("hdDifficulty").value.toUpperCase(),bot:true}],scores:[0,0],attacker:0,defender:1,possession:1};
+  state={mode:"three_hoops_blockout",phase:"choose",difficulty:$h("hdDifficulty").value,players:[{name:nick()},{name:window.__hdQuickBotName||("CPU · "+$h("hdDifficulty").value.toUpperCase()),bot:true}],scores:[0,0],attacker:0,defender:1,possession:1};
   $h("hoopDuelLobby").classList.add("hidden");$h("hoopDuelGame").classList.remove("hidden");render();
  };
  $h("hdBack").onclick=()=>{$h("hoopDuelLobby").classList.add("hidden");$h("freeThrowMenu").classList.remove("hidden")};
@@ -2278,4 +2527,32 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 
+
+<style>
+#buMatchIntro{position:fixed;inset:0;z-index:1000000;background:radial-gradient(circle at 50% 35%,#29496c,#07111f 75%);display:none;align-items:center;justify-content:center;padding:24px;color:#fff;text-align:center}
+#buMatchIntro .buIntroCard{width:min(440px,94vw);padding:28px 20px;border:1px solid #ffffff35;border-radius:26px;background:linear-gradient(145deg,#1b3554,#0c1a2b);box-shadow:0 25px 90px #000a}
+#buMatchIntro .buIntroEyebrow{font-size:11px;letter-spacing:3px;color:#ffc86b;font-weight:900}
+#buMatchIntro .buVsNames{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:28px 0}
+#buMatchIntro .buVsNames strong{font-size:clamp(18px,5vw,25px);overflow-wrap:anywhere}
+#buMatchIntro .buVsNames span{font-size:20px;color:#ffc86b;font-weight:1000}
+#buMatchIntro .buCountdown{font-size:68px;line-height:1;font-weight:1000;color:#ffd16b;margin:12px}
+#buMatchIntro .buStarting{font-size:13px;letter-spacing:2px;color:#c6d5e7;font-weight:900}
+</style>
+<div id="buMatchIntro"><div class="buIntroCard"><div class="buIntroEyebrow">BASKETBALL UNIVERSE</div><h2 style="font-size:30px;margin:12px 0">OPPONENT FOUND!</h2><div class="buVsNames"><strong id="buIntroMe">PLAYER</strong><span>VS</span><strong id="buIntroOpponent">OPPONENT</strong></div><div class="buStarting">GAME STARTING IN</div><div class="buCountdown" id="buIntroCount">3</div><div style="color:#9fb3ca;font-size:12px">GET READY · GOOD LUCK</div></div></div>
+<script>
+window.buShowMatchIntro=function(me,opponent){
+ return new Promise(resolve=>{
+  const el=document.getElementById('buMatchIntro');
+  if(!el){resolve();return}
+  document.getElementById('buIntroMe').textContent=me||'PLAYER';
+  document.getElementById('buIntroOpponent').textContent=opponent||'OPPONENT';
+  const count=document.getElementById('buIntroCount');let n=3;
+  count.textContent=n;el.style.display='flex';
+  const timer=setInterval(()=>{
+   n--;count.textContent=n>0?n:'GO!';
+   if(n<=0){clearInterval(timer);setTimeout(()=>{el.style.display='none';resolve()},350)}
+  },1000);
+ });
+};
+</script>
 </body></html>
