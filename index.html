@@ -265,6 +265,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 .mdLineupRows>div>b{width:20px;color:#ffcf78}.mdLineupRows>div>span{flex:1;overflow-wrap:anywhere}.mdLineupRows small{color:#aebed2;font-size:9px}
 .mdMessage{font-size:12px;text-align:center;min-height:18px;color:#9ee6bd;overflow-wrap:anywhere}
 .mdDivider{text-align:center;color:#9eafc4;font-size:10px;letter-spacing:2px;margin:18px 0}
+.mdHistory{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:10px;color:#c9c5bb;margin:4px 0 12px;padding:6px 8px;background:rgba(255,255,255,.045);border-radius:8px}.mdHistory small{font-weight:900;letter-spacing:1px;color:#ffcb6d}.mdHistory span{font-variant-numeric:tabular-nums}
 .mdGameScore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;padding:22px 10px;border-radius:18px;background:linear-gradient(120deg,#101c2d,#243d5c);margin:12px 0}
 .mdGameScore div{display:flex;flex-direction:column;gap:5px}.mdGameScore small{font-size:10px;color:#c3d2e5}.mdGameScore b{font-size:56px;color:#ffd16b}.mdGameScore>span{font-size:26px;color:#aebed2}
 .mdQuarter{text-align:center;margin:12px;color:#ffcf78;font-size:12px;font-weight:900;letter-spacing:2px}
@@ -1653,7 +1654,9 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   }else if(phase==='game'){
    const g=mdState.game||1,q=mdState.quarter||1,sc=mdState.score||[0,0],wins=mdState.wins||[0,0];
    const homeSchedule=[0,0,1,1,0,1,0],home=homeSchedule[Math.min(6,g-1)],isHome=mdSlot===home;
-   body=`<div class="mdGameScore" style="margin-bottom:12px;border:2px solid #f2b95d"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div>
+   const history=mdState.history||[];
+   body=`<div class="mdGameScore" style="margin-bottom:6px;border:2px solid #f2b95d"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div>
+    <div class="mdHistory"><small>GAME RESULTS</small><span>${history.length?history.map(h=>`G${h.game}: ${h.score[0]}–${h.score[1]}`).join('  ·  '):'No games played yet'}</span></div>
     <div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g} / BEST OF 7</span><h3>HOME TEAM: ${escapeDraftText(p[home])}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
     <div class="mdPlayers"><div>${crest(mdState.franchises?.[0]||'Boston Celtics')}<b>${escapeDraftText(mdState.players[0])}</b><small>${home===0?'🏠 HOME':'✈️ AWAY'}</small></div><div>${crest(mdState.franchises?.[1]||'Los Angeles Lakers')}<b>${escapeDraftText(mdState.players[1])}</b><small>${home===1?'🏠 HOME':'✈️ AWAY'}</small></div></div>
     <div class="mdGameScore"><div><small>${escapeDraftText(mdState.franchises?.[0]||'TEAM 1')}</small><b>${sc[0]}</b></div><span>–</span><div><small>${escapeDraftText(mdState.franchises?.[1]||'TEAM 2')}</small><b>${sc[1]}</b></div></div>
@@ -1662,9 +1665,12 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     <div class="draftActions"><button class="primary" id="mdPlayQuarter" ${(mdState.quarterDone||[false,false])[mdSlot]||mdBusy?'disabled':''}>${(mdState.quarterDone||[false,false])[mdSlot]?'YOUR SCORE RECORDED':'SIMULATE YOUR SCORE'}</button><button class="secondary" id="mdUseBoost" ${(mdState.boostUsed||[false,false])[mdSlot]||(mdState.quarterDone||[false,false])[mdSlot]||mdBusy?'disabled':''}>🔥 ${(mdState.boostUsed||[false,false])[mdSlot]?'YOUR BOOST USED':'USE YOUR BOOST THIS QUARTER'}</button></div>
     <small class="muted">Each player simulates only their own team’s score. Both teams get one boost per game, usable in any quarter. Home team gets a small scoring advantage.</small>
     <div class="mdLineups"><section><h4>${escapeDraftText(mdState.players[0])} · TEAM</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(mdState.players[1])} · TEAM</h4>${mdLineup(picks[1])}</section></div>`;
+  }else if(phase==='gamecomplete'){
+   const wins=mdState.wins||[0,0],sc=mdState.lastGameScore||mdState.score||[0,0],winner=mdState.lastGameWinner||0,history=mdState.history||[];
+   body=`<div class="mdChampion"><div>🏁</div><span>GAME ${mdState.game} · FINAL SCORE</span><h2>${sc[0]} – ${sc[1]}</h2><p>${escapeDraftText(p[0])} vs ${escapeDraftText(p[1])}</p><div class="mdGameScore"><div><small>SERIES WINS · ${escapeDraftText(p[0])}</small><b>${wins[0]}</b></div><span>–</span><div><small>SERIES WINS · ${escapeDraftText(p[1])}</small><b>${wins[1]}</b></div></div><div class="mdHistory"><small>ALL GAME RESULTS</small><span>${history.map(h=>`G${h.game}: ${h.score[0]}–${h.score[1]}`).join('  ·  ')}</span></div><button class="primary" id="mdNextGame">NEXT GAME</button></div>`;
   }else if(phase==='gameover'){
-   const wins=mdState.wins||[0,0], winner=wins[0]>wins[1]?0:1;
-   body=`<div class="mdChampion"><div>🏆</div><span>ONLINE DRAFT CHAMPION</span><h2>${escapeDraftText(mdState.players[winner])}</h2><b>${wins[0]} – ${wins[1]}</b><p>${escapeDraftText(mdState.players[0])} vs ${escapeDraftText(mdState.players[1])}</p><button class="primary" id="mdNewRoom">BACK TO DRAFT MENU</button></div>`;
+   const wins=mdState.wins||[0,0], winner=wins[0]>wins[1]?0:1,history=mdState.history||[];
+   body=`<div class="mdChampion"><div>🏆</div><span>ONLINE DRAFT CHAMPION</span><h2>${escapeDraftText(mdState.players[winner])}</h2><b>${wins[0]} – ${wins[1]}</b><p>${escapeDraftText(mdState.players[0])} vs ${escapeDraftText(mdState.players[1])}</p><div class="mdHistory"><small>ALL GAME RESULTS</small><span>${history.map(h=>`G${h.game}: ${h.score[0]}–${h.score[1]}`).join('  ·  ')}</span></div><button class="primary" id="mdNewRoom">BACK TO DRAFT MENU</button></div>`;
   }
   stage.innerHTML=`<div class="mdShell">${body}<p id="mdMessage" class="mdMessage">${phase==='draft'?(myTurn?'Your pick.':'Waiting for opponent…'):'Online room connected'}</p><button class="secondary" id="mdLeave" style="width:100%;margin-top:10px">LEAVE ROOM</button></div>`;
   $('mdLeave').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
@@ -1676,6 +1682,10 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    const used=[...(mdState.boostUsed||[false,false])];used[mdSlot]=true;
    await mdPersist({...mdState,boostUsed:used});
    mdSay('Your boost is ready and will apply to your score this quarter!');
+  };
+  if($('mdNextGame'))$('mdNextGame').onclick=async()=>{
+   if(mdBusy)return;
+   await mdPersist({...mdState,phase:'game',game:(mdState.game||1)+1,quarter:1,score:[0,0],quarterDone:[false,false],boostUsed:[false,false],lastGameScore:null,lastGameWinner:null});
   };
   if($('mdNewRoom'))$('mdNewRoom').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
  }
@@ -1726,7 +1736,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    // Both players have selected from this round's shared team. Alternate who starts next round.
    next.round=round+1;next.turn=(round%2===1)?1:0;next.currentRoster=[];next.activeTeam=null;
   }else if(round===5&&picks[0].length===5&&picks[1].length===5){
-   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.boostUsed=[false,false];next.quarterDone=[false,false];next.franchises=mdState.finalTeams.map(t=>t.team);
+   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.history=[];next.turn=0;next.boostUsed=[false,false];next.quarterDone=[false,false];next.franchises=mdState.finalTeams.map(t=>t.team);
   }else if(round===5&&mdSlot===0){
    // The second player gets a completely separate team roll for the fifth pick.
    next.currentRoster=[];next.activeTeam=null;next.turn=1;
@@ -1752,8 +1762,9 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     if(score[0]===score[1])score[home]+=1;
     const wins=[...(mdState.wins||[0,0])],gameWinner=score[0]>score[1]?0:1;
     wins[gameWinner]++;
+    const history=[...(mdState.history||[]),{game,score:[...score],winner:gameWinner}];
     const finished=wins[0]===4||wins[1]===4;
-    next={...next,lastGameScore:score,lastGameWinner:gameWinner,wins,score:[0,0],game:game+1,quarter:1,quarterDone:[false,false],boostUsed:[false,false],phase:finished?'gameover':'game'};
+    next={...next,lastGameScore:[...score],lastGameWinner:gameWinner,history,wins,score:[...score],quarterDone:[true,true],phase:finished?'gameover':'gamecomplete'};
    }else{
     next={...next,quarter:quarter+1,quarterDone:[false,false]};
    }
