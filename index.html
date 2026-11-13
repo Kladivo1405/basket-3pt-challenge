@@ -618,7 +618,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </div>
 </div>
 
-<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button></div></div>
+<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Ustvari sobo in pošlji kodo prijatelju ali se pridruži njegovi sobi. Vsak igra na svojem telefonu.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Povezava s strežnikom je pripravljena.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button><button class="secondary" id="setupBackToMenu" style="width:100%;margin-top:9px">← BACK TO MENU</button></div></div>
 <div class="overlay hidden" id="draft"><div class="modal"><div class="eyebrow">PLAYER DRAFT · 3 PICKS</div><h2>Choose your shooter</h2><p id="draftPrompt">You have three random players to choose from. Pick your weapon.</p><div class="candidategrid" id="candidateGrid"></div></div></div>
 <div class="overlay hidden" id="between"><div class="modal"><div class="eyebrow" id="betweenEyebrow">ROUND COMPLETE</div><h2 id="betweenTitle">PLAYER 1 takes the round!</h2><p id="betweenText">Pass the phone to the next shooter.</p><div class="endbuttons"><button class="primary" id="nextTurn">NEXT PLAYER</button><button class="secondary" id="betweenMenu">MAIN MENU</button></div></div></div>
 <div class="overlay hidden" id="gameover"><div class="modal"><div class="eyebrow">FINAL BUZZER</div><h2 id="winnerTitle">CHAMPION!</h2><div class="finalnum" id="finalWins">5–3</div><p id="winnerText">What a contest.</p><button class="primary" id="rematch">REMATCH</button></div></div>
@@ -1069,7 +1069,8 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    saveFreeThrowRecord(player,ftGame.made).then(ok=>{
     window.__ftLeaderboardSaveStatus=ok?'Saved to global leaderboard.':'Could not save online. Check connection and Supabase setup.';
    });
-   $('ftShoot').textContent='RUN FINISHED';$('ftShoot').disabled=true;
+   $('ftShoot').textContent='RUN FINISHED';$('ftShoot').disabled=true;$('ftShoot').style.display='none';
+   $('ftReplay').textContent='↻ PLAY AGAIN';$('ftReplay').style.display='block';$('ftReplay').focus?.();
    $('ftDifficulty').textContent='FINAL STREAK: '+ftGame.made+' · TOTAL SHOTS: '+ftGame.shot;
    $('ftCall').textContent=ftGame.made>=10?'INCREDIBLE STREAK!':ftGame.made>=5?'GREAT RUN!':'GOOD TRY!';
    $('ftCall').className='ftCall ftMissCall';$('ftCourt').classList.add('ftMissScene');
@@ -1596,7 +1597,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   state.roster=state.team.players.map(x=>({name:x[0],pos:x[1],ovr:x[2],ppg:x[3],rpg:x[4],apg:x[5],team:state.team.team,season:state.team.season}));
  }
  function showDraftInstructions(start){
-  const modal=document.createElement('div');modal.className='overlay';modal.id='draftInstructionsModal';
+  const modal=document.createElement('div');modal.className='overlay';modal.id='draftInstructionsModal';modal.style.zIndex='160';
   modal.innerHTML=`<div class="modal gameInstructionsCard"><div class="eyebrow">DRAFT MODE · HOW TO PLAY</div><h2>🏀 BUILD YOUR TEAM</h2><p>Draft five players for PG, SG, SF, PF and C. Each pick comes from a randomly selected NBA team.</p><p>Then choose your NBA franchise and play an 82-game regular season.</p><p>Qualify for the playoffs, win the quarter-finals, semi-finals and Finals. Each series is first to four wins.</p><button class="primary" id="draftInstructionsGo" style="width:100%">START DRAFT</button></div>`;
   document.body.append(modal);$('draftInstructionsGo').onclick=()=>{modal.remove();start()};
  }
@@ -1985,29 +1986,11 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   $('newDraft').onclick=()=>{resetDraft();renderDraft()};
  }
  function renderHalftime(){
+  // Skip the optional locker-room speech screen in Draft Solo.
+  // Continue directly into the second half with no morale or performance modifier.
   state.halftimeUsed=true;
-  stage.innerHTML=`<div class="halftimeHero"><div class="eyebrow">HALFTIME · LOCKER ROOM</div><h2>THE SECOND HALF STARTS NOW</h2><p>Choose what you want to say to the team. The players' reaction will be revealed after your choice.</p><div class="halftimeScore"><span>${state.gamePts}</span><b>HALF-TIME</b><span>${state.oppPts}</span></div></div>
-  <div class="speechGrid">
-   <button class="speechCard speechGood" data-speech="inspire"><span class="speechIcon">🔥</span><b>LIGHT A FIRE</b><small>“We belong here. Leave everything on this court!”</small></button>
-   <button class="speechCard speechTactic" data-speech="tactic"><span class="speechIcon">🧠</span><b>TACTICAL TALK</b><small>“Stay disciplined. Move the ball and trust the system.”</small></button>
-   <button class="speechCard speechRisk" data-speech="tough"><span class="speechIcon">💢</span><b>HARD TRUTH</b><small>“This effort isn't good enough. Wake up!”</small></button>
-  </div>`;
-  stage.querySelectorAll('[data-speech]').forEach(btn=>btn.onclick=()=>{
-   const choice=btn.dataset.speech;
-   let title='',message='',result='';
-   if(choice==='inspire'){
-    state.morale=Math.min(5,state.morale+3);state.halftimeBoost=8;
-    title='THE TEAM IS FIRED UP!';message='Your speech brought the group together. The players are responding with energy.';result='TEAM MORALE INCREASED · SECOND-HALF BOOST';
-   }else if(choice==='tactic'){
-    state.morale=Math.min(5,state.morale+2);state.halftimeBoost=5;
-    title='THE TEAM BOUGHT INTO THE PLAN';message='The players look focused and ready to execute.';result='TEAM MORALE INCREASED · TACTICAL BOOST';
-   }else{
-    state.morale=Math.max(-5,state.morale-3);state.halftimeBoost=-5;
-    title='THE SPEECH BACKFIRED';message='The criticism hurt the mood in the locker room. The team looks less confident.';result='TEAM MORALE DROPPED · PERFORMANCE PENALTY';
-   }
-   stage.innerHTML=`<div class="halftimeResult"><div class="eyebrow">LOCKER ROOM REACTION</div><div class="halftimeReactionIcon">${choice==='inspire'?'🔥':choice==='tactic'?'🧠':'💢'}</div><h2>${title}</h2><p>${message}</p><strong>${result}</strong><button class="primary" id="backToGame" style="width:100%;margin-top:18px">BACK TO THE COURT</button></div>`;
-   $('backToGame').onclick=renderPlayoff;
-  });
+  state.halftimeBoost=0;
+  renderPlayoff();
  }
  function renderGameRecap(){
   const won=state.gamePts>state.oppPts;
@@ -2060,6 +2043,12 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  $('draftModeBtn').addEventListener('click',()=>{ $('modeMenu').classList.add('hidden');overlay.classList.remove('hidden');menu()});
  $('threePtMode').addEventListener('click',()=>{$('modeMenu').classList.add('hidden');$('threePtMenu').classList.remove('hidden')});
  $('threePtBackMenu').addEventListener('click',()=>{$('threePtMenu').classList.add('hidden');$('modeMenu').classList.remove('hidden')});
+$('setupBackToMenu')?.addEventListener('click',()=>{
+ $('setup').classList.add('hidden');
+ $('threePtMenu').classList.remove('hidden');
+ $('modeMenu').classList.add('hidden');
+ $('roomBanner').classList.add('hidden');
+});
  $('fantasyModeBtn').addEventListener('click',()=>{});
  $('draftBackMenu').addEventListener('click',()=>{overlay.classList.add('hidden');$('modeMenu').classList.remove('hidden')});
 })();
