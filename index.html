@@ -1059,11 +1059,16 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   $('ftShoot').disabled=true;
   if(!hit){
    const player=(String($('menuNick')?.value||'').trim()||'PLAYER').slice(0,16),key='basketball_universe_free_throw_board_v1';
+   // Keep a local fallback, but the permanent/global record is saved to Supabase.
    let board=[];try{board=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
    const old=board.find(x=>x.name.toLowerCase()===player.toLowerCase());
    if(!old)board.push({name:player,score:ftGame.made});else old.score=Math.max(old.score,ftGame.made);
    board.sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
    try{localStorage.setItem(key,JSON.stringify(board.slice(0,50)))}catch(e){}
+   window.__ftLeaderboardSaveStatus='Saving your solo Free Throw record…';
+   saveFreeThrowRecord(player,ftGame.made).then(ok=>{
+    window.__ftLeaderboardSaveStatus=ok?'Saved to global leaderboard.':'Could not save online. Check connection and Supabase setup.';
+   });
    $('ftShoot').textContent='RUN FINISHED';$('ftShoot').disabled=true;
    $('ftDifficulty').textContent='FINAL STREAK: '+ftGame.made+' · TOTAL SHOTS: '+ftGame.shot;
    $('ftCall').textContent=ftGame.made>=10?'INCREDIBLE STREAK!':ftGame.made>=5?'GREAT RUN!':'GOOD TRY!';
@@ -1122,10 +1127,57 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   });
   $('specialChallengeModal').classList.remove('hidden');
  }
- function openFreeThrowBoard(){
-  let rows=[];try{rows=JSON.parse(localStorage.getItem('basketball_universe_free_throw_board_v1')||'[]')}catch(e){}
-  $('freeThrowLeaderboardRows').innerHTML=rows.length?rows.slice(0,20).map((r,i)=>'<div class="ftBoardRow"><b>#'+(i+1)+'</b><span>'+String(r.name).replace(/[&<>"]/g,'')+'</span><strong>'+r.score+'</strong></div>').join(''):'<p>Še ni rezultatov. Odigraj prvo igro!</p>';
+ async function openFreeThrowBoard(){
+  const host=$('freeThrowLeaderboardRows');
+  host.innerHTML='<p>Loading global leaderboard…</p>';
   $('freeThrowLeaderboard').classList.remove('hidden');
+  try{
+   if(!sb)throw new Error('Supabase client is unavailable.');
+   // Migrate this device's still-existing local personal best into the permanent leaderboard.
+   const currentNick=String($('menuNick')?.value||'').trim().toLowerCase();
+   if(currentNick){
+    try{
+     const legacy=JSON.parse(localStorage.getItem('basketball_universe_free_throw_board_v1')||'[]');
+     const mine=legacy.find(r=>String(r.name||'').trim().toLowerCase()===currentNick);
+     if(mine&&Number(mine.score)>0)await saveFreeThrowRecord(String($('menuNick').value).trim(),Number(mine.score));
+    }catch(_){}
+   }
+   const {data,error}=await sb.from('ft_solo_leaderboard_secure').select('nickname,best_streak,updated_at').order('best_streak',{ascending:false}).order('updated_at',{ascending:true}).limit(20);
+   if(error)throw error;
+   host.innerHTML=data?.length?data.map((r,i)=>'<div class="ftBoardRow"><b>#'+(i+1)+'</b><span>'+escapeFtText(r.nickname)+'</span><strong>'+r.best_streak+'</strong></div>').join(''):'<p>Global leaderboard is empty. Be the first to post a solo streak!</p>';
+   if(window.__ftLeaderboardSaveStatus)host.insertAdjacentHTML('beforeend','<p class="muted" style="margin-top:10px">'+escapeFtText(window.__ftLeaderboardSaveStatus)+'</p>');
+  }catch(e){
+   console.warn('Free Throw leaderboard load failed:',e);
+   host.innerHTML='<p class="draftSaveStatus">LEADERBOARD ERROR: '+escapeFtText(e?.message||e)+'</p><p class="muted">Check that the ft_solo_leaderboard_secure table and its SELECT policy have been created in Supabase.</p>';
+  }
+ }
+ function escapeFtText(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ async function saveFreeThrowRecord(nickname,score){
+  if(!sb){console.warn('Free Throw save: Supabase client unavailable.');return false}
+  try{
+   const sessionResult=await sb.auth.getSession();
+   if(sessionResult.error)throw sessionResult.error;
+   let user=sessionResult.data?.session?.user||null;
+   if(!user){
+    const signed=await sb.auth.signInAnonymously();
+    if(signed.error)throw signed.error;
+    user=signed.data?.user||signed.data?.session?.user||null;
+   }
+   if(!user)throw new Error('Anonymous sign-in did not create a user. Enable Anonymous Sign-Ins in Supabase Authentication.');
+   const {data:previous,error:readError}=await sb.from('ft_solo_leaderboard_secure').select('best_streak').eq('user_id',user.id).maybeSingle();
+   if(readError)throw readError;
+   const best=Math.max(Number(previous?.best_streak)||0,Number(score)||0);
+   const {error}=await sb.from('ft_solo_leaderboard_secure').upsert({
+    user_id:user.id,nickname:String(nickname||'PLAYER').trim().slice(0,16)||'PLAYER',
+    best_streak:best,updated_at:new Date().toISOString()
+   },{onConflict:'user_id'});
+   if(error)throw error;
+   return true;
+  }catch(e){
+   console.warn('Free Throw leaderboard save failed:',e?.message||e);
+   window.__ftLeaderboardSaveStatus='SAVE ERROR: '+String(e?.message||e);
+   return false;
+  }
  }
 
  // PARKET: up to six players, shared realtime game state.
