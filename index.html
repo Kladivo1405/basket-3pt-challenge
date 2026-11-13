@@ -342,6 +342,125 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 @keyframes missShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
 @keyframes missFlash{0%,100%{opacity:1}50%{opacity:.35}}
 </style>
+<style>
+.pkHalfCourt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:24px 12px;background:linear-gradient(180deg,#c47a3b,#995326);border:4px solid #f5e4c8;border-radius:12px;position:relative}
+.pkSpot{min-height:55px;border:2px solid #fff9;border-radius:50%;background:#18334ddd;color:white;font-weight:800;font-size:11px;padding:6px}
+.pkSpot:active{background:#e88b32}
+</style><style>
+.pkCourtDiagram{height:420px;max-width:440px;margin:12px auto;position:relative;overflow:hidden;border:4px solid #f3dfbd;border-radius:12px;background:repeating-linear-gradient(0deg,#c98545 0 42px,#bd783c 43px 44px);box-shadow:inset 0 0 0 2px #ffffff55;background-image:linear-gradient(90deg,#ffffff10 1px,transparent 1px),repeating-linear-gradient(0deg,#c98545 0 42px,#bd783c 43px 44px);background-size:50% 100%,100% 100%}
+.pkPaint{position:absolute;top:0;left:34%;width:32%;height:38%;border:3px solid #fff9;border-top:0;background:#ffffff12;box-sizing:border-box}
+.pkFreeLine{position:absolute;top:38%;left:34%;width:32%;border-top:3px solid #fff9}.pkHalfLine{position:absolute;top:50%;left:0;right:0;border-top:3px solid #fff9}.pkCenterCircle{position:absolute;top:50%;left:50%;width:92px;height:92px;border:3px solid #fff9;border-radius:50%;transform:translate(-50%,-50%);background:#ffffff0b}
+.pkArc{position:absolute;top:34%;left:7%;width:86%;height:54%;border:3px solid #fff9;border-bottom:0;border-radius:50% 50% 0 0}
+.pkHoopMark{position:absolute;top:3px;left:50%;transform:translateX(-50%);width:82px;height:26px;border-bottom:7px solid #ff7838;border-radius:0 0 50% 50%;z-index:4;filter:drop-shadow(0 2px 2px #0008)}.pkHoopMark:before{content:'';position:absolute;left:9px;top:-2px;width:64px;height:17px;border:4px solid #e9f4fb;border-bottom:0;background:#b8d5e4;box-shadow:0 2px 4px #0005}.pkHoopMark:after{content:'';position:absolute;left:23px;top:24px;width:36px;height:28px;border:2px dashed #fff;clip-path:polygon(0 0,100% 0,75% 100%,25% 100%)}
+.pkCourtDot{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border:3px solid white;border-radius:50%;background:#16334ddd;color:white;font-weight:900;box-shadow:0 2px 9px #0009;z-index:3}
+.pkCourtDot:active{background:#ff9c36;transform:translate(-50%,-50%) scale(1.15)}
+.pkFirstPerson{height:210px;position:relative;overflow:hidden;border-radius:14px;background:linear-gradient(#112e4c 0 68%,#b77b45 69%);border:2px solid #ffffff35;margin:12px 0}
+.pkAnimCall{position:absolute;top:8px;left:0;right:0;text-align:center;font-weight:1000;font-size:23px;z-index:8;text-shadow:0 2px 8px #000}
+.pkAnimHoop{position:absolute;right:14%;top:22px;width:110px;height:110px}
+.pkAnimBackboard{position:absolute;right:8px;top:0;width:82px;height:58px;background:#d9e6ed;border:5px solid white;border-radius:4px}
+.pkAnimRim{position:absolute;right:0;top:64px;width:108px;height:12px;border:5px solid #ff7538;border-top:0;border-radius:0 0 50% 50%;z-index:3}
+.pkAnimNet{position:absolute;right:17px;top:75px;width:72px;height:53px;border-left:2px solid #fff;border-right:2px solid #fff;border-bottom:2px solid #fff;clip-path:polygon(0 0,100% 0,70% 100%,30% 100%);background:repeating-linear-gradient(65deg,transparent 0 9px,#fff9 10px 11px),repeating-linear-gradient(-65deg,transparent 0 9px,#fff9 10px 11px)}
+.pkAnimNet.pkNetHit{animation:pkNetShake .5s}
+.pkAnimHands{position:absolute;bottom:-15px;left:35%;font-size:100px;color:#d99a6c;transform:rotate(-25deg);text-shadow:0 2px 4px #000}
+.pkAnimBall{position:absolute;bottom:35px;left:38%;width:27px;height:27px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffbd68,#d85c18 70%);border:2px solid #54270e;z-index:5;opacity:0}
+.pkAnimBall.pkMade{opacity:1;animation:pkBallIn 1s ease-out forwards}
+.pkAnimBall.pkMiss{opacity:1;animation:pkBallOut 1s ease-out forwards}
+.pkShotMeter{height:30px;position:relative;border-radius:20px;background:linear-gradient(90deg,#d65d50,#f0d36a,#54b77d,#f0d36a,#d65d50);border:3px solid #fff8;overflow:hidden;margin:12px 0}
+.pkTargetZone{position:absolute;height:100%;background:#fff9;border-left:3px solid white;border-right:3px solid white;box-sizing:border-box}
+.pkShotMarker{position:absolute;top:-3px;bottom:-3px;width:5px;background:#fff;box-shadow:0 0 8px #fff;z-index:4}
+@keyframes pkBallIn{0%{left:42%;bottom:82px;transform:scale(1) rotate(0)}38%{left:61%;bottom:185px;transform:scale(.82) rotate(150deg)}62%{left:76%;bottom:160px;transform:scale(.68) rotate(260deg)}76%{left:79%;bottom:132px;transform:scale(.58) rotate(340deg)}88%{left:79%;bottom:91px;transform:scale(.52) rotate(430deg)}100%{left:79%;bottom:35px;transform:scale(.44) rotate(520deg);opacity:.35}}
+@keyframes pkBallOut{0%{left:42%;bottom:82px;transform:scale(1) rotate(0)}42%{left:62%;bottom:185px;transform:scale(.82) rotate(170deg)}72%{left:84%;bottom:153px;transform:scale(.68) rotate(300deg)}100%{left:96%;bottom:92px;transform:scale(.5) rotate(500deg);opacity:.15}}
+@keyframes pkNetShake{30%{transform:scaleX(.7) skewX(12deg)}70%{transform:scaleX(1.1) skewX(-8deg)}}
+</style>
+<style>
+#parketGameStage{max-width:760px;margin:0 auto;padding:clamp(14px,3vw,28px)}
+.pkGameHeader{padding:4px 2px 14px}
+.pkGameEyebrow{font-size:11px;letter-spacing:3px;font-weight:950;color:#ff9b42;margin-bottom:8px}
+.pkGameHeader h2{font-size:clamp(25px,5vw,38px);line-height:1.05;letter-spacing:-1px;margin:0 0 9px;font-weight:1000}
+.pkGameHeader h2 em{font-style:normal;color:#ff9b42}
+.pkGameHeader p{color:#aebfd0;margin:0;font-size:15px;line-height:1.5}
+.pkScoreboard{background:linear-gradient(145deg,#10263d,#091827);border:1px solid #ffffff24;border-radius:18px;padding:14px;margin:12px 0 16px;box-shadow:0 12px 28px #0003}
+.pkScoreTitle{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:2px;font-weight:950;color:#aebfd0;margin-bottom:10px}
+.pkScoreTitle span{color:#ff9b42}
+.pkScoreGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.pkScoreCard{position:relative;min-width:0;background:linear-gradient(145deg,#203d5b,#142b43);border:1px solid #ffffff20;border-radius:13px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 6px}
+.pkScoreCard.pkOut{opacity:.35;filter:grayscale(1)}
+.pkScoreName{font-size:12px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pkScoreNum{grid-row:span 3;font-size:38px;line-height:1;font-weight:1000;color:#ff9b42;font-variant-numeric:tabular-nums}
+.pkScorePlayer,.pkScoreOvr{font-size:10px;color:#aebfd0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pkTurnBanner{display:flex;flex-direction:column;gap:4px;padding:12px 15px;margin:12px 0;background:#ff98231a;border:1px solid #ff98235c;border-radius:12px}
+.pkTurnBanner span{font-size:10px;letter-spacing:2px;font-weight:900;color:#ffad60}
+.pkTurnBanner strong{font-size:16px;letter-spacing:.4px}
+.pkFirstPerson{height:clamp(240px,58vw,340px);border-radius:20px!important;border:1px solid #ffffff35!important;margin:14px 0!important;overflow:hidden;background:radial-gradient(ellipse at 50% 90%,#315b76 0,#142e49 54%,#091827 100%)!important;box-shadow:inset 0 -30px 60px #0005,0 14px 30px #0004}
+.pkSceneGlow{position:absolute;inset:0;background:radial-gradient(ellipse at 78% 24%,#fff2,transparent 38%),linear-gradient(120deg,transparent 35%,#ffffff08 50%,transparent 65%)}
+.pkAnimCall{top:14px!important;font-size:clamp(17px,4vw,25px)!important;letter-spacing:2px;color:#fff;text-shadow:0 3px 12px #000!important}
+.pkAnimHoop{right:13%!important;top:48px!important;width:clamp(120px,30vw,170px)!important;height:150px!important;transform:perspective(300px) rotateX(-8deg)}
+.pkAnimBackboard{right:10px!important;width:clamp(90px,23vw,125px)!important;height:74px!important;background:linear-gradient(135deg,#f4fbff,#b8d2e1)!important;box-shadow:0 8px 18px #0005}
+.pkAnimRim{top:80px!important;width:100%!important;height:14px!important;border-width:6px!important;border-color:#ff8b42!important;filter:drop-shadow(0 3px 4px #0008)}
+.pkAnimNet{top:92px!important;width:68%!important;height:68px!important;right:16%!important;background:repeating-linear-gradient(65deg,transparent 0 10px,#fff9 11px 12px),repeating-linear-gradient(-65deg,transparent 0 10px,#fff9 11px 12px)!important;filter:drop-shadow(0 3px 3px #0005)}
+.pkCourtFloor{position:absolute;left:-10%;right:-10%;bottom:-60px;height:130px;border-radius:50% 50% 0 0;background:repeating-linear-gradient(90deg,transparent 0 48px,#ffffff14 49px 51px),linear-gradient(#bd7b43,#86502f);border-top:3px solid #f2c28b;transform:perspective(220px) rotateX(8deg)}
+.pkShooterSilhouette{position:absolute;bottom:-10px;left:30%;width:100px;height:145px;filter:drop-shadow(0 5px 5px #0006)}
+.pkShooterSilhouette:before{content:"";position:absolute;left:32px;top:0;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#e9b58d,#a96c4e)}
+.pkShooterSilhouette:after{content:"";position:absolute;left:14px;top:40px;width:75px;height:110px;background:linear-gradient(120deg,#f2a15e,#a95730);clip-path:polygon(30% 0,75% 0,100% 100%,0 100%);border-radius:24px 24px 0 0}
+.pkShooterSilhouette i,.pkShooterSilhouette b{position:absolute;z-index:2;top:35px;width:14px;height:90px;border-radius:20px;background:#d89a72;transform-origin:top}
+.pkShooterSilhouette i{left:18px;transform:rotate(-35deg)}
+.pkShooterSilhouette b{right:4px;transform:rotate(30deg)}
+.pkAnimBall{width:30px!important;height:30px!important;left:42%!important;bottom:82px!important;background:radial-gradient(circle at 30% 25%,#ffc77b,#df671c 68%,#8d360e)!important;box-shadow:inset -3px -4px 0 #642b12,0 4px 10px #0008;overflow:visible}.pkAnimBall:before,.pkAnimBall:after{content:'';position:absolute;inset:0;border:1.5px solid #71300f;border-radius:50%}.pkAnimBall:before{left:8px;right:8px}.pkAnimBall:after{top:13px;bottom:13px;left:-2px;right:-2px;border-left:0;border-right:0}
+.pkDistanceTag{position:absolute;bottom:12px;right:14px;font-size:9px;letter-spacing:2px;font-weight:900;color:#fff9}
+.pkShotHint{font-size:13px!important;line-height:1.5;color:#b7c7d7!important}
+.pkShotMeter{height:34px!important;border-radius:18px!important;margin:16px 0 8px!important;box-shadow:0 4px 12px #0004}
+.pkTargetZone{background:#f7fff1b8!important;box-shadow:0 0 14px #fff8}
+.pkShotMarker{width:5px!important;background:#fff!important;box-shadow:0 0 12px 3px #fff!important}
+.pkShootButton{width:100%;min-height:62px;font-size:18px!important;letter-spacing:1px;border-radius:14px!important;box-shadow:0 7px 0 #9e4c13,0 12px 24px #0004}
+@media(max-width:420px){.pkScoreGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.pkScoreNum{font-size:34px}.pkFirstPerson{height:250px}.pkAnimHoop{right:9%!important}.pkShooterSilhouette{left:24%}}
+</style>
+
+<style id="pkProCourtAndAnimation">
+.pkCourtDiagram{height:clamp(390px,112vw,560px);max-width:480px;aspect-ratio:0.78;margin:16px auto 10px;position:relative;overflow:hidden;border:4px solid #f4e3c5;border-radius:18px;background:linear-gradient(180deg,#d18b4b 0%,#bd783e 100%);box-shadow:inset 0 0 0 3px #ffffff35,0 14px 30px #0004}
+.pkCourtDiagram:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 58px,#ffffff0c 59px 60px);pointer-events:none}
+.pkCourtDiagram svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.pkCourtDiagram .courtLine{fill:none;stroke:#fff0d9;stroke-width:2.2;opacity:.88}
+.pkCourtDiagram .courtPaint{fill:#ffffff13;stroke:#fff0d9;stroke-width:2.2}
+.pkHoopMark{position:absolute;top:1.5%;left:50%;transform:translateX(-50%);width:62px;height:22px;border:4px solid #f5f8fa;border-bottom:0;background:#b9d4e1;z-index:2;box-shadow:0 3px 6px #0005}
+.pkHoopMark:after{content:"";position:absolute;left:50%;top:17px;transform:translateX(-50%);width:45px;height:10px;border:4px solid #ff7838;border-top:0;border-radius:0 0 50% 50%;box-shadow:0 3px 3px #0004}
+.pkCourtDot{width:clamp(34px,9vw,42px);height:clamp(34px,9vw,42px);border:3px solid #fff;background:linear-gradient(145deg,#28435b,#10263a);font-size:14px;box-shadow:0 4px 10px #0007;display:grid;place-items:center;touch-action:manipulation}
+.pkCourtDot:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid #ffffff45}
+.pkFirstPerson{height:clamp(270px,70vw,390px)!important;background:radial-gradient(ellipse at 50% 90%,#345d78 0,#18334f 53%,#081725 100%)!important}
+.pkAnimHoop{right:50%!important;transform:translateX(50%) perspective(420px) rotateX(-8deg)!important;top:42px!important;width:clamp(145px,38vw,190px)!important;height:190px!important}
+.pkAnimBackboard{right:50%!important;transform:translateX(50%);width:clamp(110px,29vw,145px)!important;height:76px!important}
+.pkAnimRim{right:50%!important;transform:translateX(50%);top:83px!important;width:116px!important;height:17px!important}
+.pkAnimNet{right:50%!important;transform:translateX(50%);top:98px!important;width:74px!important;height:82px!important;clip-path:polygon(0 0,100% 0,78% 100%,22% 100%)!important;transform-origin:50% 0}
+.pkAnimNet.pkNetHit{animation:pkNetRipple .85s ease-out!important}
+.pkAnimBall{left:calc(50% - 15px)!important;bottom:65px!important;opacity:0;will-change:transform,left,bottom}
+.pkAnimBall.pkMade{animation:pkBallCleanMake 1.25s cubic-bezier(.2,.7,.25,1) forwards!important}
+.pkAnimBall.pkMiss{animation:pkBallCleanMiss 1.15s cubic-bezier(.2,.7,.25,1) forwards!important}
+.pkShotWatcher{font-size:12px;color:#c4d5e4;text-align:center;margin:-4px 0 9px;letter-spacing:.4px}
+.pkShotWatcher b{color:#ffb15e}
+.pkShotButtonWatching{opacity:.65!important;filter:saturate(.5)}
+@keyframes pkBallCleanMake{0%{opacity:1;left:calc(50% - 15px);bottom:65px;transform:scale(1) rotate(0)}28%{left:calc(50% - 12px);bottom:185px;transform:scale(.82) rotate(150deg)}52%{left:calc(50% + 35px);bottom:255px;transform:scale(.66) rotate(280deg)}68%{left:calc(50% + 37px);bottom:224px;transform:scale(.58) rotate(390deg)}78%{left:calc(50% + 34px);bottom:187px;transform:scale(.54) rotate(470deg)}91%{left:calc(50% + 30px);bottom:150px;transform:scale(.5) rotate(550deg)}100%{left:calc(50% + 30px);bottom:125px;transform:scale(.48) rotate(620deg);opacity:.15}}
+@keyframes pkBallCleanMiss{0%{opacity:1;left:calc(50% - 15px);bottom:65px;transform:scale(1) rotate(0)}35%{left:calc(50% - 8px);bottom:190px;transform:scale(.82) rotate(180deg)}62%{left:calc(50% + 66px);bottom:238px;transform:scale(.65) rotate(330deg)}82%{left:calc(50% + 110px);bottom:196px;transform:scale(.55) rotate(470deg)}100%{left:calc(50% + 140px);bottom:150px;transform:scale(.42) rotate(590deg);opacity:.08}}
+@keyframes pkNetRipple{0%{transform:translateX(50%) scaleX(1) skewX(0)}18%{transform:translateX(50%) scaleX(.72) skewX(13deg)}38%{transform:translateX(50%) scaleX(1.18) skewX(-12deg)}58%{transform:translateX(50%) scaleX(.82) skewX(8deg)}78%{transform:translateX(50%) scaleX(1.08) skewX(-4deg)}100%{transform:translateX(50%) scaleX(1) skewX(0)}}
+</style>
+
+<style>.pkShooterLabel{position:absolute;left:14px;top:14px;z-index:8;padding:7px 11px;border-radius:9px;background:#071827bb;border:1px solid #ffffff30;color:#fff;font-size:11px;font-weight:900;letter-spacing:1px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pkShotWatcher{padding:8px 12px;border-radius:10px;background:#0b1c2c;border:1px solid #ffffff1c}</style>
+<style id="pkCleanHoopOnlyAnimation">
+/* Clean broadcast-style close-up: hoop, ball and net only. */
+.pkFirstPerson{height:clamp(270px,70vw,390px)!important;position:relative!important;overflow:hidden!important;background:radial-gradient(ellipse at 50% 35%,#23496a 0%,#102b46 58%,#071625 100%)!important;border:1px solid #ffffff30!important}
+.pkFirstPerson:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#ffffff08,transparent 45%),radial-gradient(ellipse at 50% 100%,#ffffff0b,transparent 60%);pointer-events:none}
+.pkSceneGlow,.pkCourtFloor,.pkShooterSilhouette{display:none!important}
+.pkAnimHoop{left:50%!important;right:auto!important;top:34px!important;width:clamp(145px,40vw,190px)!important;height:190px!important;transform:translateX(-50%)!important;filter:drop-shadow(0 9px 10px #0007)}
+.pkAnimBackboard{left:50%!important;right:auto!important;top:0!important;transform:translateX(-50%)!important;width:clamp(112px,30vw,145px)!important;height:76px!important}
+.pkAnimRim{left:50%!important;right:auto!important;top:82px!important;transform:translateX(-50%)!important;width:116px!important;height:17px!important}
+.pkAnimNet{left:50%!important;right:auto!important;top:97px!important;transform:translateX(-50%)!important;width:74px!important;height:82px!important;clip-path:polygon(0 0,100% 0,78% 100%,22% 100%)!important;transform-origin:50% 0}
+.pkAnimNet.pkNetHit{animation:pkNetRipple .9s ease-out!important}
+.pkAnimBall{left:calc(50% - 15px)!important;bottom:48px!important;width:30px!important;height:30px!important;opacity:0;z-index:7!important}
+.pkAnimBall.pkMade{animation:pkHoopOnlyMake 1.55s cubic-bezier(.2,.68,.24,1) forwards!important}
+.pkAnimBall.pkMiss{animation:pkHoopOnlyMiss 1.35s cubic-bezier(.2,.68,.24,1) forwards!important}
+.pkAnimCall{top:12px!important;font-size:clamp(16px,4vw,22px)!important;letter-spacing:2px!important}
+@keyframes pkHoopOnlyMake{0%{opacity:1;left:calc(50% - 15px);bottom:48px;transform:scale(1) rotate(0)}34%{opacity:1;left:calc(50% - 15px);bottom:220px;transform:scale(.76) rotate(160deg)}49%{opacity:1;left:calc(50% - 15px);bottom:190px;transform:scale(.65) rotate(260deg)}60%{opacity:1;left:calc(50% - 15px);bottom:158px;transform:scale(.58) rotate(360deg)}74%{opacity:1;left:calc(50% - 15px);bottom:125px;transform:scale(.52) rotate(470deg)}88%{opacity:.95;left:calc(50% - 15px);bottom:96px;transform:scale(.48) rotate(560deg)}100%{opacity:0;left:calc(50% - 15px);bottom:78px;transform:scale(.42) rotate(650deg)}}
+@keyframes pkHoopOnlyMiss{0%{opacity:1;left:calc(50% - 15px);bottom:48px;transform:scale(1) rotate(0)}38%{opacity:1;left:calc(50% - 15px);bottom:220px;transform:scale(.76) rotate(170deg)}58%{opacity:1;left:calc(50% + 45px);bottom:202px;transform:scale(.63) rotate(300deg)}78%{opacity:.9;left:calc(50% + 95px);bottom:160px;transform:scale(.54) rotate(430deg)}100%{opacity:0;left:calc(50% + 145px);bottom:120px;transform:scale(.43) rotate(560deg)}}
+@keyframes pkNetRipple{0%{transform:translateX(-50%) scaleX(1) skewX(0)}18%{transform:translateX(-50%) scaleX(.72) skewX(13deg)}38%{transform:translateX(-50%) scaleX(1.18) skewX(-12deg)}58%{transform:translateX(-50%) scaleX(.82) skewX(8deg)}78%{transform:translateX(-50%) scaleX(1.08) skewX(-4deg)}100%{transform:translateX(-50%) scaleX(1) skewX(0)}}
+</style>
 </head>
 <body><div class="wrap">
 <header class="top"><div class="brand">BASKETBALL <span>UNIVERSE</span></div><div class="topright"><span class="tag">HEAD TO HEAD · FIRST TO 5</span><button class="secondary smallbtn sound-on" id="soundBtn">🔊 SOUND ON</button><button class="secondary smallbtn" id="inviteBtn">↗ INVITE</button></div></header>
@@ -408,12 +527,56 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
   <p>Choose your game mode.</p>
   <div class="modeBtns">
    <button class="primary" id="freeThrowSoloBtn">🎯 SOLO CHALLENGE</button>
+   <button class="primary" id="parketOpenBtn">🏀 PARKET · SURVIVOR</button>
+   <button class="primary" id="hoopDuelOpenBtn">🛡️ 3 HOOPS · BLOCKOUT</button>
    <button class="secondary" id="freeThrowBoardBtn">🏆 LEADERBOARD</button>
   </div>
   <button class="secondary" id="freeThrowBackBtn" style="width:100%;margin-top:12px">MAIN MENU</button>
  </div>
 </div>
 
+<div class="overlay hidden" id="parketLobby" style="z-index:75">
+ <div class="modal" style="width:min(620px,96vw)">
+  <div class="eyebrow">FREE THROW · ONLINE MULTIPLAYER</div><h2>🏀 PARKET</h2>
+  <p>Ustvari sobo ali se pridruži z največ šestimi igralci. Ko so vsi READY, gostitelj začne igro.</p>
+  <label class="field">ROOM CODE</label><input id="parketCodeInput" maxlength="6" placeholder="6-LETTER CODE" style="text-transform:uppercase">
+  <div class="draftActions" style="margin-top:10px"><button class="primary" id="parketCreateBtn">CREATE ROOM</button><button class="secondary" id="parketJoinBtn">JOIN ROOM</button></div>
+  <label class="field" style="margin-top:12px">BOT DIFFICULTY</label>
+  <select id="parketBotDifficulty" style="width:100%;padding:12px;border-radius:10px;background:#0b192a;color:white;border:1px solid #ffffff30">
+   <option value="easy">EASY</option><option value="medium" selected>MEDIUM</option><option value="hard">HARD</option>
+  </select>
+  <button class="primary" id="parketSoloTestBtn" style="width:100%;margin-top:9px">🤖 PLAY VS BOT</button>
+  <div id="parketLobbyStage" style="margin-top:14px"></div><p id="parketMessage" class="mdMessage"></p>
+  <button class="secondary" id="parketBackBtn" style="width:100%;margin-top:10px">BACK</button>
+ </div>
+</div>
+<div class="overlay hidden" id="parketGame" style="z-index:140"><div class="modal" style="width:min(680px,96vw);max-height:92vh;overflow:auto">
+ <div class="eyebrow">BASKETBALL UNIVERSE · PARKET</div><div id="parketGameStage"></div>
+ <button class="secondary" id="parketGameBack" style="width:100%;margin-top:12px">LEAVE GAME</button>
+</div></div>
+
+<div class="overlay hidden" id="hoopDuelLobby" style="z-index:76">
+ <div class="modal" style="width:min(620px,96vw)">
+  <div class="eyebrow">FREE THROW · 3 HOOPS BLOCKOUT</div><h2>🛡️ THREE HOOPS</h2>
+  <p>Choose one of three baskets, shoot with the 20% target, and try to outsmart your opponent's block.</p>
+  <label class="field">ROOM CODE</label><input id="hdCode" maxlength="6" placeholder="6-LETTER CODE" style="text-transform:uppercase">
+  <div class="draftActions" style="margin-top:10px"><button class="primary" id="hdCreate">CREATE ROOM</button><button class="secondary" id="hdJoin">JOIN ROOM</button></div>
+  <label class="field" style="margin-top:12px">BOT DIFFICULTY</label>
+  <select id="hdDifficulty" style="width:100%;padding:12px;border-radius:10px;background:#0b192a;color:white;border:1px solid #ffffff30">
+   <option value="easy">EASY</option><option value="medium" selected>MEDIUM</option><option value="hard">HARD</option>
+  </select>
+  <button class="primary" id="hdBot" style="width:100%;margin-top:9px">🤖 PLAY VS BOT</button>
+  <div id="hdLobbyStage" style="margin-top:14px"></div><p id="hdMessage" class="mdMessage"></p>
+  <button class="secondary" id="hdBack" style="width:100%;margin-top:10px">BACK</button>
+ </div>
+</div>
+<div class="overlay hidden" id="hoopDuelGame" style="z-index:145">
+ <div class="modal" style="width:min(680px,96vw);max-height:92vh;overflow:auto">
+  <div class="eyebrow">BASKETBALL UNIVERSE · THREE HOOPS BLOCKOUT</div>
+  <div id="hdGameStage"></div>
+  <button class="secondary" id="hdLeave" style="width:100%;margin-top:12px">LEAVE GAME</button>
+ </div>
+</div>
 <div class="overlay hidden" id="freeThrowLeaderboard" style="z-index:70"><div class="modal" style="width:min(560px,94vw)"><div class="eyebrow">BASKETBALL UNIVERSE</div><h2>🏆 FREE THROW LEADERBOARD</h2><p>Najdaljši niz zadetih metov brez zgrešenega meta.</p><div id="freeThrowLeaderboardRows"></div><button class="secondary" id="freeThrowBoardClose" style="width:100%;margin-top:14px">BACK TO MENU</button></div></div>
 <div class="overlay hidden" id="draftMode">
  <div class="modal draftModal">
@@ -964,6 +1127,204 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   $('freeThrowLeaderboardRows').innerHTML=rows.length?rows.slice(0,20).map((r,i)=>'<div class="ftBoardRow"><b>#'+(i+1)+'</b><span>'+String(r.name).replace(/[&<>"]/g,'')+'</span><strong>'+r.score+'</strong></div>').join(''):'<p>Še ni rezultatov. Odigraj prvo igro!</p>';
   $('freeThrowLeaderboard').classList.remove('hidden');
  }
+
+ // PARKET: up to six players, shared realtime game state.
+ let pkRoom=null,pkSlot=null,pkState=null,pkChannel=null,pkTimer=null,pkLocal=false;
+ const pkTable='parket_multiplayer_rooms';
+ const pkName=()=>String($('menuNick')?.value||'').trim().slice(0,16)||'PLAYER';
+ const pkMsg=(s,bad=false)=>{const e=$('parketMessage');if(e){e.textContent=s;e.style.color=bad?'#ff9b9b':'#9ee6bd'}};
+ const pkCode=()=>Math.random().toString(36).slice(2,8).toUpperCase();
+ const pkTeams=()=>window.basketballUniverseTeams||[];
+ const pkPickPlayer=()=>{
+  const pool=[];
+  (window.basketballUniverseTeams||[]).forEach(t=>(t.players||[]).forEach(p=>pool.push({name:p[0],pos:p[1],ovr:p[2],ppg:p[3],rpg:p[4],apg:p[5],team:t.team,season:t.season})));
+  return pool[Math.floor(Math.random()*pool.length)]||{name:'NBA PLAYER',ovr:85,pos:'PG'};
+ };
+ async function pkSave(){
+  if(pkLocal){return;} 
+  const {error}=await sb.from(pkTable).update({game_state:pkState,status:pkState.phase==='lobby'?'waiting':'playing',updated_at:new Date().toISOString()}).eq('room_code',pkRoom);
+  if(error)throw error;
+ }
+ function pkSubscribe(){
+  if(pkChannel)sb.removeChannel(pkChannel);
+  pkChannel=sb.channel('parket-'+pkRoom).on('postgres_changes',{event:'UPDATE',schema:'public',table:pkTable,filter:'room_code=eq.'+pkRoom},payload=>{
+   if(payload.new?.game_state){pkState=payload.new.game_state;pkRender()}
+  }).subscribe();
+ }
+ function pkRender(){
+  if(!pkState)return;
+  const players=pkState.players||[];
+  const host=pkSlot===0;
+  if(pkState.phase==='lobby'){
+   $('parketLobbyStage').innerHTML='<div class="draftTile"><div class="eyebrow">ROOM '+pkRoom+'</div><h3>PLAYERS '+players.length+'/6</h3>'+players.map((p,i)=>'<div class="ftBoardRow"><span>'+(i+1)+'. '+p.name+'</span><strong>'+(p.ready?'READY':'WAITING')+'</strong></div>').join('')+'<div class="draftActions"><button class="primary" id="pkReadyBtn">'+(players[pkSlot]?.ready?'NOT READY':'READY')+'</button>'+(host?'<button class="primary" id="pkStartBtn" '+(players.length<2||players.some(p=>!p.ready)?'disabled':'')+'>START GAME</button>':'')+'</div></div>';
+   $('pkReadyBtn').onclick=async()=>{pkState.players[pkSlot].ready=!pkState.players[pkSlot].ready;await pkSave();pkRender()};
+   if(host)$('pkStartBtn').onclick=async()=>{if(players.length<2||players.some(p=>!p.ready))return;pkState.players.forEach(p=>p.player=pkPickPlayer());pkState.phase='shootout';pkState.round=1;pkState.alive=players.map((p,i)=>i);pkState.scores=players.map(()=>0);pkState.turns={};pkState.shootTurn=0;await pkSave();pkRender()};
+  }else pkRenderGame();
+ }
+ function pkBotChance(){
+  const d=pkState.difficulty||'medium';
+  return d==='easy'?.43:d==='hard'?.82:.63;
+ }
+ function pkHumanChance(){
+  const d=pkState.difficulty||'medium';
+  return d==='easy'?.78:d==='hard'?.48:.63;
+ }
+ function pkFinishShot(me,hit){
+  if(pkState.phase==='shootout'){
+   const total=pkState.players?.length||2;
+   pkState.shootoutResults=pkState.shootoutResults||{};
+   pkState.shootoutResults[me]=!!hit;
+   pkState.shootTurn++;
+   if(pkState.shootTurn%total===0){
+    const results=pkState.players.map((_,i)=>!!pkState.shootoutResults[i]);
+    const made=results.filter(Boolean).length;
+    if(made>0&&made<total){
+     pkState.phase='choose';
+     pkState.order=results.map((v,i)=>({v,i})).sort((a,b)=>Number(b.v)-Number(a.v)).map(x=>x.i);
+     pkState.orderIndex=0;
+    }else{
+     pkState.shootoutRound=(pkState.shootoutRound||1)+1;
+     pkState.shootoutResults={};
+    }
+   }
+  }else if(pkState.phase==='survivor'){
+   if(!hit)pkState.alive=pkState.alive.filter(x=>x!==me);
+   if(pkState.alive.length===1){
+    const winner=pkState.alive[0];pkState.scores[winner]++;pkState.phase='roundwin';pkState.winner=winner;
+   }else if(pkState.alive.length===0){
+    pkState.alive=pkState.players.map((_,i)=>i);pkState.shotIndex=0;
+   }else{
+    pkState.shotIndex=(pkState.shotIndex+1)%pkState.alive.length;
+   }
+  }
+  pkSave().then(pkRender);
+ }
+
+ let pkMeterTimer=null,pkMarker=0,pkDirection=1;
+ function pkStartMeter(target){
+  clearInterval(pkMeterTimer);pkMarker=0;pkDirection=1;
+  const zone=$('pkTargetZone'),marker=$('pkShotMarker');
+  zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%';
+  marker.style.left='0%';
+  pkMeterTimer=setInterval(()=>{pkMarker+=pkDirection*1.45;if(pkMarker>=100){pkMarker=100;pkDirection=-1}if(pkMarker<=0){pkMarker=0;pkDirection=1}if($('pkShotMarker'))$('pkShotMarker').style.left=pkMarker+'%'},16);
+ }
+ function pkAnimateShot(hit){
+  clearInterval(pkMeterTimer);
+  const ball=$('pkAnimBall'),call=$('pkAnimCall'),net=$('pkAnimNet');
+  if(!ball)return;
+  ball.className='pkAnimBall';void ball.offsetWidth;ball.classList.add(hit?'pkMade':'pkMiss');
+  net.classList.remove('pkNetHit');void net.offsetWidth;
+  call.textContent=hit?'SWISH!':'MISS!';
+  call.style.color=hit?'#8df0ad':'#ff7777';
+  if(hit)net.classList.add('pkNetHit');
+ }
+ function pkPlayShot(me,hit){
+  clearInterval(pkMeterTimer);
+  const shotId=String(Date.now())+'-'+me;
+  pkState.shotPlayback={id:shotId,shooter:me,hit:!!hit,phase:pkState.phase,spot:pkState.spot||0,release:pkMarker,target:pkState.phase==='shootout'?Math.max(.045,pkDistanceTarget(6,pkState.players[me]?.player)-(((pkState.shootoutRound||1)-1)*.018)):pkDistanceTarget(pkState.spot||0,pkState.players[me]?.player)};
+  pkSave().then(()=>{
+   pkRender();
+   // Only the active player's device advances the shared state after everyone has seen the shot.
+   if(pkLocal||pkSlot===me){setTimeout(()=>{
+    if(!pkState?.shotPlayback||pkState.shotPlayback.id!==shotId)return;
+    delete pkState.shotPlayback;
+    pkFinishShot(me,!!hit);
+   },1450)}
+  }).catch(e=>console.error(e));
+ }
+ function pkResolveBotShot(target,me=1){
+  const left=(100-target*100)/2,right=left+target*100;
+  const hit=pkMarker>=left&&pkMarker<=right;
+  pkPlayShot(me,hit);
+ }
+ function pkResolveHumanShot(){
+  const target=pkDistanceTarget(pkState.spot||0,players[me]?.player);
+  const left=(100-target*100)/2,right=left+target*100;
+  const hit=pkMarker>=left&&pkMarker<=right;
+  pkPlayShot(0,hit);
+ }
+ function pkDistanceTarget(spot,player){
+  // 13 positions: rim/paint, elbows, free throw, midrange, wings, arc and half court.
+  const widths=[.30,.29,.30,.27,.27,.27,.24,.22,.22,.18,.18,.15,.075];
+  let skill=1;
+  const n=String(player?.name||'').toLowerCase(),team=String(player?.team||'').toLowerCase();
+  const longRange=[ 'stephen curry','klay thompson','ray allen','reggie miller','steve nash','dame lillard','james harden','klifford robinson','peja stojakovic' ];
+  const poorRange=['shaquille o\'neal','shaq','ben wallace','dwight howard','deandre jordan','andre drummond','rudY gobert','rudy gobert'];
+  const far=([9,10,11,12].includes(spot));
+  if(far&&longRange.some(x=>n.includes(x)))skill=1.24;
+  if(far&&poorRange.some(x=>n.includes(x)))skill=.48;
+  if(!far&&poorRange.some(x=>n.includes(x)))skill=1.08;
+  const ovr=Number(player?.ovr||80);skill*=Math.max(.78,Math.min(1.12,.78+(ovr-65)*.011));
+  return Math.max(.035,Math.min(.34,widths[spot??0]*skill));
+ }
+ function pkPlayerShotChance(player,spot){
+  const width=pkDistanceTarget(spot,player);
+  return Math.max(.08,Math.min(.94,.34+width*1.65));
+ }
+ function pkScoreboard(players,alive){
+  return '<div class="pkScoreboard"><div class="pkScoreTitle">LIVE SCOREBOARD <span>FIRST TO 7</span></div><div class="pkScoreGrid">'+players.map((p,i)=>'<div class="pkScoreCard '+(alive.includes(i)||pkState.phase!=="survivor"?'':'pkOut')+'"><div class="pkScoreName">'+(p.name)+'</div><div class="pkScoreNum">'+(pkState.scores?.[i]||0)+'</div><div class="pkScorePlayer">'+(p.player?.name||'NBA PLAYER')+' · '+(p.player?.team||'')+'</div><div class="pkScoreOvr">OVR '+(p.player?.ovr||'—')+'</div></div>').join('')+'</div></div>';
+ }
+ function pkShotScene(target,buttonId,buttonLabel,shooterName){
+  return '<div class="pkFirstPerson"><div class="pkShooterLabel">'+(shooterName||'PLAYER')+'</div><div class="pkSceneGlow"></div><div class="pkAnimCall" id="pkAnimCall">FOCUS · FIND YOUR RELEASE</div><div class="pkAnimHoop"><div class="pkAnimBackboard"></div><div class="pkAnimRim"></div><div class="pkAnimNet" id="pkAnimNet"></div></div><div class="pkAnimBall" id="pkAnimBall"></div><div class="pkDistanceTag">'+(pkState.phase==='shootout'?'FREE THROW':'SHOT · '+(pkState.spotName||'COURT'))+'</div></div><p class="pkShotHint">Stop the moving marker inside the target zone. Closer to the basket = larger target. Longer shots demand more precision.</p><div class="pkShotMeter"><div class="pkTargetZone" id="pkTargetZone"></div><div class="pkShotMarker" id="pkShotMarker"></div></div><div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div><button class="primary pkShootButton" id="'+buttonId+'">'+buttonLabel+'</button>';
+ }
+ function pkRenderGame(){
+  $('parketLobby').classList.add('hidden');$('parketGame').classList.remove('hidden');
+  const s=$('parketGameStage'),players=pkState.players||[],alive=pkState.alive||[];
+  if(pkState.shotPlayback){
+   const pb=pkState.shotPlayback,shooter=players[pb.shooter],target=pb.target||pkDistanceTarget(pb.spot,shooter?.player);
+   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">LIVE SHOT · '+(shooter?.name||'PLAYER')+'</div><h2>'+(pb.hit?'BUCKET!':'NO GOOD')+' <em>'+(pb.hit?'SWISH':'MISS')+'</em></h2><p>Watching '+(shooter?.name||'the shooter')+' · '+(shooter?.player?.name||'NBA player')+'</p></div>'+pkScoreboard(players,alive)+pkShotScene(target,'pkWatchingBtn','SHOT IN PROGRESS',shooter?.name)+'<div class="pkShotWatcher">'+(pb.hit?'<b>MADE SHOT</b> · NET CAM':'<b>SHOT ATTEMPT</b> · WATCH THE FLIGHT')+'</div>';
+   const zone=$('pkTargetZone'),marker=$('pkShotMarker'),watchBtn=$('pkWatchingBtn');if(zone){zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%'}if(marker)marker.style.left=(pb.release??50)+'%';if(watchBtn)watchBtn.disabled=true;pkAnimateShot(!!pb.hit);return;
+  }
+  if(pkState.phase==='shootout'){
+   const turn=(pkState.shootTurn||0)%players.length,botTurn=!!players[turn]?.bot;
+   const shotNo=Math.floor((pkState.shootTurn||0)/players.length)+1;
+   const target=Math.max(.045,pkDistanceTarget(6,players[turn]?.player)-(((pkState.shootoutRound||1)-1)*.018));
+   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">BASKETBALL UNIVERSE · PARKET</div><h2>FREE THROW <em>SHOOTOUT</em></h2><p>Keep shooting until one player makes it and the others miss. The target gets smaller each tied round.</p></div>'+pkScoreboard(players,alive)+'<div class="pkTurnBanner"><span>SUDDEN DEATH · ROUND '+(pkState.shootoutRound||1)+'</span><strong>'+(players[turn]?.name||'PLAYER')+' IS SHOOTING</strong></div>'+pkShotScene(target,'pkShootoutBtn','STOP & SHOOT',players[turn]?.name)+'<div class="pkShotWatcher">'+(botTurn?'<b>CPU</b> IS SHOOTING · WATCH THE RELEASE':(pkLocal||pkSlot===turn?'<b>YOUR TURN</b> · STOP THE BAR IN THE TARGET':'WATCHING '+(players[turn]?.name||'OPPONENT')+' · LIVE SHOT METER'))+'</div>';
+   pkStartMeter(target);
+   if(botTurn){clearInterval(pkMeterTimer);if(!pkState.botPending){pkState.botPending=true;setTimeout(()=>{pkState.botPending=false;const chance=Math.min(.95,pkBotChance()*(pkPlayerShotChance(players[turn]?.player,6)/.72)),center=50,offset=(Math.random()<chance?(Math.random()-.5)*target*65:(Math.random()<.5?-1:1)*(target*50+8+Math.random()*25));pkMarker=Math.max(0,Math.min(100,center+offset));pkPlayShot(turn,Math.abs(pkMarker-50)<=target*50)},1100)}}
+   else if(pkLocal||pkSlot===turn)$('pkShootoutBtn').onclick=()=>{const left=(100-target*100)/2,right=left+target*100,hit=pkMarker>=left&&pkMarker<=right;pkPlayShot(turn,hit)};else $('pkShootoutBtn').disabled=true;
+  }else if(pkState.phase==='choose'){
+   const pts=[['Left corner',8,43],['Left wing',22,29],['Top of key',50,17],['Right wing',78,29],['Right corner',92,43],['Left elbow',32,37],['Right elbow',68,37],['Left paint',39,22],['Center paint',50,27],['Right paint',61,22],['Free throw line',50,39],['Midcourt',50,68],['Half court',50,92]];
+   const chooser=(pkState.order||[0,1])[pkState.orderIndex||0];
+   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">NEXT POSSESSION</div><h2>CHOOSE YOUR <em>SPOT</em></h2><p>'+(players[chooser].name)+' · tap a position on the court</p></div>'+pkScoreboard(players,alive)+'<div class="pkCourtDiagram"><div class="pkHoopMark"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="courtLine" d="M0 0 V100 H100 V0 M34 0 V31 H66 V0 M34 31 H66 M34 31 A16 16 0 0 0 66 31 M8 0 V43 C8 68 27 76 50 76 C73 76 92 68 92 43 V0 M0 55 H100 M50 55 A12 12 0 0 0 50 79 A12 12 0 0 0 50 55"/><path class="courtPaint" d="M34 0 H66 V31 H34 Z"/></svg>'+pts.map((p,i)=>'<button class="pkCourtDot" style="left:'+p[1]+'%;top:'+p[2]+'%" data-spot="'+i+'" title="'+p[0]+'"><span>'+(i+1)+'</span></button>').join('')+'</div><p id="pkSpotName">Choose one of 13 shooting positions</p>';
+   if((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser))s.querySelectorAll('[data-spot]').forEach(b=>b.onclick=()=>{pkState.spot=+b.dataset.spot;pkState.spotName=pts[+b.dataset.spot][0];pkState.phase='survivor';pkState.alive=players.map((_,i)=>i);pkState.shotIndex=0;pkSave().then(pkRender)});
+   else if(players[chooser]?.bot&&!pkState.botChoosePending){pkState.botChoosePending=true;setTimeout(()=>{pkState.botChoosePending=false;pkState.spot=pkState.difficulty==='hard'?10:pkState.difficulty==='easy'?3:7;pkState.spotName=pts[pkState.spot][0];pkState.phase='survivor';pkState.alive=players.map((_,i)=>i);pkState.shotIndex=0;pkSave().then(pkRender)},850)}
+  }else if(pkState.phase==='survivor'){
+   const me=alive[pkState.shotIndex%Math.max(1,alive.length)],botTurn=!!players[me]?.bot;
+   const target=pkDistanceTarget(pkState.spot||0,players[me]?.player);
+   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">BASKETBALL UNIVERSE · PARKET</div><h2>PARKET <em>· SURVIVOR</em></h2><p>Position: '+(pkState.spotName||'Court spot')+' · '+players[me].name+' shooting</p></div>'+pkScoreboard(players,alive)+'<div class="pkTurnBanner"><span>ROUND '+(pkState.round||1)+'</span><strong>'+(players[me].name)+' · SHOOT TO SURVIVE</strong></div>'+pkShotScene(target,'pkSurvivorShoot','STOP & SHOOT',players[me]?.name)+'<div class="pkShotWatcher">'+(botTurn?'<b>CPU</b> IS SHOOTING · WATCH THE RELEASE':(pkLocal||pkSlot===me?'<b>YOUR TURN</b> · STOP THE BAR IN THE TARGET':'WATCHING '+(players[me]?.name||'OPPONENT')+' · LIVE SHOT METER'))+'</div>';
+   pkStartMeter(target);
+   if(botTurn){clearInterval(pkMeterTimer);if(!pkState.botPending){pkState.botPending=true;setTimeout(()=>{pkState.botPending=false;const chance=Math.min(.95,pkBotChance()*(pkPlayerShotChance(players[me]?.player,pkState.spot||0)/.72)),center=50,offset=(Math.random()<chance?(Math.random()-.5)*target*65:(Math.random()<.5?-1:1)*(target*50+8+Math.random()*25));pkMarker=Math.max(0,Math.min(100,center+offset));pkResolveBotShot(target,me)},1200)}}
+   else if(pkLocal||pkSlot===me)$('pkSurvivorShoot').onclick=()=>{const left=(100-target*100)/2,right=left+target*100,hit=pkMarker>=left&&pkMarker<=right;pkPlayShot(me,hit)};else $('pkSurvivorShoot').disabled=true;
+  }else if(pkState.phase==='roundwin'){
+   const winner=pkState.winner;s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">ROUND COMPLETE</div><h2>🏆 '+players[winner].name+' <em>WINS THE ROUND</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkNextRound">NEXT ROUND</button>';
+   $('pkNextRound').onclick=()=>{if(pkState.scores[winner]>=7)pkState.phase='finished';else{pkState.phase='choose';pkState.orderIndex=0;pkState.order=[0,1].sort((a,b)=>(pkState.scores[b]||0)-(pkState.scores[a]||0));}pkSave().then(pkRender)};
+  }else if(pkState.phase==='finished'){const w=pkState.scores.indexOf(Math.max(...pkState.scores));s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">FINAL RESULT</div><h2>🏆 '+players[w].name+' <em>WINS PARKET!</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkRematch">REMATCH</button>'; $('pkRematch').onclick=()=>{pkState.phase='choose';pkState.scores=[0,0];pkState.order=[0,1];pkState.orderIndex=0;pkSave().then(pkRender)}}
+ }
+ async function pkCreate(){
+  try{pkLocal=false;if(!sb)throw Error('Supabase not available');pkRoom=pkCode();pkSlot=0;pkState={phase:'lobby',players:[{name:pkName(),ready:false}],scores:[],round:0};
+   const {error}=await sb.from(pkTable).insert({room_code:pkRoom,host_name:pkName(),status:'waiting',game_state:pkState});if(error)throw error;pkSubscribe();pkRender();pkMsg('Room '+pkRoom+' created. Share the code.');
+  }catch(e){pkMsg(e.message,true)}
+ }
+ async function pkJoin(){
+  try{pkLocal=false;if(!sb)throw Error('Supabase not available');const code=$('parketCodeInput').value.trim().toUpperCase();const {data,error}=await sb.from(pkTable).select('*').eq('room_code',code).maybeSingle();if(error)throw error;if(!data)throw Error('Room not found');const ps=data.game_state.players||[];if(data.game_state.phase!=='lobby'||ps.length>=6)throw Error('Room full or game started');pkRoom=code;pkSlot=ps.length;pkState=data.game_state;pkState.players.push({name:pkName(),ready:false});const {error:up}=await sb.from(pkTable).update({game_state:pkState}).eq('room_code',code);if(up)throw up;pkSubscribe();pkRender();pkMsg('Joined room '+code);
+  }catch(e){pkMsg(e.message,true)}
+ }
+ $('parketOpenBtn').onclick=()=>{$('parketLobby').classList.remove('hidden');$('parketLobbyStage').innerHTML='';pkMsg('Create a room or join with a code.')};
+ $('parketCreateBtn').onclick=pkCreate;$('parketJoinBtn').onclick=pkJoin;
+ $('parketSoloTestBtn').onclick=()=>{
+  try{
+   pkLocal=true;pkRoom='SOLO';pkSlot=0;pkChannel=null;
+   const difficulty=$('parketBotDifficulty')?.value||'medium';
+   const humanPlayer=pkPickPlayer(),botPlayer=pkPickPlayer();
+   pkState={phase:'shootout',difficulty,players:[{name:pkName(),ready:true,player:humanPlayer},{name:'CPU · '+difficulty.toUpperCase(),ready:true,bot:true,player:botPlayer}],scores:[0,0],round:1,shootTurn:0,turns:[0,0],alive:[0,1]};
+   $('parketLobby').classList.add('hidden');
+   $('parketGame').classList.remove('hidden');
+   pkRenderGame();
+  }catch(e){pkMsg('Could not start bot game: '+e.message,true);console.error(e)}
+ };
+ $('parketBackBtn').onclick=()=>{$('parketLobby').classList.add('hidden');$('freeThrowMenu').classList.remove('hidden')};
+ $('parketGameBack').onclick=()=>{$('parketGame').classList.add('hidden');$('parketLobby').classList.remove('hidden')};
  $('freeThrowMainBtn').addEventListener('click',()=>$('freeThrowMenu').classList.remove('hidden'));
  $('freeThrowSoloBtn').addEventListener('click',()=>{
   $('freeThrowMenu').classList.add('hidden');
@@ -1167,6 +1528,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   {team:'Portland Trail Blazers',season:'1989/90',players:[
    ['Terry Porter','PG',89,17.0,3.2,9.1],['Clyde Drexler','SG',96,23.3,6.9,5.9],['Jerome Kersey','SF',86,12.6,6.4,2.2],['Buck Williams','PF',88,13.6,9.8,1.4],['Kevin Duckworth','C',86,16.0,6.0,1.0],['Cliff Robinson','PF',80,8.8,4.2,1.0],['Danny Ainge','SG',82,6.7,1.7,2.5],['Mark Bryant','C',76,3.3,3.2,0.4]]}
  ];
+ window.basketballUniverseTeams=teams; // Shared NBA roster data for Parket mode.
  const positions=['PG','SG','SF','PF','C'];
  const state={team:null,franchiseTeam:null,roster:[],picked:{},rerolls:1,usedTeams:[],seasonGames:[],wins:0,losses:0,playoff:false,playoffRound:0,seriesW:0,seriesL:0,game:1,quarter:1,gamePts:0,oppPts:0,boost:false,playoffOpponents:[],playoffPlayerStats:{},playoffGamePlayerPts:{},halftimeUsed:false,halftimeBoost:0,morale:0};
  const rand=a=>a[Math.floor(Math.random()*a.length)];
@@ -1665,4 +2027,158 @@ document.addEventListener('DOMContentLoaded', function () {
   }, true);
 });
 </script>
+
+<script>
+(function(){
+ const $h=id=>document.getElementById(id);
+ const hURL="https://kjaraaiwdxrnjursayhd.supabase.co";
+ const hKEY="sb_publishable_AXMDnK0IJKolloeq-vmC7Q_gNlpMI3c";
+ const hsb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(hURL,hKEY):null;
+ const table="parket_multiplayer_rooms";
+ let room=null,slot=null,state=null,channel=null,local=false,meterTimer=null,marker=0,dir=1,botTimer=null;
+ const nick=()=>String($h("menuNick")?.value||"PLAYER").trim().slice(0,16)||"PLAYER";
+ const code=()=>Math.random().toString(36).slice(2,8).toUpperCase();
+ const safe=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const msg=(t,bad=false)=>{if($h("hdMessage")){$h("hdMessage").textContent=t;$h("hdMessage").style.color=bad?"#ff9b9b":"#9ee6bd"}};
+ function save(){
+  if(local)return Promise.resolve();
+  return hsb.from(table).update({game_state:state,status:state.phase==="lobby"?"waiting":state.phase==="finished"?"finished":"playing",updated_at:new Date().toISOString()}).eq("room_code",room).then(({error})=>{if(error)throw error});
+ }
+ function subscribe(){
+  if(channel)hsb.removeChannel(channel);
+  channel=hsb.channel("hoop-duel-"+room).on("postgres_changes",{event:"UPDATE",schema:"public",table,filter:"room_code=eq."+room},p=>{
+   if(p.new?.game_state){state=p.new.game_state;render()}
+  }).subscribe();
+ }
+ function targetLeft(){return 40}
+ function startMeter(){
+  clearInterval(meterTimer);marker=0;dir=1;
+  const bar=$h("hdMarker");if(bar)bar.style.left="0%";
+  meterTimer=setInterval(()=>{marker+=dir*1.5;if(marker>=100){marker=100;dir=-1}if(marker<=0){marker=0;dir=1}const m=$h("hdMarker");if(m)m.style.left=marker+"%"},16);
+ }
+ function scoreboard(){
+  return `<div class="draftScoreboard" style="margin:12px 0"><div class="draftScore">${safe(state.players[0].name)}<b>${state.scores[0]}</b></div><div class="draftScore">${safe(state.players[1].name)}<b>${state.scores[1]}</b></div></div><div style="text-align:center;color:#a9bbce;font-weight:800;letter-spacing:2px">FIRST TO 5 POINTS</div>`;
+ }
+ function court(){
+  return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0">
+   ${[1,2,3].map((n)=>`<button class="primary hdHoop" data-hoop="${n}" style="min-height:130px;border-radius:18px;background:linear-gradient(160deg,#1c3958,#0c1d30);border:2px solid #e9a04a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-size:36px">🏀</span><b style="font-size:18px">HOOP ${n}</b></button>`).join("")}
+  </div>`;
+ }
+ function meter(){
+  return `<div style="background:#0c1c2d;border:1px solid #ffffff25;border-radius:18px;padding:18px;margin:16px 0">
+   <div style="font-weight:900;letter-spacing:2px;color:#a9bbce;text-align:center;margin-bottom:12px">SHOT RELEASE · TARGET 20%</div>
+   <div style="height:34px;border-radius:22px;background:linear-gradient(90deg,#dc6c55,#f5d36b,#7dd6a0,#f5d36b,#dc6c55);position:relative;overflow:hidden;border:3px solid #ffffff55">
+    <div style="position:absolute;left:40%;width:20%;top:0;bottom:0;background:#eaffef;border-left:3px solid white;border-right:3px solid white;box-shadow:0 0 12px #fff"></div>
+    <div id="hdMarker" style="position:absolute;left:0;top:-4px;width:5px;height:40px;background:white;box-shadow:0 0 8px white"></div>
+   </div><div style="display:flex;justify-content:space-between;color:#9fb0c2;font-size:11px;margin-top:8px"><span>EARLY</span><b>PERFECT ZONE</b><span>LATE</span></div>
+  </div><button class="primary" id="hdShoot" style="width:100%">STOP & SHOOT</button>`;
+ }
+ function animateShot(hit,blocked){
+  const stage=$h("hdGameStage");
+  const el=document.createElement("div");
+  el.style.cssText="position:fixed;inset:0;z-index:9999;pointer-events:none;display:grid;place-items:center;background:#06101dcc;animation:hdFade .25s";
+  el.innerHTML=`<div style="width:min(360px,85vw);padding:28px 18px;border:1px solid #ffffff35;border-radius:24px;background:linear-gradient(150deg,#1d3958,#0b1b2c);text-align:center;color:white;box-shadow:0 20px 70px #0009"><div style="font-size:42px">🏀</div><div id="hdFlyBall" style="font-size:50px;display:inline-block;animation:hdBallFlight .95s ease-in forwards">🏀</div><div style="font-size:36px;margin:8px">🥅</div><h2 style="margin:6px 0;color:${blocked?"#ff8585":hit?"#8ef0ad":"#ff8585"}">${blocked?"BLOCKED!":hit?"SWISH!":"NO GOOD!"}</h2><p style="color:#b8c8d8">${blocked?"Your opponent blocked that hoop.":hit?"The shot drops through the net.":"The shot missed the target."}</p></div>`;
+  if(!document.getElementById("hdAnimStyle")){const st=document.createElement("style");st.id="hdAnimStyle";st.textContent="@keyframes hdFade{from{opacity:0}to{opacity:1}}@keyframes hdBallFlight{0%{transform:translate(-80px,100px) scale(.55)}55%{transform:translate(0,-55px) scale(1.1)}100%{transform:translate(0,-12px) scale(.8)}}";document.head.appendChild(st)}
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1250);
+ }
+ async function finishPossession(hit,blocked){
+  const shooter=state.attacker;
+  if(hit&&!blocked)state.scores[shooter]++;
+  state.lastResult={hit:!!hit,blocked:!!blocked,shooter,chosen:state.chosen,blockedHoop:state.blockedHoop};
+  if(state.scores[shooter]>=5){state.phase="finished";state.winner=shooter}
+  else{
+   state.attacker=1-shooter;state.defender=shooter;state.possession=(state.possession||0)+1;
+   state.chosen=null;state.blockedHoop=null;state.phase="choose";
+  }
+  await save();render();
+ }
+ function resolveShot(){
+  clearInterval(meterTimer);
+  const hit=marker>=40&&marker<=60;
+  const blocked=state.chosen===state.blockedHoop;
+  const shooter=state.attacker;
+  state.phase="playback";state.shotRelease=marker;state.shotHit=hit;state.shotBlocked=blocked;
+  save().then(()=>{render();animateShot(hit&&!blocked,blocked);if(local||slot===shooter)setTimeout(()=>finishPossession(hit,blocked),1350)}).catch(e=>msg(e.message,true));
+ }
+ function botChooseHoop(){
+  // Bot attacks with a little variety, occasionally adapting to the player's blocking habit.
+  return 1+Math.floor(Math.random()*3);
+ }
+ function botBlock(){
+  const d=state.difficulty||"medium";
+  const chance=d==="hard"?.72:d==="easy"?.28:.5;
+  return Math.random()<chance?state.chosen:1+Math.floor(Math.random()*3);
+ }
+ function render(){
+  if(!state)return;
+  $h("hoopDuelLobby").classList.toggle("hidden",state.phase!=="lobby");
+  $h("hoopDuelGame").classList.toggle("hidden",state.phase==="lobby");
+  if(state.phase==="lobby"){
+   $h("hdLobbyStage").innerHTML=`<div class="draftTile"><div class="eyebrow">ROOM ${room}</div><h3>${state.players.length}/2 PLAYERS</h3>${state.players.map((p,i)=>`<div class="ftBoardRow"><span>${i+1}. ${safe(p.name)}</span><strong>${p.ready?"READY":"WAITING"}</strong></div>`).join("")}${slot===0?'<button class="primary" id="hdStart" style="width:100%" '+(state.players.length<2?'disabled':'')+'>START MATCH</button>':""}</div>`;
+   if($h("hdStart"))$h("hdStart").onclick=async()=>{state.phase="choose";state.attacker=0;state.defender=1;state.scores=[0,0];state.possession=1;await save();render()};
+   return;
+  }
+  const stage=$h("hdGameStage");
+  if(state.phase==="finished"){
+   clearInterval(meterTimer);
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">THREE HOOPS · FINAL</div><h2>🏆 ${safe(state.players[state.winner].name)} <em>WINS!</em></h2></div>${scoreboard()}<button class="primary" id="hdAgain" style="width:100%;margin-top:15px">PLAY AGAIN</button>`;
+   $h("hdAgain").onclick=async()=>{state.phase="choose";state.scores=[0,0];state.attacker=0;state.defender=1;state.possession=1;state.chosen=null;state.blockedHoop=null;await save();render()};
+   return;
+  }
+  if(state.phase==="playback"){
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">LIVE SHOT</div><h2>${state.shotBlocked?"BLOCKED":state.shotHit?"SHOT MADE":"SHOT MISSED"}</h2></div>${scoreboard()}<div style="text-align:center;padding:28px;font-size:64px">🏀</div><p style="text-align:center">Watching ${safe(state.players[state.attacker].name)}'s shot...</p>`;
+   return;
+  }
+  if(state.phase==="choose"){
+   const me=state.attacker,bot=!!state.players[me].bot;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">POSSESSION ${state.possession||1}</div><h2>CHOOSE YOUR <em>HOOP</em></h2><p>${safe(state.players[me].name)} attacks · ${safe(state.players[state.defender].name)} defends</p></div>${scoreboard()}${court()}<p style="text-align:center;color:#a9bbce">Choose one of the three baskets to shoot at.</p>`;
+   if(bot){if(!state.botPending){state.botPending=true;setTimeout(async()=>{state.botPending=false;state.chosen=botChooseHoop();state.phase="block";await save();render()},900)}}
+   else if(local||slot===me)stage.querySelectorAll("[data-hoop]").forEach(b=>b.onclick=async()=>{state.chosen=+b.dataset.hoop;state.phase="block";await save();render()});
+  }else if(state.phase==="block"){
+   const me=state.defender,bot=!!state.players[me].bot;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">DEFENSIVE READ</div><h2>CHOOSE A <em>BLOCK</em></h2><p>${safe(state.players[state.attacker].name)} selected a hoop. Which one will you protect?</p></div>${scoreboard()}${court()}<p style="text-align:center;color:#a9bbce">Pick the hoop you think your opponent chose.</p>`;
+   if(bot){if(!state.botPending){state.botPending=true;setTimeout(async()=>{state.botPending=false;state.blockedHoop=botBlock();state.phase="shoot";await save();render()},900)}}
+   else if(local||slot===me)stage.querySelectorAll("[data-hoop]").forEach(b=>b.onclick=async()=>{state.blockedHoop=+b.dataset.hoop;state.phase="shoot";await save();render()});
+  }else if(state.phase==="shoot"){
+   const me=state.attacker,bot=!!state.players[me].bot;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">SHOT ATTEMPT</div><h2>HOOP <em>${state.chosen}</em></h2><p>${safe(state.players[me].name)} · ${bot?"CPU RELEASE":"stop the marker inside the 20% target"}</p></div>${scoreboard()}<div style="text-align:center;font-size:40px;margin:12px">🏀 → 🏀</div>${meter()}<p style="text-align:center;color:#a9bbce">The defender has chosen a basket to block. If it matches your hoop, the shot is blocked even with a perfect release.</p>`;
+   if(bot){
+    clearInterval(meterTimer);
+    if(!state.botPending){state.botPending=true;setTimeout(()=>{state.botPending=false;const d=state.difficulty||"medium";const accuracy=d==="hard"?.82:d==="easy"?.42:.64;marker=Math.random()<accuracy?50+(Math.random()-.5)*18:(Math.random()<.5?25:75);resolveShot()},1200)}
+   }else{
+    startMeter();
+    if(local||slot===me)$h("hdShoot").onclick=resolveShot;else $h("hdShoot").disabled=true;
+   }
+  }
+ }
+ async function create(){
+  try{
+   if(!hsb)throw Error("Supabase is not available.");
+   local=false;room=code();slot=0;state={mode:"three_hoops_blockout",phase:"lobby",players:[{name:nick(),ready:true}],scores:[0,0]};
+   const {error}=await hsb.from(table).insert({room_code:room,host_name:nick(),status:"waiting",game_state:state});if(error)throw error;
+   subscribe();render();msg("Room "+room+" created. Share the code with your opponent.");
+  }catch(e){msg(e.message,true)}
+ }
+ async function join(){
+  try{
+   if(!hsb)throw Error("Supabase is not available.");
+   local=false;room=$h("hdCode").value.trim().toUpperCase();
+   const {data,error}=await hsb.from(table).select("*").eq("room_code",room).maybeSingle();if(error)throw error;if(!data)throw Error("Room not found.");
+   state=data.game_state;if(state.mode!=="three_hoops_blockout"||state.phase!=="lobby"||state.players.length>=2)throw Error("Room is full or has already started.");
+   slot=1;state.players.push({name:nick(),ready:true});const {error:up}=await hsb.from(table).update({game_state:state}).eq("room_code",room);if(up)throw up;
+   subscribe();render();msg("Joined room "+room+". Waiting for host to start.");
+  }catch(e){msg(e.message,true)}
+ }
+ $h("hoopDuelOpenBtn").onclick=()=>{$h("freeThrowMenu").classList.add("hidden");$h("hoopDuelLobby").classList.remove("hidden");msg("Create a room, join a friend, or play against the bot.")};
+ $h("hdCreate").onclick=create;$h("hdJoin").onclick=join;
+ $h("hdBot").onclick=()=>{
+  local=true;room="BOT";slot=0;channel=null;
+  state={mode:"three_hoops_blockout",phase:"choose",difficulty:$h("hdDifficulty").value,players:[{name:nick()},{name:"CPU · "+$h("hdDifficulty").value.toUpperCase(),bot:true}],scores:[0,0],attacker:0,defender:1,possession:1};
+  $h("hoopDuelLobby").classList.add("hidden");$h("hoopDuelGame").classList.remove("hidden");render();
+ };
+ $h("hdBack").onclick=()=>{$h("hoopDuelLobby").classList.add("hidden");$h("freeThrowMenu").classList.remove("hidden")};
+ $h("hdLeave").onclick=()=>{clearInterval(meterTimer);if(channel&&hsb)hsb.removeChannel(channel);channel=null;$h("hoopDuelGame").classList.add("hidden");$h("hoopDuelLobby").classList.remove("hidden")};
+})();
+</script>
+
 </body></html>
