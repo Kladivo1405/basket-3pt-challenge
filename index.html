@@ -1657,9 +1657,10 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     <div class="mdTop"><div><span>ONLINE PLAYOFF · GAME ${g} / BEST OF 7</span><h3>HOME TEAM: ${escapeDraftText(p[home])}</h3></div><div class="mdRoomCode">${mdRoom}</div></div>
     <div class="mdPlayers"><div>${crest(mdState.franchises?.[0]||'Boston Celtics')}<b>${escapeDraftText(mdState.players[0])}</b><small>${home===0?'🏠 HOME':'✈️ AWAY'}</small></div><div>${crest(mdState.franchises?.[1]||'Los Angeles Lakers')}<b>${escapeDraftText(mdState.players[1])}</b><small>${home===1?'🏠 HOME':'✈️ AWAY'}</small></div></div>
     <div class="mdGameScore"><div><small>${escapeDraftText(mdState.franchises?.[0]||'TEAM 1')}</small><b>${sc[0]}</b></div><span>–</span><div><small>${escapeDraftText(mdState.franchises?.[1]||'TEAM 2')}</small><b>${sc[1]}</b></div></div>
-    <div class="mdQuarter">QUARTER ${q} / 4 · ${isHome?'YOU CAN SIMULATE':'WAITING FOR HOME TEAM'}</div>
-    <div class="draftActions"><button class="primary" id="mdPlayQuarter" ${!isHome||mdBusy?'disabled':''}>${isHome?'SIMULATE QUARTER':'WAIT FOR HOME TEAM'}</button><button class="secondary" id="mdUseBoost" ${!isHome||mdState.boostUsed||mdBusy?'disabled':''}>🔥 ${mdState.boostUsed?'BOOST USED':'USE BOOST THIS QUARTER'}</button></div>
-    <small class="muted">Home advantage: a small scoring bonus. One boost per game, used in the quarter you choose.</small>
+    <div class="mdQuarter">QUARTER ${q} / 4 · ${(mdState.quarterDone||[false,false])[mdSlot]?'YOUR SCORE RECORDED':'SIMULATE YOUR TEAM’S SCORE'}</div>
+    <div class="mdPlayers"><div><small>${escapeDraftText(p[0])} · THIS QUARTER</small><b>${(mdState.quarterDone||[false,false])[0]?'✅ DONE':'⏳ WAITING'}</b></div><div><small>${escapeDraftText(p[1])} · THIS QUARTER</small><b>${(mdState.quarterDone||[false,false])[1]?'✅ DONE':'⏳ WAITING'}</b></div></div>
+    <div class="draftActions"><button class="primary" id="mdPlayQuarter" ${(mdState.quarterDone||[false,false])[mdSlot]||mdBusy?'disabled':''}>${(mdState.quarterDone||[false,false])[mdSlot]?'YOUR SCORE RECORDED':'SIMULATE YOUR SCORE'}</button><button class="secondary" id="mdUseBoost" ${(mdState.boostUsed||[false,false])[mdSlot]||(mdState.quarterDone||[false,false])[mdSlot]||mdBusy?'disabled':''}>🔥 ${(mdState.boostUsed||[false,false])[mdSlot]?'YOUR BOOST USED':'USE YOUR BOOST THIS QUARTER'}</button></div>
+    <small class="muted">Each player simulates only their own team’s score. Both teams get one boost per game, usable in any quarter. Home team gets a small scoring advantage.</small>
     <div class="mdLineups"><section><h4>${escapeDraftText(mdState.players[0])} · TEAM</h4>${mdLineup(picks[0])}</section><section><h4>${escapeDraftText(mdState.players[1])} · TEAM</h4>${mdLineup(picks[1])}</section></div>`;
   }else if(phase==='gameover'){
    const wins=mdState.wins||[0,0], winner=wins[0]>wins[1]?0:1;
@@ -1670,7 +1671,12 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   if($('mdSpin'))$('mdSpin').onclick=mdSpinTeam;
   stage.querySelectorAll('[data-md-pick]').forEach(btn=>btn.onclick=()=>mdPick(+btn.dataset.mdPick));
   if($('mdPlayQuarter'))$('mdPlayQuarter').onclick=mdPlayQuarter;
-  if($('mdUseBoost'))$('mdUseBoost').onclick=async()=>{if(mdBusy)return;await mdPersist({...mdState,boostUsed:true});mdSay('Boost activated for this quarter!')};
+  if($('mdUseBoost'))$('mdUseBoost').onclick=async()=>{
+   if(mdBusy||(mdState.boostUsed||[false,false])[mdSlot]||(mdState.quarterDone||[false,false])[mdSlot])return;
+   const used=[...(mdState.boostUsed||[false,false])];used[mdSlot]=true;
+   await mdPersist({...mdState,boostUsed:used});
+   mdSay('Your boost is ready and will apply to your score this quarter!');
+  };
   if($('mdNewRoom'))$('mdNewRoom').onclick=()=>{if(mdChannel)sb.removeChannel(mdChannel);mdChannel=null;mdRoom=null;mdSlot=null;mdState=null;menu()};
  }
  function mdLineup(arr){
@@ -1720,7 +1726,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    // Both players have selected from this round's shared team. Alternate who starts next round.
    next.round=round+1;next.turn=(round%2===1)?1:0;next.currentRoster=[];next.activeTeam=null;
   }else if(round===5&&picks[0].length===5&&picks[1].length===5){
-   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.boostUsed=false;next.franchises=mdState.finalTeams.map(t=>t.team);
+   next.phase='game';next.game=1;next.quarter=1;next.score=[0,0];next.wins=[0,0];next.turn=0;next.boostUsed=[false,false];next.quarterDone=[false,false];next.franchises=mdState.finalTeams.map(t=>t.team);
   }else if(round===5&&mdSlot===0){
    // The second player gets a completely separate team roll for the fifth pick.
    next.currentRoster=[];next.activeTeam=null;next.turn=1;
@@ -1729,19 +1735,28 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  }
  async function mdPlayQuarter(){
   const game=mdState.game||1,homeSchedule=[0,0,1,1,0,1,0],home=homeSchedule[Math.min(6,game-1)];
-  if(mdBusy||mdSlot!==home)return;
-  const score=[...(mdState.score||[0,0])],quarter=mdState.quarter||1;
-  // Both teams score; home side receives a modest advantage, plus an optional one-quarter boost.
-  const base0=Math.floor(Math.random()*26)+17,base1=Math.floor(Math.random()*26)+17;
-  score[0]+=base0+(home===0?3:0)+(home===0&&mdState.boostUsed?Math.floor(Math.random()*8)+3:0);
-  score[1]+=base1+(home===1?3:0)+(home===1&&mdState.boostUsed?Math.floor(Math.random()*8)+3:0);
-  let next={...mdState,score,quarter:quarter+1};
-  if(quarter===4){
-   if(score[0]===score[1])score[home]+=1;
-   const wins=[...(mdState.wins||[0,0])],gameWinner=score[0]>score[1]?0:1;
-   wins[gameWinner]++;
-   const finished=wins[0]===4||wins[1]===4;
-   next={...next,lastGameScore:score,lastGameWinner:gameWinner,wins,score:[0,0],game:game+1,quarter:1,boostUsed:false,phase:finished?'gameover':'game'};
+  if(mdBusy)return;
+  const quarter=mdState.quarter||1,done=[...(mdState.quarterDone||[false,false])];
+  if(done[mdSlot])return;
+  const score=[...(mdState.score||[0,0])],used=mdState.boostUsed||[false,false];
+  // Each player simulates only their own team's score for this quarter.
+  let points=Math.floor(Math.random()*26)+17;
+  if(mdSlot===home)points+=3;
+  if(used[mdSlot])points+=Math.floor(Math.random()*8)+3;
+  score[mdSlot]+=points;
+  done[mdSlot]=true;
+  let next={...mdState,score,quarterDone:done};
+  // Advance only after both players have submitted their score for this quarter.
+  if(done[0]&&done[1]){
+   if(quarter===4){
+    if(score[0]===score[1])score[home]+=1;
+    const wins=[...(mdState.wins||[0,0])],gameWinner=score[0]>score[1]?0:1;
+    wins[gameWinner]++;
+    const finished=wins[0]===4||wins[1]===4;
+    next={...next,lastGameScore:score,lastGameWinner:gameWinner,wins,score:[0,0],game:game+1,quarter:1,quarterDone:[false,false],boostUsed:[false,false],phase:finished?'gameover':'game'};
+   }else{
+    next={...next,quarter:quarter+1,quarterDone:[false,false]};
+   }
   }
   await mdPersist(next);
  }
@@ -1754,7 +1769,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   try{
    if(!sb)throw new Error('Supabase client did not load.');
    const nickname=$('mdNick').value.trim().slice(0,16)||'PLAYER 1';mdRoom=mdCode();mdSlot=0;
-   const initial={players:[nickname,'WAITING…'],picks:[[],[]],round:1,turn:0,phase:'draft',currentRoster:[],activeTeam:null,finalTeams:[null,null],wins:[0,0],score:[0,0],game:1,quarter:1};
+   const initial={players:[nickname,'WAITING…'],picks:[[],[]],round:1,turn:0,phase:'draft',currentRoster:[],activeTeam:null,finalTeams:[null,null],wins:[0,0],score:[0,0],game:1,quarter:1,quarterDone:[false,false],boostUsed:[false,false]};
    const {error}=await sb.from(mdTable).insert({room_code:mdRoom,host_name:nickname,guest_name:null,status:'waiting',game_state:initial});
    if(error)throw error;
    mdState=initial;mdSubscribe();mdRender();
