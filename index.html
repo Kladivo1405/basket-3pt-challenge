@@ -589,7 +589,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </div>
 </div>
 <div class="overlay hidden" id="parketGame" style="z-index:140"><div class="modal" style="width:min(680px,96vw);max-height:92vh;overflow:auto">
- <div class="eyebrow">BASKETBALL UNIVERSE · PARKET</div><div id="parketGameStage"></div>
+ <div id="parketGameStage"></div>
  <button class="secondary" id="parketGameBack" style="width:100%;margin-top:12px">LEAVE GAME</button>
 </div></div>
 
@@ -785,7 +785,7 @@ $('createRoom').onclick=createOnline;$('joinRoom').onclick=joinOnline;
  const btn=$('threePtQuickMatchBtn');if(!btn)return;
  let active=false,queueId=null;
  async function auth(){if(!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
- async function cancel(){if(queueId)await sb.rpc('basket_quick_cancel',{p_queue_id:queueId});queueId=null;active=false;}
+ async function cancel(){if(queueId)try{await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;active=false;}
  async function startRoom(code,slot,opponent){
   await window.buShowMatchIntro($('nick1').value.trim()||'PLAYER 1',opponent||'Opponent');
   if(slot===0){window.__threePtQuickRoomCode=code;await createOnline();}
@@ -806,7 +806,7 @@ $('createRoom').onclick=createOnline;$('joinRoom').onclick=joinOnline;
     if(st.status==='matched'){setConnectMsg('🏀 Nasprotnik '+(st.opponent||'')+' najden! Odpiram tekmo …');await startRoom(st.room_code,st.slot,st.opponent);active=false;return;}
    }
    if(active){await cancel();setConnectMsg('Nasprotnik najden!');const botName=['ClutchKing14','SplashMode','Hammer23','IceInMyVeins','Buckets99','DowntownAce','RimReaper7'][Math.floor(Math.random()*7)];await window.buShowMatchIntro($('nick1').value.trim()||'PLAYER 1',botName);startThreePtBotMatch(botName);active=false;}
-  }catch(e){await cancel();setConnectMsg('Quick Match napaka: '+e.message,true);}
+  }catch(e){console.warn('Quick Match -> bot:',e.message);try{await cancel()}catch(_){}await new Promise(r=>setTimeout(r,1800+Math.random()*2800));active=true;setConnectMsg('Nasprotnik najden!');const botName=['ClutchKing14','SplashMode','Hammer23','IceInMyVeins','Buckets99','DowntownAce','RimReaper7'][Math.floor(Math.random()*7)];await window.buShowMatchIntro($('nick1').value.trim()||'PLAYER 1',botName);startThreePtBotMatch(botName);active=false;}
   finally{btn.disabled=false;}
  };
 })();
@@ -1387,7 +1387,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  let pkMeterTimer=null,pkMarker=0,pkDirection=1;
  function pkStartMeter(target){
   clearInterval(pkMeterTimer);pkMarker=0;pkDirection=1;
-  const stage=$('pkFTStage');if(stage&&window.FTAnim)FTAnim.mount(stage);
+  window.__pkAnimId=null;const stage=$('pkFTStage');if(stage&&window.FTAnim)FTAnim.mount(stage,{dist:pkAnimDist(pkState?.phase,pkState?.spot)});
   const zone=$('pkTargetZone'),marker=$('pkShotMarker');
   zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%';
   marker.style.left='0%';
@@ -1396,8 +1396,10 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  function pkAnimateShot(hit){
   clearInterval(pkMeterTimer);
   const host=$('pkFTStage');if(!host||!window.FTAnim)return;
-  FTAnim.mount(host);
   const pb=pkState?.shotPlayback||{};
+  window.__pkAnimId=pb.id;
+  FTAnim.mount(host,{dist:pkAnimDist(pb.phase,pb.spot)});
+  {const fc=$('ftCall');if(fc)fc.textContent=''}
   const target=Number(pb.target||pkDistanceTarget(pb.spot||0,pkState?.players?.[pb.shooter]?.player)||.2);
   const err=((pb.release??50)-50)/Math.max(1,target*50);
   FTAnim.shoot({hit:!!hit,err,streak:(pkState?.scores&&pkState.scores[pb.shooter])||0},()=>{});
@@ -1413,7 +1415,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     if(!pkState?.shotPlayback||pkState.shotPlayback.id!==shotId)return;
     delete pkState.shotPlayback;
     pkFinishShot(me,!!hit);
-   },1450)}
+   },5200)}
   }).catch(e=>console.error(e));
  }
  function pkResolveBotShot(target,me=1){
@@ -1427,19 +1429,29 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   const hit=pkMarker>=left&&pkMarker<=right;
   pkPlayShot(0,hit);
  }
+ // 13 shooting positions on a half court (x,y in 1/10 ft, basket at 250,52). d = distance to the basket in metres.
+ const PK_SPOTS=[
+  {n:'Left corner three',x:30,y:50,d:6.7},{n:'Left wing three',x:95,y:232,d:7.1},{n:'Top of the key three',x:250,y:290,d:7.3},
+  {n:'Right wing three',x:405,y:232,d:7.1},{n:'Right corner three',x:470,y:50,d:6.7},
+  {n:'Left elbow',x:170,y:190,d:4.85},{n:'Right elbow',x:330,y:190,d:4.85},
+  {n:'Left block',x:170,y:90,d:2.7},{n:'Close range',x:250,y:125,d:2.2},{n:'Right block',x:330,y:90,d:2.7},
+  {n:'Free throw line',x:250,y:190,d:4.2},{n:'Deep three',x:250,y:390,d:10.3},{n:'Half court',x:250,y:470,d:12.7}
+ ];
+ const pkSpotDist=s=>(PK_SPOTS[s]||PK_SPOTS[10]).d;
+ function pkAnimDist(phase,spot){return phase==='shootout'?4.5:Math.max(1.8,pkSpotDist(spot||0))}
  function pkDistanceTarget(spot,player){
-  // 13 positions: rim/paint, elbows, free throw, midrange, wings, arc and half court.
-  const widths=[.30,.29,.30,.27,.27,.27,.24,.22,.22,.18,.18,.15,.075];
+  const dm=pkSpotDist(spot==null?0:spot);
+  const wdt=Math.max(.06,.34*Math.exp(-.115*(dm-1)));
   let skill=1;
   const n=String(player?.name||'').toLowerCase(),team=String(player?.team||'').toLowerCase();
   const longRange=[ 'stephen curry','klay thompson','ray allen','reggie miller','steve nash','dame lillard','james harden','klifford robinson','peja stojakovic' ];
   const poorRange=['shaquille o\'neal','shaq','ben wallace','dwight howard','deandre jordan','andre drummond','rudY gobert','rudy gobert'];
-  const far=([9,10,11,12].includes(spot));
+  const far=dm>=6.5;
   if(far&&longRange.some(x=>n.includes(x)))skill=1.24;
   if(far&&poorRange.some(x=>n.includes(x)))skill=.48;
   if(!far&&poorRange.some(x=>n.includes(x)))skill=1.08;
   const ovr=Number(player?.ovr||80);skill*=Math.max(.78,Math.min(1.12,.78+(ovr-65)*.011));
-  return Math.max(.035,Math.min(.34,widths[spot??0]*skill));
+  return Math.max(.035,Math.min(.34,wdt*skill));
  }
  function pkPlayerShotChance(player,spot){
   const width=pkDistanceTarget(spot,player);
@@ -1449,14 +1461,15 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   return '<div class="pkScoreboard"><div class="pkScoreTitle">LIVE SCOREBOARD <span>FIRST TO 7</span></div><div class="pkScoreGrid">'+players.map((p,i)=>'<div class="pkScoreCard '+(alive.includes(i)||pkState.phase!=="survivor"?'':'pkOut')+'"><div class="pkScoreName">'+(p.name)+'</div><div class="pkScoreNum">'+(pkState.scores?.[i]||0)+'</div><div class="pkScorePlayer">'+(p.player?.name||'NBA PLAYER')+' · '+(p.player?.team||'')+'</div><div class="pkScoreOvr">OVR '+(p.player?.ovr||'—')+'</div></div>').join('')+'</div></div>';
  }
  function pkShotScene(target,buttonId,buttonLabel,shooterName){
-  return '<div class="ftStage pkFTStage" id="pkFTStage"><div class="pkShooterLabel">'+(shooterName||'PLAYER')+'</div><div class="ftCall" id="ftCall">FOCUS · FIND YOUR RELEASE</div><div class="pkDistanceTag">'+(pkState.phase==='shootout'?'FREE THROW':'SHOT · '+(pkState.spotName||'COURT'))+'</div></div><p class="pkShotHint">Stop the moving marker inside the target zone. Closer to the basket = larger target. Longer shots demand more precision.</p><div class="pkShotMeter"><div class="pkTargetZone" id="pkTargetZone"></div><div class="pkShotMarker" id="pkShotMarker"></div></div><div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div><button class="primary pkShootButton" id="'+buttonId+'">'+buttonLabel+'</button>';
+  return '<div class="ftStage pkFTStage" id="pkFTStage"><div class="pkShooterLabel">'+(shooterName||'PLAYER')+'</div><div class="ftCall" id="ftCall">FOCUS · FIND YOUR RELEASE</div><div class="pkDistanceTag">'+(pkState.phase==='shootout'?'FREE THROW':(pkState.spotName||'COURT')+' · '+pkSpotDist(pkState.spot||0).toFixed(1)+' m')+'</div></div><p class="pkShotHint">Stop the moving marker inside the target zone. Closer to the basket = larger target. Longer shots demand more precision.</p><div class="pkShotMeter"><div class="pkTargetZone" id="pkTargetZone"></div><div class="pkShotMarker" id="pkShotMarker"></div></div><div class="ftMeterLabels"><span>EARLY</span><span>PERFECT RELEASE</span><span>LATE</span></div><button class="primary pkShootButton" id="'+buttonId+'">'+buttonLabel+'</button>';
  }
  function pkRenderGame(){
   $('parketLobby').classList.add('hidden');$('parketGame').classList.remove('hidden');
   const s=$('parketGameStage'),players=pkState.players||[],alive=pkState.alive||[];
   if(pkState.shotPlayback){
+   if(window.__pkAnimId===pkState.shotPlayback.id&&$('pkFTStage'))return;
    const pb=pkState.shotPlayback,shooter=players[pb.shooter],target=pb.target||pkDistanceTarget(pb.spot,shooter?.player);
-   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">LIVE SHOT · '+(shooter?.name||'PLAYER')+'</div><h2>'+(pb.hit?'BUCKET!':'NO GOOD')+' <em>'+(pb.hit?'SWISH':'MISS')+'</em></h2><p>Watching '+(shooter?.name||'the shooter')+' · '+(shooter?.player?.name||'NBA player')+'</p></div>'+pkScoreboard(players,alive)+pkShotScene(target,'pkWatchingBtn','SHOT IN PROGRESS',shooter?.name)+'<div class="pkShotWatcher">'+(pb.hit?'<b>MADE SHOT</b> · NET CAM':'<b>SHOT ATTEMPT</b> · WATCH THE FLIGHT')+'</div>';
+   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">LIVE SHOT · '+(shooter?.name||'PLAYER')+'</div><h2>SHOT <em>IN THE AIR</em></h2><p>Watching '+(shooter?.name||'the shooter')+' · '+(shooter?.player?.name||'NBA player')+'</p></div>'+pkScoreboard(players,alive)+pkShotScene(target,'pkWatchingBtn','SHOT IN PROGRESS',shooter?.name)+'<div class="pkShotWatcher">'+'<b>SHOT ATTEMPT</b> · WATCH THE FLIGHT'+'</div>';
    const zone=$('pkTargetZone'),marker=$('pkShotMarker'),watchBtn=$('pkWatchingBtn');if(zone){zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%'}if(marker)marker.style.left=(pb.release??50)+'%';if(watchBtn)watchBtn.disabled=true;pkAnimateShot(!!pb.hit);return;
   }
   if(pkState.phase==='shootout'){
@@ -1468,11 +1481,15 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    if(botTurn){clearInterval(pkMeterTimer);if(!pkState.botPending){pkState.botPending=true;setTimeout(()=>{pkState.botPending=false;const chance=Math.min(.95,pkBotChance()*(pkPlayerShotChance(players[turn]?.player,6)/.72)),center=50,offset=(Math.random()<chance?(Math.random()-.5)*target*65:(Math.random()<.5?-1:1)*(target*50+8+Math.random()*25));pkMarker=Math.max(0,Math.min(100,center+offset));pkPlayShot(turn,Math.abs(pkMarker-50)<=target*50)},1100)}}
    else if(pkLocal||pkSlot===turn)$('pkShootoutBtn').onclick=()=>{const left=(100-target*100)/2,right=left+target*100,hit=pkMarker>=left&&pkMarker<=right;pkPlayShot(turn,hit)};else $('pkShootoutBtn').disabled=true;
   }else if(pkState.phase==='choose'){
-   const pts=[['Left corner',8,43],['Left wing',22,29],['Top of key',50,17],['Right wing',78,29],['Right corner',92,43],['Left elbow',32,37],['Right elbow',68,37],['Left paint',39,22],['Center paint',50,27],['Right paint',61,22],['Free throw line',50,39],['Midcourt',50,68],['Half court',50,92]];
-   const chooser=(pkState.order||[0,1])[pkState.orderIndex||0];
-   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">NEXT POSSESSION</div><h2>CHOOSE YOUR <em>SPOT</em></h2><p>'+(players[chooser].name)+' · tap a position on the court</p></div>'+pkScoreboard(players,alive)+'<div class="pkCourtDiagram"><div class="pkHoopMark"></div><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="courtLine" d="M0 0 V100 H100 V0 M34 0 V31 H66 V0 M34 31 H66 M34 31 A16 16 0 0 0 66 31 M8 0 V43 C8 68 27 76 50 76 C73 76 92 68 92 43 V0 M0 55 H100 M50 55 A12 12 0 0 0 50 79 A12 12 0 0 0 50 55"/><path class="courtPaint" d="M34 0 H66 V31 H34 Z"/></svg>'+pts.map((p,i)=>'<button class="pkCourtDot" style="left:'+p[1]+'%;top:'+p[2]+'%" data-spot="'+i+'" title="'+p[0]+'"><span>'+(i+1)+'</span></button>').join('')+'</div><p id="pkSpotName">Choose one of 13 shooting positions</p>';
-   if((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser))s.querySelectorAll('[data-spot]').forEach(b=>b.onclick=()=>{pkState.spot=+b.dataset.spot;pkState.spotName=pts[+b.dataset.spot][0];pkState.phase='survivor';pkState.alive=players.map((_,i)=>i);pkState.shotIndex=0;pkSave().then(pkRender)});
-   else if(players[chooser]?.bot&&!pkState.botChoosePending){pkState.botChoosePending=true;setTimeout(()=>{pkState.botChoosePending=false;pkState.spot=pkState.difficulty==='hard'?10:pkState.difficulty==='easy'?3:7;pkState.spotName=pts[pkState.spot][0];pkState.phase='survivor';pkState.alive=players.map((_,i)=>i);pkState.shotIndex=0;pkSave().then(pkRender)},850)}
+   const pts=PK_SPOTS.map(x=>[x.n]);
+   const chooser=(pkState.order||players.map((_,i)=>i))[pkState.orderIndex||0];
+   const court='<svg viewBox="0 0 500 620" preserveAspectRatio="none"><rect class="cBack" x="0" y="470" width="500" height="150"/><rect class="courtPaint" x="170" y="0" width="160" height="190"/><g class="courtLine"><rect x="0" y="0" width="500" height="620"/><path d="M0 470H500"/><circle cx="250" cy="470" r="60"/><path d="M30 0V142A237.5 237.5 0 0 0 470 142V0"/><path d="M190 190A60 60 0 0 0 310 190"/><path class="dash" d="M190 190A60 60 0 0 1 310 190"/><path d="M210 52A40 40 0 0 0 290 52"/><path d="M215 0V30M285 0V30" class="thin"/></g><path class="board" d="M215 38H285"/><path class="stem" d="M250 38V46"/><circle class="rim" cx="250" cy="55" r="9"/></svg>';
+   s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">NEXT POSSESSION</div><h2>CHOOSE YOUR <em>SPOT</em></h2><p>'+(((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser))?players[chooser].name+' · tap a spot on the court':players[chooser].name+' is choosing a spot')+'</p></div>'+pkScoreboard(players,alive)+'<div class="pkCourtDiagram">'+court+PK_SPOTS.map((sp,i)=>'<button class="pkCourtDot" style="left:'+(sp.x/5)+'%;top:'+(sp.y/6.2)+'%" data-spot="'+i+'" title="'+sp.n+'" aria-label="'+sp.n+'"></button>').join('')+'</div><p id="pkSpotName">'+((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser)?'Pick where you want to shoot from':'Waiting for '+players[chooser].name+' to pick a spot…')+'</p>';
+   const nameEl=$('pkSpotName');
+   s.querySelectorAll('[data-spot]').forEach(b=>{const i=+b.dataset.spot;const show=()=>{if(nameEl)nameEl.textContent=PK_SPOTS[i].n+' · '+PK_SPOTS[i].d.toFixed(1)+' m from the basket'};b.onpointerenter=show;b.onfocus=show});
+   const pickSpot=i=>{pkState.spot=i;pkState.spotName=PK_SPOTS[i].n;pkState.phase='survivor';pkState.alive=players.map((_,k)=>k);pkState.shotIndex=0;pkSave().then(pkRender)};
+   if((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser))s.querySelectorAll('[data-spot]').forEach(b=>b.onclick=()=>pickSpot(+b.dataset.spot));
+   else{s.querySelectorAll('[data-spot]').forEach(b=>b.disabled=true);if(players[chooser]?.bot&&!pkState.botChoosePending){pkState.botChoosePending=true;setTimeout(()=>{pkState.botChoosePending=false;pickSpot(pkState.difficulty==='hard'?2:pkState.difficulty==='easy'?10:5)},850)}}
   }else if(pkState.phase==='survivor'){
    const me=alive[pkState.shotIndex%Math.max(1,alive.length)],botTurn=!!players[me]?.bot;
    const target=pkDistanceTarget(pkState.spot||0,players[me]?.player);
@@ -1482,8 +1499,8 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    else if(pkLocal||pkSlot===me)$('pkSurvivorShoot').onclick=()=>{const left=(100-target*100)/2,right=left+target*100,hit=pkMarker>=left&&pkMarker<=right;pkPlayShot(me,hit)};else $('pkSurvivorShoot').disabled=true;
   }else if(pkState.phase==='roundwin'){
    const winner=pkState.winner;s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">ROUND COMPLETE</div><h2>🏆 '+players[winner].name+' <em>WINS THE ROUND</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkNextRound">NEXT ROUND</button>';
-   $('pkNextRound').onclick=()=>{if(pkState.scores[winner]>=7)pkState.phase='finished';else{pkState.phase='choose';pkState.orderIndex=0;pkState.order=[0,1].sort((a,b)=>(pkState.scores[b]||0)-(pkState.scores[a]||0));}pkSave().then(pkRender)};
-  }else if(pkState.phase==='finished'){const w=pkState.scores.indexOf(Math.max(...pkState.scores));s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">FINAL RESULT</div><h2>🏆 '+players[w].name+' <em>WINS PARKET!</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkRematch">REMATCH</button>'; $('pkRematch').onclick=()=>{pkState.phase='choose';pkState.scores=[0,0];pkState.order=[0,1];pkState.orderIndex=0;pkSave().then(pkRender)}}
+   $('pkNextRound').onclick=()=>{if(pkState.scores[winner]>=7)pkState.phase='finished';else{pkState.phase='choose';pkState.orderIndex=0;pkState.order=players.map((_,i)=>i).sort((a,b)=>(pkState.scores[b]||0)-(pkState.scores[a]||0)||a-b);}pkSave().then(pkRender)};
+  }else if(pkState.phase==='finished'){const w=pkState.scores.indexOf(Math.max(...pkState.scores));s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">FINAL RESULT</div><h2>🏆 '+players[w].name+' <em>WINS PARKET!</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkRematch">REMATCH</button>'; $('pkRematch').onclick=()=>{pkState.phase='choose';pkState.scores=players.map(()=>0);pkState.order=players.map((_,i)=>i);pkState.orderIndex=0;pkState.round=1;pkState.shotIndex=0;pkState.winner=null;pkSave().then(pkRender)}}
  }
  async function pkCreate(){
   try{pkLocal=false;if(!sb)throw Error('Supabase not available');pkRoom=window.__pkQuickRoomCode||pkCode();window.__pkQuickRoomCode=null;pkSlot=0;pkState={phase:'lobby',players:[{name:pkName(),ready:false}],scores:[],round:0};
@@ -1505,7 +1522,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}
  }
  async function pkQuickCancel(){
-  if(pkQuickQueueId&&sb)await sb.rpc('basket_quick_cancel',{p_queue_id:pkQuickQueueId});
+  if(pkQuickQueueId&&sb)try{await sb.rpc('basket_quick_cancel',{p_queue_id:pkQuickQueueId})}catch(_){};
   pkQuickQueueId=null;pkQuickActive=false;if(pkQuickTimer)clearTimeout(pkQuickTimer);
  }
  async function pkQuickStartBot(){
@@ -1542,7 +1559,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     }
    }
    if(pkQuickActive)await pkQuickStartBot();
-  }catch(e){await pkQuickCancel();pkMsg('Quick Match napaka: '+e.message,true);}
+  }catch(e){console.warn('Quick Match -> bot:',e.message);try{await pkQuickCancel()}catch(_){}await new Promise(r=>setTimeout(r,1800+Math.random()*2800));pkQuickActive=true;await pkQuickStartBot();}
   finally{pkQuickBtn.disabled=false;}
  }
  pkQuickBtn.onclick=pkQuickMatch;
@@ -1560,7 +1577,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   }catch(e){pkMsg('Could not start bot game: '+e.message,true);console.error(e)}
  };
  $('parketBackBtn').onclick=()=>{$('parketLobby').classList.add('hidden');$('freeThrowMenu').classList.remove('hidden')};
- $('parketGameBack').onclick=()=>{$('parketGame').classList.add('hidden');$('parketLobby').classList.remove('hidden')};
+ $('parketGameBack').onclick=()=>{window.FTAnim&&FTAnim.destroy();window.__pkAnimId=null;$('parketGame').classList.add('hidden');$('parketLobby').classList.remove('hidden')};
  $('freeThrowMainBtn').addEventListener('click',()=>$('freeThrowMenu').classList.remove('hidden'));
  $('freeThrowSoloBtn').addEventListener('click',()=>{
   $('freeThrowMenu').classList.add('hidden');
@@ -1980,7 +1997,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
 $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
  const qbtn=$('mdQuickMatch');let qactive=false,qid=null;
  async function qauth(){if(!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
- async function qcancel(){if(qid)await sb.rpc('basket_quick_cancel',{p_queue_id:qid});qid=null;qactive=false;}
+ async function qcancel(){if(qid)try{await sb.rpc('basket_quick_cancel',{p_queue_id:qid})}catch(_){};qid=null;qactive=false;}
  async function qopen(code,slot,opponent){
   await window.buShowMatchIntro($('mdNick').value.trim()||mdName(),opponent||'Opponent');
   if(slot===0){window.__mdQuickRoomCode=code;await mdCreateRoom();}else{$('mdCode').value=code;await mdJoinRoom();}
@@ -1998,7 +2015,7 @@ $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
     if(st.status==='matched'){mdSay('🏀 Nasprotnik '+(st.opponent||'')+' najden! Odpiram Draft …');await qopen(st.room_code,st.slot,st.opponent);qactive=false;return;}
    }
    if(qactive){await qcancel();const botName='ClutchKing'+Math.floor(10+Math.random()*89);await window.buShowMatchIntro(nick,botName);mdStartBotDraft(nick,botName);qactive=false;}
-  }catch(e){await qcancel();mdSay('Quick Match napaka: '+e.message,true);}
+  }catch(e){console.warn('Quick Match -> bot:',e.message);try{await qcancel()}catch(_){}await new Promise(r=>setTimeout(r,1800+Math.random()*2800));qactive=true;const nick2=$('mdNick').value.trim().slice(0,16)||mdName(),botName='ClutchKing'+Math.floor(10+Math.random()*89);await window.buShowMatchIntro(nick2,botName);mdStartBotDraft(nick2,botName);qactive=false;}
   finally{qbtn.disabled=false;}
  };
 
@@ -2357,7 +2374,7 @@ document.addEventListener('DOMContentLoaded', function () {
  const $h=id=>document.getElementById(id);
  const hURL="https://kjaraaiwdxrnjursayhd.supabase.co";
  const hKEY="sb_publishable_AXMDnK0IJKolloeq-vmC7Q_gNlpMI3c";
- const hsb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(hURL,hKEY):null;
+ const hsb=window.buSupabase||((window.supabase&&window.supabase.createClient)?window.supabase.createClient(hURL,hKEY):null);
  const table="parket_multiplayer_rooms";
  let room=null,slot=null,state=null,channel=null,local=false,meterTimer=null,marker=0,dir=1,botTimer=null;
  const nick=()=>String($h("menuNick")?.value||"PLAYER").trim().slice(0,16)||"PLAYER";
@@ -2497,7 +2514,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
  const hdQuick=$h("hdQuickMatch");let hdQuickBusy=false,hdQueueId=null;
  async function hdQuickAuth(){if(!hsb)throw Error("Supabase is not available.");const {data}=await hsb.auth.getSession();if(!data?.session){const {error}=await hsb.auth.signInAnonymously();if(error)throw error;}}
- async function hdQuickCancel(){if(hdQueueId)await hsb.rpc("basket_quick_cancel",{p_queue_id:hdQueueId});hdQueueId=null;hdQuickBusy=false;}
+ async function hdQuickCancel(){if(hdQueueId)try{await hsb.rpc("basket_quick_cancel",{p_queue_id:hdQueueId})}catch(_){};hdQueueId=null;hdQuickBusy=false;}
  async function hdQuickStart(code,slotNo,opponent){
   await window.buShowMatchIntro(nick(),opponent||"Opponent");
   if(slotNo===0){window.__hdQuickRoom=code;await create();}
@@ -2519,7 +2536,7 @@ document.addEventListener('DOMContentLoaded', function () {
     await hdQuickCancel();const botName="RimReaper"+Math.floor(10+Math.random()*89);
     window.__hdQuickBotName=botName;await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();
    }
-  }catch(e){await hdQuickCancel();msg("Quick Match error: "+e.message,true);}
+  }catch(e){console.warn("Quick Match -> bot:",e.message);try{await hdQuickCancel()}catch(_){}await new Promise(r=>setTimeout(r,1800+Math.random()*2800));hdQuickBusy=true;const botName="RimReaper"+Math.floor(10+Math.random()*89);window.__hdQuickBotName=botName;await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();}
   finally{hdQuick.disabled=false;}
  };
  $h("hdCreate").onclick=create;$h("hdJoin").onclick=join;
@@ -2724,6 +2741,31 @@ window.buShowMatchIntro=function(me,opponent){
 .pkFTStage{margin:12px 0 14px;min-height:220px}
 .pkFTStage .pkShooterLabel{position:absolute;left:12px;bottom:10px;z-index:4;font-size:11px;font-weight:900;text-shadow:0 2px 5px #000}
 .pkFTStage .pkDistanceTag{position:absolute;right:10px;bottom:10px;z-index:4;font-size:10px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 5px #000}
+
+/* Parket polish: stage label, call text, court chooser */
+.ftStage .ftCall{font-size:clamp(15px,4.4vw,24px);letter-spacing:2px;white-space:nowrap}
+.pkFTStage .pkShooterLabel{top:auto!important;left:auto!important;right:10px;bottom:44px!important;height:auto!important;max-width:60%;padding:5px 9px;font-size:11px;background:#071827aa}
+.pkShootButton{margin-bottom:14px!important}
+.pkFTStage .pkDistanceTag{background:#071827aa;border-radius:8px;padding:5px 9px;font-size:10px}
+#parketGameStage{padding-left:0;padding-right:0}
+.pkCourtDiagram{height:auto!important;width:100%;max-width:min(420px,100%);aspect-ratio:500/620!important;margin:14px auto 8px!important;border-radius:14px!important;border:3px solid #f4e3c5!important;overflow:hidden!important;
+ background:repeating-linear-gradient(90deg,#d29256 0 24px,#c98a4d 24px 48px)!important;box-shadow:inset 0 0 0 2px #ffffff30,0 12px 28px #0005!important}
+.pkCourtDiagram:before{display:none!important}
+.pkCourtDiagram svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pkCourtDiagram .cBack{fill:#0000002a}
+.pkCourtDiagram .courtPaint{fill:#b53d27aa;stroke:none}
+.pkCourtDiagram .courtLine{fill:none;stroke:#fff3dc;stroke-width:3;opacity:.95}
+.pkCourtDiagram .courtLine .dash{stroke-dasharray:8 7}
+.pkCourtDiagram .courtLine .thin{stroke-width:2}
+.pkCourtDiagram .board{stroke:#fff;stroke-width:5;stroke-linecap:round;fill:none}
+.pkCourtDiagram .stem{stroke:#fff;stroke-width:3;fill:none}
+.pkCourtDiagram .rim{fill:none;stroke:#ff6a2a;stroke-width:4}
+.pkCourtDot{width:26px!important;height:26px!important;padding:0;border:3px solid #fff!important;background:radial-gradient(circle,#ff9c36 0 38%,#142b42 42%)!important;box-shadow:0 3px 8px #0009!important;display:block!important;cursor:pointer;transition:transform .12s;animation:pkDotPulse 2s infinite}
+.pkCourtDot:after{display:none!important}
+.pkCourtDot:hover,.pkCourtDot:focus-visible{transform:translate(-50%,-50%) scale(1.3)!important;outline:none}
+.pkCourtDot:disabled{cursor:default;animation:none;opacity:.75}
+@keyframes pkDotPulse{0%,100%{box-shadow:0 3px 8px #0009,0 0 0 0 #ff9c3688}50%{box-shadow:0 3px 8px #0009,0 0 0 7px #ff9c3600}}
+#pkSpotName{text-align:center;color:#c9d8e6;font-weight:800;min-height:22px;margin:4px 0 0}
 </style>
 <script>
 /* FTAnim v1 - realistic free throw animation (canvas, side view, simulated ball physics) */
@@ -2803,14 +2845,14 @@ function simulate(x0,y0,tx,ty,theta,spin){
    if(vy>0){ev.push({t,type:'floor',s:Math.min(1,vy/600)});vy=-vy*.6;vx*=.82;w*=.6;fl++}
   }
   frames.push(x,y,ang);
-  if(fl>=2||x>W+40||x<-40)break;
+  if(fl>=2||x>W+40||x<-2300)break;
  }
  return {frames,ev,made,rim,board,dt,tEnd:t};
 }
 function plan(hit,err,x0,y0){
  let best=null;
  for(let i=0;i<500;i++){
-  const theta=50+Math.random()*7;let off;
+  const dm=S.dist||4.5,theta=50-Math.max(0,dm-4.5)*.55+Math.random()*7;let off;
   if(hit)off=Math.random()<.78?(Math.random()+Math.random()-1)*7:(Math.random()-.5)*26;
   else{const sg=err<0?-1:1,m=12+Math.min(Math.max(Math.abs(err)-1,0),3)*9+Math.random()*10;off=sg*m}
   const r=simulate(x0,y0,C.rimCx+off,C.rimY,theta,-(10+Math.random()*8));
@@ -2886,21 +2928,44 @@ function buildBg(){
   rg.addColorStop(0,'rgba(255,240,210,.20)');rg.addColorStop(1,'rgba(255,240,210,0)');
   g.fillStyle=rg;g.fillRect(0,0,W,H);
  });
- g.fillStyle='#0a1220';g.fillRect(0,330,W,58);
- g.fillStyle='#f28c28';g.fillRect(0,330,W,2);
+  return c;
+}
+
+/* ---------- set (ad boards, floor, markings) drawn in camera space ---------- */
+const MPX=84;
+const XM=m=>C.rimCx-m*MPX;
+function setDist(d){
+ S.dist=d;C.px=C.rimCx-d*MPX;
+ const left=C.px-75;S.zoom=left>=0?1:Math.max(.5,W/(W-left));
+}
+function drawSet(g){
+ const L=-2400,R=W+80,fb=H+80;
+ g.fillStyle='#0a1220';g.fillRect(L,330,R-L,58);
+ g.fillStyle='#f28c28';g.fillRect(L,330,R-L,2);
  g.font='900 17px Arial';g.textBaseline='middle';
- for(let x=-20;x<W;x+=210){
+ for(let x=-2410;x<W;x+=210){
   g.fillStyle='rgba(242,140,40,.85)';g.fillText('BASKETBALL',x,359);
   g.fillStyle='rgba(255,255,255,.75)';g.fillText('UNIVERSE',x+104,359);
  }
- gr=g.createLinearGradient(0,388,0,H);
+ let gr=g.createLinearGradient(0,388,0,H);
  gr.addColorStop(0,'#c98a4d');gr.addColorStop(1,'#7b4a26');
- g.fillStyle=gr;g.fillRect(0,388,W,H-388);
+ g.fillStyle=gr;g.fillRect(L,388,R-L,fb-388);
  g.strokeStyle='rgba(60,30,10,.35)';g.lineWidth=1;g.beginPath();
- for(let x=0;x<W;x+=46){g.moveTo(x,388);g.lineTo(x-10,H)}
+ for(let x=-2400;x<W+60;x+=46){g.moveTo(x,388);g.lineTo(x-10,fb)}
  g.stroke();
- g.fillStyle='rgba(255,230,190,.55)';g.fillRect(0,388,W,1.5);
- g.fillStyle='rgba(255,255,255,.8)';g.fillRect(C.px+30,390,3,14);
+ // painted key (lane): from baseline to the free throw line
+ const xb=XM(-1.6),xft=XM(4.2),x3=XM(6.75),xh=XM(12.7);
+ g.fillStyle='rgba(150,48,30,.42)';g.fillRect(xft,388,xb-xft,fb-388);
+ const line=(x,w,a)=>{g.fillStyle='rgba(255,246,228,'+a+')';g.fillRect(x-w/2,388,w,fb-388)};
+ line(xb,4,.8);line(xft,3,.85);line(x3,3,.85);line(xh,3,.7);
+ g.font='900 9px Arial';g.fillStyle='rgba(255,246,228,.75)';g.textAlign='center';
+ g.fillText('3PT',x3,405);g.fillText('FT',xft,405);g.fillText('HALF',xh,405);
+ g.textAlign='left';
+ g.fillStyle='rgba(255,230,190,.55)';g.fillRect(L,388,R-L,1.5);
+ // spot marker under the shooter
+ const sg=g.createRadialGradient(C.px,C.floor+4,2,C.px,C.floor+4,34);
+ sg.addColorStop(0,'rgba(255,170,60,.65)');sg.addColorStop(1,'rgba(255,170,60,0)');
+ g.fillStyle=sg;g.beginPath();g.ellipse(C.px,C.floor+4,34,8,0,0,6.2832);g.fill();
  // stanchion
  const pg=g.createLinearGradient(562,0,574,0);
  pg.addColorStop(0,'#5d6b7c');pg.addColorStop(.5,'#aab6c4');pg.addColorStop(1,'#4c5866');
@@ -2908,7 +2973,6 @@ function buildBg(){
  g.fillRect(528,94,38,6);
  g.fillStyle='#a62b2b';g.fillRect(552,320,32,68);
  g.fillStyle='rgba(255,255,255,.15)';g.fillRect(552,320,32,3);
- return c;
 }
 /* ---------- drawing ---------- */
 function limb(g,a,b,w,col){g.strokeStyle=col;g.lineWidth=w;g.lineCap='round';g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()}
@@ -2990,7 +3054,7 @@ function drawNet(g,net){
  g.stroke();
 }
 /* ---------- engine ---------- */
-const S={canvas:null,ctx:null,dpr:1,raf:0,last:0,mode:'idle',T:0,idleT:0,sim:null,pt:0,ev:0,slow:1,cb:null,opts:null,
+const S={dist:4.5,zoom:1,canvas:null,ctx:null,dpr:1,raf:0,last:0,mode:'idle',T:0,idleT:0,sim:null,pt:0,ev:0,slow:1,cb:null,opts:null,
  trail:[],net:null,rimAmp:0,rimPh:0,bAmp:0,bPh:0,glow:0,bp:null,endT:0,fin:false,callSet:false};
 function setCall(text,cls){const el=document.getElementById('ftCall');if(el){el.textContent=text;el.className='ftCall '+(cls||'')}}
 function snd(type,s){
@@ -3050,6 +3114,9 @@ function draw(){
  const g=S.ctx;
  g.setTransform(S.dpr,0,0,S.dpr,0,0);g.clearRect(0,0,W,H);
  g.drawImage(BG,0,0,W,H);
+ const z=S.zoom;
+ g.save();g.translate(W,H);g.scale(z,z);g.translate(-W,-H);
+ drawSet(g);
  const idle=S.mode==='idle';
  const p=poseAt(idle?0:S.T);
  if(idle){const s=Math.sin(S.idleT*2.2);p.k+=2.5*s;p.a+=1.5*s;p.f+=1.5*s}
@@ -3072,9 +3139,10 @@ function draw(){
   rg.addColorStop(0,'rgba(66,230,149,'+(.55*S.glow)+')');rg.addColorStop(1,'rgba(66,230,149,0)');
   g.fillStyle=rg;g.fillRect(C.rimCx-80,C.rimY-60,160,160);
  }
+ g.restore();
  const sl=1-S.slow;
  if(sl>.02){
-  const vg=g.createRadialGradient(W*.75,C.rimY,60,W*.5,H*.5,W*.75);
+  const vg=g.createRadialGradient(W+(C.rimCx-W)*z,H+(C.rimY-H)*z,60*z,W*.5,H*.5,W*.75);
   vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,'+(.5*sl/.58)+')');
   g.fillStyle=vg;g.fillRect(0,0,W,H);
  }
@@ -3086,8 +3154,9 @@ function frame(ts){
  S.raf=requestAnimationFrame(frame);
 }
 const API={
- mount(host){
+ mount(host,o){
   API.destroy();
+  setDist((o&&o.dist)||4.5);
   if(!BG)BG=buildBg();
   const cv=document.createElement('canvas');
   S.dpr=Math.min(2,window.devicePixelRatio||1);
@@ -3108,6 +3177,7 @@ const API={
   S.sim=sim;S.opts=o;S.cb=cb;S.mode='shot';S.T=0;S.pt=0;S.ev=0;S.slow=1;S.trail=[];S.fin=false;S.callSet=false;
   S.endT=tf>0?Math.min(sim.tEnd,tf+.3):sim.tEnd;
  },
+ setSpot(d){setDist(d||4.5)},
  destroy(){
   if(S.raf)cancelAnimationFrame(S.raf);
   S.raf=0;S.canvas=null;S.ctx=null;S.mode='idle';S.cb=null;
