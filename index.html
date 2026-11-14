@@ -546,6 +546,8 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
   <p>Choose how you want to play.</p>
   <div class="modeBtns">
    <button class="primary" id="soloMode">🏀 SOLO CHALLENGE</button>
+   <button class="primary" id="threePtContestBtn">⏱️ 3PT SOLO CONTEST · 60 SEC</button>
+   <button class="primary" id="threePtContestMpBtn">🏆 3PT MULTIPLAYER CONTEST</button>
    <button class="primary" id="onlineMode">🌐 ONLINE MULTIPLAYER</button>
    <button class="secondary" id="localMode">👥 PLAY ON ONE DEVICE</button>
    <button class="primary" id="dailyChallengeBtn">📅 DAILY CHALLENGE</button>
@@ -610,7 +612,6 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 </div>
 <div class="overlay hidden" id="hoopDuelGame" style="z-index:145">
  <div class="modal" style="width:min(680px,96vw);max-height:92vh;overflow:auto">
-  <div class="eyebrow">BASKETBALL UNIVERSE · THREE HOOPS BLOCKOUT</div>
   <div id="hdGameStage"></div>
   <button class="secondary" id="hdLeave" style="width:100%;margin-top:12px">LEAVE GAME</button>
  </div>
@@ -1399,7 +1400,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   const pb=pkState?.shotPlayback||{};
   window.__pkAnimId=pb.id;
   FTAnim.mount(host,{dist:pkAnimDist(pb.phase,pb.spot)});
-  {const fc=$('ftCall');if(fc)fc.textContent=''}
+  {const fc=host.querySelector('.ftCall');if(fc)fc.textContent=''}
   const target=Number(pb.target||pkDistanceTarget(pb.spot||0,pkState?.players?.[pb.shooter]?.player)||.2);
   const err=((pb.release??50)-50)/Math.max(1,target*50);
   FTAnim.shoot({hit:!!hit,err,streak:(pkState?.scores&&pkState.scores[pb.shooter])||0},()=>{});
@@ -2400,11 +2401,38 @@ document.addEventListener('DOMContentLoaded', function () {
  function scoreboard(){
   return `<div class="draftScoreboard" style="margin:12px 0"><div class="draftScore">${safe(state.players[0].name)}<b>${state.scores[0]}</b></div><div class="draftScore">${safe(state.players[1].name)}<b>${state.scores[1]}</b></div></div><div style="text-align:center;color:#a9bbce;font-weight:800;letter-spacing:2px">FIRST TO 5 POINTS</div>`;
  }
- function court(){
-  return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0">
-   ${[1,2,3].map((n)=>`<button class="primary hdHoop" data-hoop="${n}" style="min-height:130px;border-radius:18px;background:linear-gradient(160deg,#1c3958,#0c1d30);border:2px solid #e9a04a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-size:36px">🏀</span><b style="font-size:18px">HOOP ${n}</b></button>`).join("")}
-  </div>`;
+
+ function hoopSvg(n){
+  let net='';const tx=i=>36+i*8,bx=i=>46+i*4.67;
+  for(let i=0;i<6;i++){net+=`M${tx(i)} 80L${bx(i+1)} 118M${tx(i+1)} 80L${bx(i)} 118`}
+  for(let i=0;i<7;i++){net+=`M${tx(i)} 80L${bx(i)} 118`}
+  net+='M40 90H80M43 100H77M45 109H75';
+  return `<svg viewBox="0 0 120 150" aria-hidden="true"><defs><linearGradient id="hdP${n}" x1="0" x2="1"><stop offset="0" stop-color="#4c5866"/><stop offset=".5" stop-color="#b3bfcc"/><stop offset="1" stop-color="#4c5866"/></linearGradient></defs>
+   <rect x="55" y="92" width="10" height="58" fill="url(#hdP${n})"/>
+   <rect x="12" y="6" width="96" height="70" rx="7" fill="#dcebfa" fill-opacity=".16" stroke="#eaf3fc" stroke-width="3"/>
+   <rect x="40" y="36" width="40" height="30" rx="2" fill="none" stroke="#ff7a2e" stroke-width="2.5"/>
+   <text x="60" y="27" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" font-family="Arial,sans-serif">${n}</text>
+   <rect x="50" y="72" width="20" height="4" fill="#b83a2a"/>
+   <g class="hdNet" style="animation-delay:${n*-.7}s"><path d="${net}" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.1"/></g>
+   <ellipse class="hdRim" cx="60" cy="79" rx="26" ry="6" fill="none" stroke="#ff6a2a" stroke-width="4"/></svg>`;
  }
+ function court(role){
+  const atk=role!=="defend";
+  return `<div class="hdArena ${atk?"atk":"def"}" id="hdArena">${[1,2,3].map(n=>`<button class="hdHoop2" data-hoop="${n}" aria-label="Hoop ${n}">${hoopSvg(n)}<span class="hdTag">${atk?"🎯 SHOOT":"🛡️ GUARD"}</span></button>`).join("")}</div>`;
+ }
+ function bindHoops(stage,fn){
+  const arena=stage.querySelector("#hdArena");
+  stage.querySelectorAll("[data-hoop]").forEach(b=>b.onclick=()=>{
+   if(arena.classList.contains("locked"))return;
+   arena.classList.add("locked");b.classList.add("sel");
+   try{if(typeof tone==="function")tone(520,0,.12,"triangle",.06,760)}catch(_){}
+   setTimeout(()=>fn(+b.dataset.hoop),560);
+  });
+ }
+ function stageHtml(label){
+  return `<div class="ftStage hdFTStage" id="hdFTStage"><div class="ftCall" id="ftCall">${label||""}</div><div class="hdChip hdChipR">HOOP ${state.chosen}</div></div>`;
+ }
+ function mountStage(){const host=$h("hdFTStage");if(host&&window.FTAnim)FTAnim.mount(host,{dist:4.5,defender:true})}
  function meter(){
   return `<div style="background:#0c1c2d;border:1px solid #ffffff25;border-radius:18px;padding:18px;margin:16px 0">
    <div style="font-weight:900;letter-spacing:2px;color:#a9bbce;text-align:center;margin-bottom:12px">SHOT RELEASE · TARGET 20%</div>
@@ -2413,14 +2441,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <div id="hdMarker" style="position:absolute;left:0;top:-4px;width:5px;height:40px;background:white;box-shadow:0 0 8px white"></div>
    </div><div style="display:flex;justify-content:space-between;color:#9fb0c2;font-size:11px;margin-top:8px"><span>EARLY</span><b>PERFECT ZONE</b><span>LATE</span></div>
   </div><button class="primary" id="hdShoot" style="width:100%">STOP & SHOOT</button>`;
- }
- function animateShot(hit,blocked){
-  const stage=$h("hdGameStage");
-  const el=document.createElement("div");
-  el.style.cssText="position:fixed;inset:0;z-index:9999;pointer-events:none;display:grid;place-items:center;background:#06101dcc;animation:hdFade .25s";
-  el.innerHTML=`<div style="width:min(360px,85vw);padding:28px 18px;border:1px solid #ffffff35;border-radius:24px;background:linear-gradient(150deg,#1d3958,#0b1b2c);text-align:center;color:white;box-shadow:0 20px 70px #0009"><div style="font-size:42px">🏀</div><div id="hdFlyBall" style="font-size:50px;display:inline-block;animation:hdBallFlight .95s ease-in forwards">🏀</div><div style="font-size:36px;margin:8px">🥅</div><h2 style="margin:6px 0;color:${blocked?"#ff8585":hit?"#8ef0ad":"#ff8585"}">${blocked?"BLOCKED!":hit?"SWISH!":"NO GOOD!"}</h2><p style="color:#b8c8d8">${blocked?"Your opponent blocked that hoop.":hit?"The shot drops through the net.":"The shot missed the target."}</p></div>`;
-  if(!document.getElementById("hdAnimStyle")){const st=document.createElement("style");st.id="hdAnimStyle";st.textContent="@keyframes hdFade{from{opacity:0}to{opacity:1}}@keyframes hdBallFlight{0%{transform:translate(-80px,100px) scale(.55)}55%{transform:translate(0,-55px) scale(1.1)}100%{transform:translate(0,-12px) scale(.8)}}";document.head.appendChild(st)}
-  document.body.appendChild(el);setTimeout(()=>el.remove(),1250);
  }
  async function finishPossession(hit,blocked){
   const shooter=state.attacker;
@@ -2437,9 +2457,8 @@ document.addEventListener('DOMContentLoaded', function () {
   clearInterval(meterTimer);
   const hit=marker>=40&&marker<=60;
   const blocked=state.chosen===state.blockedHoop;
-  const shooter=state.attacker;
-  state.phase="playback";state.shotRelease=marker;state.shotHit=hit;state.shotBlocked=blocked;
-  save().then(()=>{render();animateShot(hit&&!blocked,blocked);if(local||slot===shooter)setTimeout(()=>finishPossession(hit,blocked),1350)}).catch(e=>msg(e.message,true));
+  state.phase="playback";state.shotRelease=marker;state.shotHit=hit;state.shotBlocked=blocked;state.shotId=Date.now()+"-"+Math.floor(Math.random()*1e6);
+  save().then(()=>render()).catch(e=>msg(e.message,true));
  }
  function botChooseHoop(){
   // Bot attacks with a little variety, occasionally adapting to the player's blocking habit.
@@ -2467,22 +2486,34 @@ document.addEventListener('DOMContentLoaded', function () {
    return;
   }
   if(state.phase==="playback"){
-   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">LIVE SHOT</div><h2>${state.shotBlocked?"BLOCKED":state.shotHit?"SHOT MADE":"SHOT MISSED"}</h2></div>${scoreboard()}<div style="text-align:center;padding:28px;font-size:64px">🏀</div><p style="text-align:center">Watching ${safe(state.players[state.attacker].name)}'s shot...</p>`;
+   if(window.__hdAnimId===state.shotId&&$h("hdFTStage"))return;
+   window.__hdAnimId=state.shotId;
+   clearInterval(meterTimer);
+   const sid=state.shotId,shooter=state.attacker,hit=!!state.shotHit,blocked=!!state.shotBlocked;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">LIVE SHOT · HOOP ${state.chosen}</div><h2>SHOT <em>IN THE AIR</em></h2><p>${safe(state.players[shooter].name)} shoots · ${safe(state.players[state.defender].name)} defends</p></div>${scoreboard()}${stageHtml("")}<p style="text-align:center;color:#a9bbce">Watch the release…</p>`;
+   mountStage();
+   let adv=false;
+   const advance=()=>{if(adv||window.__hdAdvanced===sid)return;adv=true;window.__hdAdvanced=sid;if((local||slot===shooter)&&state&&state.phase==="playback"&&state.shotId===sid)finishPossession(hit,blocked)};
+   if(window.FTAnim)FTAnim.shoot({hit,blocked,err:((state.shotRelease==null?50:state.shotRelease)-50)/10,streak:0},()=>setTimeout(advance,900));
+   setTimeout(advance,9000);
    return;
   }
   if(state.phase==="choose"){
    const me=state.attacker,bot=!!state.players[me].bot;
-   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">POSSESSION ${state.possession||1}</div><h2>CHOOSE YOUR <em>HOOP</em></h2><p>${safe(state.players[me].name)} attacks · ${safe(state.players[state.defender].name)} defends</p></div>${scoreboard()}${court()}<p style="text-align:center;color:#a9bbce">Choose one of the three baskets to shoot at.</p>`;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">POSSESSION ${state.possession||1}</div><h2>PICK YOUR <em>HOOP</em></h2><p>${safe(state.players[me].name)} attacks · ${safe(state.players[state.defender].name)} defends</p></div>${scoreboard()}${court("attack")}<p style="text-align:center;color:#a9bbce">${(local&&!bot)||(!local&&slot===me)?"Tap the basket you want to shoot at. If the defender guards the same one, your shot gets blocked.":"Waiting for "+safe(state.players[me].name)+" to pick a basket…"}</p>`;
    if(bot){if(!state.botPending){state.botPending=true;setTimeout(async()=>{state.botPending=false;state.chosen=botChooseHoop();state.phase="block";await save();render()},900)}}
-   else if(local||slot===me)stage.querySelectorAll("[data-hoop]").forEach(b=>b.onclick=async()=>{state.chosen=+b.dataset.hoop;state.phase="block";await save();render()});
+   else if(local||slot===me)bindHoops(stage,async n=>{state.chosen=n;state.phase="block";await save();render()});
+   else stage.querySelectorAll("[data-hoop]").forEach(b=>b.disabled=true);
   }else if(state.phase==="block"){
    const me=state.defender,bot=!!state.players[me].bot;
-   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">DEFENSIVE READ</div><h2>CHOOSE A <em>BLOCK</em></h2><p>${safe(state.players[state.attacker].name)} selected a hoop. Which one will you protect?</p></div>${scoreboard()}${court()}<p style="text-align:center;color:#a9bbce">Pick the hoop you think your opponent chose.</p>`;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">DEFENSIVE READ</div><h2>GUARD A <em>HOOP</em></h2><p>${safe(state.players[state.attacker].name)} has picked a basket in secret. Which one will you guard?</p></div>${scoreboard()}${court("defend")}<p style="text-align:center;color:#a9bbce">${(local&&!bot)||(!local&&slot===me)?"Guess the basket your opponent chose. Guard the same one and you block the shot.":"Waiting for "+safe(state.players[me].name)+" to guard a basket…"}</p>`;
    if(bot){if(!state.botPending){state.botPending=true;setTimeout(async()=>{state.botPending=false;state.blockedHoop=botBlock();state.phase="shoot";await save();render()},900)}}
-   else if(local||slot===me)stage.querySelectorAll("[data-hoop]").forEach(b=>b.onclick=async()=>{state.blockedHoop=+b.dataset.hoop;state.phase="shoot";await save();render()});
+   else if(local||slot===me)bindHoops(stage,async n=>{state.blockedHoop=n;state.phase="shoot";await save();render()});
+   else stage.querySelectorAll("[data-hoop]").forEach(b=>b.disabled=true);
   }else if(state.phase==="shoot"){
    const me=state.attacker,bot=!!state.players[me].bot;
-   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">SHOT ATTEMPT</div><h2>HOOP <em>${state.chosen}</em></h2><p>${safe(state.players[me].name)} · ${bot?"CPU RELEASE":"stop the marker inside the 20% target"}</p></div>${scoreboard()}<div style="text-align:center;font-size:40px;margin:12px">🏀 → 🏀</div>${meter()}<p style="text-align:center;color:#a9bbce">The defender has chosen a basket to block. If it matches your hoop, the shot is blocked even with a perfect release.</p>`;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">SHOT ATTEMPT</div><h2>FREE THROW · HOOP <em>${state.chosen}</em></h2><p>${safe(state.players[me].name)} · ${bot?"CPU RELEASE":"stop the marker inside the 20% target"}</p></div>${scoreboard()}${stageHtml("")}${meter()}<p style="text-align:center;color:#a9bbce">The defender has guarded one basket. If it is the same as yours, the shot is blocked even with a perfect release.</p>`;
+   mountStage();
    if(bot){
     clearInterval(meterTimer);
     if(!state.botPending){state.botPending=true;setTimeout(()=>{state.botPending=false;const d=state.difficulty||"medium";const accuracy=d==="hard"?.82:d==="easy"?.42:.64;marker=Math.random()<accuracy?50+(Math.random()-.5)*18:(Math.random()<.5?25:75);resolveShot()},1200)}
@@ -2546,7 +2577,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $h("hoopDuelLobby").classList.add("hidden");$h("hoopDuelGame").classList.remove("hidden");render();
  };
  $h("hdBack").onclick=()=>{$h("hoopDuelLobby").classList.add("hidden");$h("freeThrowMenu").classList.remove("hidden")};
- $h("hdLeave").onclick=()=>{clearInterval(meterTimer);if(channel&&hsb)hsb.removeChannel(channel);channel=null;$h("hoopDuelGame").classList.add("hidden");$h("hoopDuelLobby").classList.remove("hidden")};
+ $h("hdLeave").onclick=()=>{window.FTAnim&&FTAnim.destroy();window.__hdAnimId=null;clearInterval(meterTimer);if(channel&&hsb)hsb.removeChannel(channel);channel=null;$h("hoopDuelGame").classList.add("hidden");$h("hoopDuelLobby").classList.remove("hidden")};
 })();
 </script>
 
@@ -2766,6 +2797,33 @@ window.buShowMatchIntro=function(me,opponent){
 .pkCourtDot:disabled{cursor:default;animation:none;opacity:.75}
 @keyframes pkDotPulse{0%,100%{box-shadow:0 3px 8px #0009,0 0 0 0 #ff9c3688}50%{box-shadow:0 3px 8px #0009,0 0 0 7px #ff9c3600}}
 #pkSpotName{text-align:center;color:#c9d8e6;font-weight:800;min-height:22px;margin:4px 0 0}
+
+/* 3 Hoops Blockout */
+.hdArena{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:14px 0;padding:18px 8px 0;border-radius:20px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% -10%,#2c5276 0,#10243a 58%,#08121f 100%);border:1px solid #ffffff2a;box-shadow:0 12px 30px #0005}
+.hdArena:after{content:"";position:absolute;left:0;right:0;bottom:0;height:30%;background:repeating-linear-gradient(90deg,#c98a4d 0 26px,#bd7d42 26px 52px);border-top:3px solid #f1d3a3;pointer-events:none;z-index:0}
+.hdArena:before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff0d 45%,transparent 60%);transform:translateX(-100%);animation:hdSweep 6s linear infinite;pointer-events:none;z-index:2}
+@keyframes hdSweep{to{transform:translateX(100%)}}
+.hdHoop2{position:relative;z-index:1;background:none;border:0;padding:0 0 14px;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .18s,filter .2s,opacity .2s;-webkit-tap-highlight-color:transparent;font:inherit}
+.hdHoop2 svg{width:100%;max-width:130px;height:auto;filter:drop-shadow(0 8px 10px #0008);overflow:visible}
+.hdHoop2:disabled{cursor:default}
+.hdHoop2:not(:disabled):hover,.hdHoop2:not(:disabled):focus-visible{transform:translateY(-5px) scale(1.05);outline:none}
+.hdHoop2:not(:disabled):hover svg,.hdHoop2:not(:disabled):focus-visible svg{filter:drop-shadow(0 0 14px #ffc46b)}
+.hdNet{transform-box:fill-box;transform-origin:50% 0;animation:hdSway 3.2s ease-in-out infinite}
+@keyframes hdSway{0%,100%{transform:skewX(-3deg) scaleY(1)}50%{transform:skewX(3deg) scaleY(1.04)}}
+.hdRim{animation:hdRimGlow 2.4s ease-in-out infinite}
+@keyframes hdRimGlow{0%,100%{stroke:#ff6a2a}50%{stroke:#ffa05a}}
+.hdTag{font-weight:900;font-size:10.5px;letter-spacing:1.2px;padding:6px 9px;border-radius:999px;background:#0a1828dd;border:1px solid #ffffff3a;white-space:nowrap}
+.hdArena.def .hdTag{border-color:#6aa8ff}
+.hdArena.def .hdRim{animation:none;stroke:#6aa8ff}
+.hdHoop2.sel{transform:translateY(-8px) scale(1.09)!important}
+.hdHoop2.sel svg{filter:drop-shadow(0 0 18px #ffb347)!important}
+.hdArena.def .hdHoop2.sel svg{filter:drop-shadow(0 0 18px #6aa8ff)!important}
+.hdHoop2.sel .hdTag{background:#ff9c36;color:#1a1100;border-color:#ffd9a0}
+.hdArena.def .hdHoop2.sel .hdTag{background:#6aa8ff;border-color:#cfe2ff}
+.hdArena.locked .hdHoop2:not(.sel){opacity:.3;filter:grayscale(.7)}
+.hdChip{position:absolute;bottom:10px;z-index:4;background:#071827aa;border-radius:8px;padding:5px 9px;font-size:10px;font-weight:900;letter-spacing:1px;text-shadow:0 2px 5px #000;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hdChipR{right:10px}.hdChipL{left:10px;bottom:auto;top:10px;color:#cfe2ff}
+.hdFTStage{margin:12px 0 4px}
 </style>
 <script>
 /* FTAnim v1 - realistic free throw animation (canvas, side view, simulated ball physics) */
@@ -2815,7 +2873,7 @@ function joints(p){
   knee2:{x:knee.x-9,y:knee.y},ankle2:{x:ax-17,y:ay},toe2:{x:ax-1,y:C.floor-3},heel2:{x:ax-23,y:ay+4}};
 }
 /* ---------- ball physics simulation ---------- */
-function simulate(x0,y0,tx,ty,theta,spin){
+function simulate(x0,y0,tx,ty,theta,spin,blk){
  const dx=tx-x0,dy=y0-ty,th=theta*RAD,c=Math.cos(th),tn=Math.tan(th);
  const den=2*c*c*(dx*tn-dy);if(den<=0)return null;
  const v=Math.sqrt(C.g*dx*dx/den);
@@ -2824,6 +2882,7 @@ function simulate(x0,y0,tx,ty,theta,spin){
  while(t<3.6){
   const py=y;
   vy+=C.g*dt;x+=vx*dt;y+=vy*dt;ang+=w*dt;t+=dt;
+  if(blk&&!blk.done&&t>=blk.t){blk.done=true;blk.x=x;blk.y=y;vx=blk.vx;vy=blk.vy;w=blk.w;ev.push({t,type:'block'})}
   for(const rx of pts){
    const ddx=x-rx,ddy=y-C.rimY,d=Math.hypot(ddx,ddy),mn=C.r+2.5;
    if(d<mn&&d>1e-6){
@@ -2847,16 +2906,29 @@ function simulate(x0,y0,tx,ty,theta,spin){
   frames.push(x,y,ang);
   if(fl>=2||x>W+40||x<-2300)break;
  }
- return {frames,ev,made,rim,board,dt,tEnd:t};
+ return {frames,ev,made,rim,board,dt,tEnd:t,blk:blk&&blk.done?blk:null};
 }
-function plan(hit,err,x0,y0){
+const defX=()=>C.px+77;
+function clearsDefender(r){
+ const hx=defX()-26,hy=186,gx=defX()-40,gy=204,n=Math.min(r.frames.length/3,Math.floor(.5/r.dt));
+ for(let i=0;i<n;i+=6){const x=r.frames[3*i],y=r.frames[3*i+1];
+  if(Math.hypot(x-hx,y-hy)<C.r+9||Math.hypot(x-gx,y-gy)<C.r+9)return false}
+ return true;
+}
+function plan(hit,err,x0,y0,blocked){
  let best=null;
  for(let i=0;i<500;i++){
   const dm=S.dist||4.5,theta=50-Math.max(0,dm-4.5)*.55+Math.random()*7;let off;
+  if(blocked){
+   const blk={t:.07,vx:170+Math.random()*130,vy:-60-Math.random()*140,w:6+Math.random()*6};
+   const rb=simulate(x0,y0,C.rimCx+(Math.random()-.5)*14,C.rimY,theta,-12,blk);
+   if(rb&&!rb.made&&rb.blk)return rb;
+   continue;
+  }
   if(hit)off=Math.random()<.78?(Math.random()+Math.random()-1)*7:(Math.random()-.5)*26;
   else{const sg=err<0?-1:1,m=12+Math.min(Math.max(Math.abs(err)-1,0),3)*9+Math.random()*10;off=sg*m}
   const r=simulate(x0,y0,C.rimCx+off,C.rimY,theta,-(10+Math.random()*8));
-  if(r&&r.made===hit)return r;
+  if(r&&r.made===hit&&(!S.def||clearsDefender(r)))return r;
   if(r&&!best)best=r;
  }
  return best;
@@ -3053,10 +3125,57 @@ function drawNet(g,net){
  }
  g.stroke();
 }
+
+/* ---------- defender ---------- */
+const sm=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
+const lerp2=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+function ik(Sh,T,l1,l2){
+ let dx=T.x-Sh.x,dy=T.y-Sh.y,d=Math.hypot(dx,dy);
+ const mx=l1+l2-.5;if(d>mx){dx*=mx/d;dy*=mx/d;d=mx}
+ if(d<10)d=10;
+ const a=Math.atan2(dy,dx),c=Math.max(-1,Math.min(1,(l1*l1+d*d-l2*l2)/(2*l1*d))),A=Math.acos(c);
+ const e1={x:Sh.x+l1*Math.cos(a+A),y:Sh.y+l1*Math.sin(a+A)},e2={x:Sh.x+l1*Math.cos(a-A),y:Sh.y+l1*Math.sin(a-A)};
+ return {e:(e1.x+e1.y>e2.x+e2.y)?e1:e2,w:{x:Sh.x+dx,y:Sh.y+dy}};
+}
+function defPose(T,idle){
+ const x0=defX(),gN={x:x0-22,y:192},gF={x:x0-38,y:208},cN={x:x0-26,y:186},cF={x:x0-40,y:204};
+ if(idle){const s=Math.sin(S.idleT*2.6);return {lift:Math.max(0,2*s),hn:{x:gN.x+3*s,y:gN.y-4*s},hf:{x:gF.x-2*s,y:gF.y+3*s}}}
+ const blk=S.opts&&S.opts.blocked&&S.sim&&S.sim.blk?S.sim.blk:null;
+ const J=blk?34:18,u=Math.max(0,Math.min(1,(T-(RELT-.2))/.75)),lift=J*Math.sin(Math.PI*u);
+ let hn,hf;
+ if(blk){
+  const tb=RELT+blk.t,e=sm((T-(RELT-.12))/(tb-(RELT-.12))),B={x:blk.x,y:blk.y};
+  hn=lerp2(gN,B,e);
+  if(T>tb)hn=lerp2(B,{x:B.x+20,y:B.y-12},sm((T-tb)/.25));
+  hf=lerp2(gF,{x:hn.x+10,y:hn.y+22},e*.8);
+ }else{const e=sm((T-(RELT-.15))/.2);hn=lerp2(gN,cN,e);hf=lerp2(gF,cF,e)}
+ return {lift,hn,hf};
+}
+function drawDefender(g,dp){
+ const SK='#7a4a32',SKD='#5d3724',JER='#2f6fe0',SHO='#eef2f8',x0=defX(),ay=C.floor-7-dp.lift;
+ const ankle={x:x0,y:ay},knee={x:x0-9,y:ay-39},hip={x:x0+5,y:ay-76},ankle2={x:x0+15,y:ay},knee2={x:x0+3,y:ay-39};
+ const sh={x:hip.x-4,y:hip.y-52},head={x:sh.x-3,y:sh.y-20};
+ g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(x0+6,C.floor+5,36-dp.lift*.4,6,0,0,6.2832);g.fill();
+ const far=ik(sh,dp.hf,30,40),near=ik(sh,dp.hn,30,40);
+ limb(g,hip,knee2,12,SKD);limb(g,knee2,ankle2,9,SKD);limb(g,{x:ankle2.x+3,y:ankle2.y+4},{x:ankle2.x-12,y:ankle2.y+4},9,'#d8dde4');
+ limb(g,sh,far.e,8,SKD);limb(g,far.e,far.w,7,SKD);
+ limb(g,hip,sh,27,JER);limb(g,mid(hip,sh,.2),mid(hip,sh,.8),3,'rgba(255,255,255,.55)');
+ limb(g,hip,knee,13,SK);limb(g,knee,ankle,9.5,SK);
+ limb(g,{x:ankle.x+3,y:ankle.y+4},{x:ankle.x-14,y:ankle.y+4},10,'#f4f6fa');limb(g,{x:ankle.x+3,y:ankle.y+7.5},{x:ankle.x-14,y:ankle.y+7.5},3,'#222');
+ limb(g,hip,mid(hip,knee,.55),25,SHO);limb(g,hip,mid(hip,knee2,.45),21,'#d5dbe6');
+ limb(g,sh,head,8,SK);
+ g.fillStyle=SK;g.beginPath();g.arc(head.x,head.y,10.5,0,6.2832);g.fill();
+ g.fillStyle='#161012';g.beginPath();g.arc(head.x+1,head.y-1,11,Math.PI*1.05,Math.PI*2.05);g.closePath();g.fill();
+ g.fillStyle='#fff';g.beginPath();g.arc(head.x-5.5,head.y-1.5,2,0,6.2832);g.fill();
+ g.fillStyle='#161616';g.beginPath();g.arc(head.x-6.2,head.y-1.6,1,0,6.2832);g.fill();
+ g.fillStyle=SK;g.beginPath();g.arc(head.x-10,head.y+1.5,1.8,0,6.2832);g.fill();
+ g.fillStyle=JER;g.beginPath();g.arc(sh.x,sh.y,11.5,0,6.2832);g.fill();
+ limb(g,sh,near.e,9.5,SK);limb(g,near.e,near.w,8.5,SK);
+}
 /* ---------- engine ---------- */
-const S={dist:4.5,zoom:1,canvas:null,ctx:null,dpr:1,raf:0,last:0,mode:'idle',T:0,idleT:0,sim:null,pt:0,ev:0,slow:1,cb:null,opts:null,
+const S={def:false,host:null,shake:0,dist:4.5,zoom:1,canvas:null,ctx:null,dpr:1,raf:0,last:0,mode:'idle',T:0,idleT:0,sim:null,pt:0,ev:0,slow:1,cb:null,opts:null,
  trail:[],net:null,rimAmp:0,rimPh:0,bAmp:0,bPh:0,glow:0,bp:null,endT:0,fin:false,callSet:false};
-function setCall(text,cls){const el=document.getElementById('ftCall');if(el){el.textContent=text;el.className='ftCall '+(cls||'')}}
+function setCall(text,cls){const el=S.host&&S.host.querySelector('.ftCall');if(el){el.textContent=text;el.className='ftCall '+(cls||'')}}
 function snd(type,s){
  if(typeof tone!=='function')return;
  try{
@@ -3075,26 +3194,31 @@ function onEvent(e){
   S.callSet=true;
   setCall(S.sim.rim?'BUCKET!':((S.opts&&S.opts.streak>=3)?'ON FIRE! 🔥':'SWISH!'),'ftHit');
  }
+ else if(e.type==='block'){
+  S.shake=.25;S.callSet=true;setCall('BLOCKED! 🛡️','ftMissed');
+  if(typeof tone==='function'){try{tone(140,0,.16,'square',.08,70)}catch(_){}}
+ }
  else if(e.type==='floor')snd('floor',e.s);
 }
 function finish(){
  if(S.fin)return;S.fin=true;S.mode='post';
  if(!S.callSet)setCall(S.sim.rim||S.sim.board?'RIM OUT!':'AIRBALL!','ftMissed');
  const cb=S.cb;S.cb=null;
- setTimeout(()=>{if(cb)cb({hit:S.sim.made,rim:S.sim.rim})},420);
+ setTimeout(()=>{if(cb)cb({hit:S.sim.made,rim:S.sim.rim,blocked:!!S.sim.blk})},Math.round(420/(S.speed||1)));
 }
 function update(dt){
  S.idleT+=dt;
- if(S.mode==='shot'||S.mode==='post')S.T+=dt;
+ if(S.mode==='shot'||S.mode==='post')S.T+=dt*(S.speed||1);
  S.bp=null;
  if(S.mode==='shot'&&S.T>=RELT){
   const sim=S.sim,n=sim.frames.length/3;
   const i=Math.min(n-1,Math.floor(S.pt/sim.dt));
   const bx=sim.frames[3*i],by=sim.frames[3*i+1];
   const d=Math.hypot(bx-C.rimCx,by-C.rimY);
-  const want=(d<80&&bx>C.rimNear-60&&S.pt<S.endT-.15)?.42:1;
+  let want=(d<80&&bx>C.rimNear-60&&S.pt<S.endT-.15)?.42:1;
+  if(sim.blk&&S.pt<.35)want=.4;
   S.slow+=(want-S.slow)*Math.min(1,dt*10);
-  S.pt+=dt*S.slow;
+  S.pt+=dt*S.slow*(S.speed||1);
   while(S.ev<sim.ev.length&&sim.ev[S.ev].t<=S.pt){onEvent(sim.ev[S.ev]);S.ev++}
   if(S.pt>=S.endT)finish();
  }else S.slow+=(1-S.slow)*Math.min(1,dt*10);
@@ -3106,7 +3230,7 @@ function update(dt){
  const sdt=dt*S.slow;
  S.rimPh+=sdt*55;S.rimAmp*=Math.exp(-6*sdt);
  S.bPh+=sdt*60;S.bAmp*=Math.exp(-7*sdt);
- S.glow=Math.max(0,S.glow-dt*1.6);
+ S.glow=Math.max(0,S.glow-dt*1.6);S.shake=Math.max(0,S.shake-dt*.9);
  const dip=S.rimAmp*Math.sin(S.rimPh);
  for(let k=0;k<2;k++)netStep(S.net,sdt/2,S.bp,dip);
 }
@@ -3115,7 +3239,9 @@ function draw(){
  g.setTransform(S.dpr,0,0,S.dpr,0,0);g.clearRect(0,0,W,H);
  g.drawImage(BG,0,0,W,H);
  const z=S.zoom;
- g.save();g.translate(W,H);g.scale(z,z);g.translate(-W,-H);
+ g.save();
+ if(S.shake>0)g.translate((Math.random()-.5)*7*S.shake/.25,(Math.random()-.5)*5*S.shake/.25);
+ g.translate(W,H);g.scale(z,z);g.translate(-W,-H);
  drawSet(g);
  const idle=S.mode==='idle';
  const p=poseAt(idle?0:S.T);
@@ -3126,6 +3252,7 @@ function draw(){
  drawRim(g,dip,false);
  const held=idle||S.T<RELT;
  drawPlayer(g,p,j,held);
+ if(S.def)drawDefender(g,defPose(idle?0:S.T,idle));
  if(!held&&S.bp){
   S.trail.forEach((t,i)=>{g.fillStyle='rgba(255,170,90,'+(i/S.trail.length*.16)+')';g.beginPath();g.arc(t.x,t.y,C.r*.75,0,6.2832);g.fill()});
   const sh=Math.max(.15,1-(C.floor-S.bp.y)/360);
@@ -3156,6 +3283,7 @@ function frame(ts){
 const API={
  mount(host,o){
   API.destroy();
+  S.host=host;S.def=!!(o&&o.defender);S.opts=null;
   setDist((o&&o.dist)||4.5);
   if(!BG)BG=buildBg();
   const cv=document.createElement('canvas');
@@ -3171,13 +3299,15 @@ const API={
   if(!S.canvas||S.mode==='shot'){if(cb)cb({});return}
   const pr=poseAt(RELT),jt=joints(pr);
   const x0=jt.wrist.x+pr.bx,y0=jt.wrist.y+pr.by;
-  const sim=plan(!!o.hit,o.err||0,x0,y0);
+  S.opts=o;
+  const sim=plan(!!o.hit,o.err||0,x0,y0,!!o.blocked);
   if(!sim){if(cb)cb({});return}
   let tf=-1;for(const e of sim.ev)if(e.type==='floor'){tf=e.t;break}
   S.sim=sim;S.opts=o;S.cb=cb;S.mode='shot';S.T=0;S.pt=0;S.ev=0;S.slow=1;S.trail=[];S.fin=false;S.callSet=false;
   S.endT=tf>0?Math.min(sim.tEnd,tf+.3):sim.tEnd;
  },
  setSpot(d){setDist(d||4.5)},
+ setSpeed(v){S.speed=Math.max(1,Math.min(2.5,Number(v)||1));},
  destroy(){
   if(S.raf)cancelAnimationFrame(S.raf);
   S.raf=0;S.canvas=null;S.ctx=null;S.mode='idle';S.cb=null;
@@ -3187,4 +3317,123 @@ window.FTAnim=API;
 })();
 
 </script>
+
+<script>
+/* Basketball Universe · 3PT Solo Contest v1
+   5 racks × 5 balls, 60-second clock, player-based timing window, FTAnim presentation. */
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const spots=[
+  {name:'LEFT CORNER',dist:6.70},
+  {name:'LEFT WING',dist:7.05},
+  {name:'TOP OF THE KEY',dist:7.24},
+  {name:'RIGHT WING',dist:7.05},
+  {name:'RIGHT CORNER',dist:6.70}
+ ];
+ let game=null,timer=null,raf=null,completeCallback=null,pickCallback=null;
+ function targetFor(p){
+  // Approx. 12% for an average 3PT shooter; stronger shooters get a wider window.
+  const pct=Number(p&&p.pct)||36;
+  return Math.max(0.07,Math.min(0.18,0.12+(pct-36)*0.008));
+ }
+ function start(onPick){
+  pickCallback=typeof onPick==='function'?onPick:null;
+  const pool=(typeof players!=='undefined'?[...players]:[]);
+  if(typeof jokePlayer!=='undefined')pool.push(jokePlayer);
+  if(!pool.length){alert('Player list is not available.');return}
+  const choices=[];
+  while(choices.length<3&&choices.length<pool.length){const p=pool[Math.floor(Math.random()*pool.length)];if(!choices.some(x=>x.name===p.name))choices.push(p)}
+  const old=$('bu3ptContestPick');if(old)old.remove();
+  const el=document.createElement('div');el.id='bu3ptContestPick';el.className='overlay';el.style.zIndex='150';
+  el.innerHTML='<div class="modal" style="width:min(560px,96vw);max-height:90vh;overflow:auto"><div class="eyebrow">BASKETBALL UNIVERSE · 3PT SOLO CONTEST</div><h2>CHOOSE YOUR SHOOTER</h2><p>Izberi igralca. Njegova sposobnost meta določa velikost ciljnega območja.</p><div id="bu3ptContestChoices" class="candidategrid"></div><button class="secondary" id="bu3ptContestCancel" style="width:100%;margin-top:12px">BACK</button></div>';
+  document.body.append(el);const host=$('bu3ptContestChoices');
+  choices.forEach(p=>{const b=document.createElement('button');b.className='candidate';b.innerHTML='<strong>'+p.name+'</strong><span>'+p.team+' · '+p.pos+'</span><em>'+Number(p.pct).toFixed(1)+'% 3PT</em><span>Target zone: '+Math.round(targetFor(p)*100)+'%</span>';b.onclick=()=>{el.remove();if(pickCallback){const cb=pickCallback;pickCallback=null;cb(p)}else begin(p)};host.append(b)});
+  $('bu3ptContestCancel').onclick=()=>el.remove();
+ }
+ function begin(player,onComplete){
+  cleanup();completeCallback=typeof onComplete==='function'?onComplete:null;game={player,station:0,shot:0,made:0,score:0,results:[],marker:0,dir:1,target:targetFor(player),busy:false,remaining:60,ended:false};
+  const old=$('bu3ptContest');if(old)old.remove();
+  const el=document.createElement('div');el.id='bu3ptContest';el.className='overlay';el.style.zIndex='151';
+  el.innerHTML=`<div class="modal" style="width:min(720px,97vw);max-height:94vh;overflow:auto;text-align:center">
+   <div class="eyebrow">BASKETBALL UNIVERSE · THREE-POINT CONTEST</div><h2 style="margin:5px 0 10px">🏀 3PT SOLO CONTEST</h2>
+   <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;background:#0c1929;border:1px solid #ffffff20;border-radius:12px;padding:10px;margin-bottom:10px"><div style="text-align:left;min-width:0"><b id="bu3ptPlayer"></b><div class="muted" id="bu3ptRating"></div></div><div style="text-align:right"><small style="display:block;color:#a8b6c8;letter-spacing:1px">TIME LEFT</small><b id="bu3ptClock" style="font-size:30px;color:#ffd166;font-variant-numeric:tabular-nums">60</b></div></div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px"><div class="stat"><small>SCORE</small><b id="bu3ptScore">0</b></div><div class="stat"><small>MADE</small><b id="bu3ptMade">0/25</b></div><div class="stat"><small>STATION</small><b id="bu3ptStation">1/5</b></div></div>
+   <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 2px"><b id="bu3ptSpotName" style="color:#ffd166">LEFT CORNER</b><span id="bu3ptRackCount" class="muted">BALL 1 / 5</span></div>
+   <div id="bu3ptCourt" class="ftStage"></div>
+   <div style="display:flex;justify-content:space-between;color:#a8b6c8;font-size:10px;margin:8px 2px 5px"><span>EARLY</span><b id="bu3ptTargetLabel" style="color:#ffd166">TARGET 12%</b><span>LATE</span></div>
+   <div class="ftMeter" style="height:30px"><div id="bu3ptTarget" class="ftTarget"></div><div id="bu3ptMarker" class="ftMarker"></div></div>
+   <div id="bu3ptCall" class="feedback" style="min-height:42px">GET READY</div>
+   <button class="primary" id="bu3ptShoot" style="width:100%;font-size:17px;margin-top:7px">STOP & SHOOT</button>
+   <div id="bu3ptRackDots" style="display:flex;justify-content:center;gap:8px;margin:12px 0"></div>
+   <button class="secondary" id="bu3ptExit" style="width:100%;margin-top:6px">QUIT CONTEST</button>
+  </div>`;
+  document.body.append(el);
+  $('bu3ptPlayer').textContent=player.name;$('bu3ptRating').textContent=player.team+' · '+player.pct+'% career 3PT';
+  $('bu3ptTargetLabel').textContent='TARGET '+Math.round(game.target*100)+'%';
+  const width=game.target*100;$('bu3ptTarget').style.width=width+'%';$('bu3ptTarget').style.left=((100-width)/2)+'%';
+  if(window.FTAnim){FTAnim.setSpeed(1.8);FTAnim.mount($('bu3ptCourt'),{dist:spots[0].dist})}
+  $('bu3ptShoot').onclick=shoot;$('bu3ptExit').onclick=()=>finish(true);
+  render();startMeter();
+  timer=setInterval(()=>{if(!game||game.ended)return;game.remaining=Math.max(0,game.remaining-.1);$('bu3ptClock').textContent=Math.ceil(game.remaining);if(game.remaining<=0&&!game.busy)finish(false);},100);
+ }
+ function startMeter(){clearInterval(raf);if(!game||game.ended)return;game.marker=0;game.dir=1;game.busy=false;$('bu3ptShoot').disabled=false;$('bu3ptShoot').textContent='STOP & SHOOT';raf=setInterval(()=>{if(!game||game.ended||game.busy)return;game.marker+=game.dir*1.48;if(game.marker>=100){game.marker=100;game.dir=-1}if(game.marker<=0){game.marker=0;game.dir=1}$('bu3ptMarker').style.left=game.marker+'%';},16)}
+ function render(){if(!game)return;$('bu3ptScore').textContent=game.score;$('bu3ptMade').textContent=game.made+'/25';$('bu3ptStation').textContent=(game.station+1)+'/5';$('bu3ptSpotName').textContent=spots[game.station].name;$('bu3ptRackCount').textContent='BALL '+(game.shot+1)+' / 5';$('bu3ptRackDots').innerHTML=Array.from({length:5},(_,i)=>'<span style="width:16px;height:16px;border-radius:50%;display:inline-block;background:'+(game.results[game.station*5+i]===true?'#42e695':game.results[game.station*5+i]===false?'#687487':i===4?'#e7b83e':'#e77d32')+';border:1px solid #ffffff55"></span>').join('')}
+ function shoot(){if(!game||game.ended||game.busy||game.remaining<=0)return;game.busy=true;clearInterval(raf);$('bu3ptShoot').disabled=true;
+  const left=(100-game.target*100)/2,right=left+game.target*100,hit=game.marker>=left&&game.marker<=right,err=(game.marker-50)/Math.max(1,game.target*50),money=game.shot===4;
+  game.results.push(hit);if(hit){game.made++;game.score+=money?2:1}
+  const shotNo=game.shot+1,station=game.station;
+  $('bu3ptCall').className='feedback '+(hit?'good':'bad');$('bu3ptCall').textContent=hit?(money?'MONEYBALL! +2':'BUCKET! +1'):'NO GOOD';
+  render();
+  const next=()=>{
+   if(!game||game.ended)return;
+   game.shot++;
+   if(game.shot>=5){game.shot=0;game.station++;if(game.station>=5){finish(false);return}if(window.FTAnim){FTAnim.setSpot(spots[game.station].dist);FTAnim.reset()}$('bu3ptCall').textContent='NEXT STATION · '+spots[game.station].name;}
+   else if(window.FTAnim)FTAnim.reset();
+   if(game.remaining<=0){finish(false);return}render();startMeter();
+  };
+  if(window.FTAnim)FTAnim.shoot({hit,err,streak:game.made},next);else setTimeout(next,650);
+ }
+ function finish(quit){if(!game||game.ended)return;game.ended=true;clearInterval(timer);clearInterval(raf);if(window.FTAnim){FTAnim.destroy();FTAnim.setSpeed(1)}
+  const g=game;if(completeCallback){const cb=completeCallback;completeCallback=null;const result={player:g.player.name,score:g.score,made:g.made,remaining:Math.ceil(g.remaining),results:g.results.slice(),stations:spots.map((sp,i)=>g.results.slice(i*5,i*5+5).filter(Boolean).length)};game=null;{const ov=$('bu3ptContest');if(ov)ov.remove()}cb(result);return}const old=$('bu3ptContest');if(old)old.remove();const el=document.createElement('div');el.id='bu3ptContestResult';el.className='overlay';el.style.zIndex='152';
+  const rows=spots.map((s,i)=>{const a=g.results.slice(i*5,i*5+5),m=a.filter(Boolean).length;return '<div style="display:flex;justify-content:space-between;padding:9px 12px;border-radius:9px;background:#ffffff0b;margin:5px 0"><span>'+s.name+'</span><b>'+m+'/5</b></div>'}).join('');
+  el.innerHTML='<div class="modal" style="width:min(520px,96vw);max-height:90vh;overflow:auto;text-align:center"><div class="eyebrow">'+(quit?'CONTEST ENDED':'FINAL SCORE')+'</div><h2>🏀 '+g.score+' POINTS</h2><div style="font-size:42px;color:#ffd166;font-weight:1000">'+g.made+'/25</div><p>'+g.player.name+' · '+Math.round(g.target*100)+'% target · '+Math.ceil(g.remaining)+' sec left</p><h3 style="text-align:left">STATION RESULTS</h3>'+rows+'<button class="primary" id="bu3ptAgain" style="width:100%;margin-top:12px">PLAY AGAIN</button><button class="secondary" id="bu3ptResultBack" style="width:100%;margin-top:8px">BACK TO 3PT MENU</button></div>';
+  document.body.append(el);$('bu3ptAgain').onclick=()=>{el.remove();start()};$('bu3ptResultBack').onclick=()=>{el.remove();$('threePtMenu').classList.remove('hidden')};game=null;
+ }
+ function cleanup(){clearInterval(timer);clearInterval(raf);if(window.FTAnim){FTAnim.destroy();FTAnim.setSpeed(1)}game=null;const a=$('bu3ptContest'),b=$('bu3ptContestResult'),c=$('bu3ptContestPick');[a,b,c].forEach(x=>x&&x.remove())}
+ window.BU3PTContest={start,begin,cleanup};
+ document.addEventListener('DOMContentLoaded',()=>{const btn=$('threePtContestBtn');if(btn)btn.addEventListener('click',()=>{$('threePtMenu').classList.add('hidden');start()})});
+})();
+</script>
+
+
+<script>
+/* Basketball Universe · 3PT Contest Multiplayer: sequential individual 60-second runs */
+(function(){
+ const $=id=>document.getElementById(id);let room=null,slot=null,channel=null,queueId=null,active=false,lastState=null;
+ const botNames=['ClutchKing14','SplashMode','Hammer23','IceInMyVeins','Buckets99','DowntownAce','RimReaper7'];
+ function nick(){return ($('nick1')?.value||'').trim().slice(0,16)||'PLAYER'}
+ function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+ function cleanupChannel(){if(channel&&typeof sb!=='undefined'&&sb){try{sb.removeChannel(channel)}catch(_){}}channel=null}
+ async function ensureAuth(){if(typeof sb==='undefined'||!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error}}
+ function modal(){let old=$('bu3ptMpLobby');if(old)old.remove();let e=document.createElement('div');e.id='bu3ptMpLobby';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(520px,96vw)"><div class="eyebrow">BASKETBALL UNIVERSE · ONLINE</div><h2>🏆 3PT MULTIPLAYER</h2><p>Vsak igralec odigra svojih 25 metov v 60 sekundah. Najprej igra prvi igralec, nato drugi.</p><label class="field">TVOJ NICKNAME</label><input id="bu3ptMpNick" maxlength="16" value="'+nick().replace(/"/g,'&quot;')+'" placeholder="Your nickname"><button class="primary" id="bu3ptMpCreate" style="width:100%;margin-top:10px">CREATE ROOM</button><button class="primary" id="bu3ptMpQuick" style="width:100%;margin-top:8px">⚡ QUICK MATCH</button><div style="height:1px;background:#ffffff22;margin:16px 0"></div><label class="field">ROOM CODE</label><input id="bu3ptMpCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="bu3ptMpJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="bu3ptMpMsg" style="min-height:20px;margin-bottom:0"></p><button class="secondary" id="bu3ptMpBack" style="width:100%;margin-top:8px">BACK</button></div>';document.body.append(e);
+ $('bu3ptMpBack').onclick=()=>e.remove();$('bu3ptMpCreate').onclick=createRoom;$('bu3ptMpJoin').onclick=joinRoom;$('bu3ptMpQuick').onclick=quickMatch;
+ }
+ function msg(t){if($('bu3ptMpMsg'))$('bu3ptMpMsg').textContent=t}
+ async function createRoom(){try{await ensureAuth();msg('Creating room…');room=code();slot=0;const st={mode:'3ptcontest',phase:'waiting',names:[$('bu3ptMpNick').value.trim()||nick(),'WAITING…'],results:[null,null],turn:0};const {error}=await sb.from('basket_matches').insert({room_code:room,player1_name:st.names[0],player2_name:null,status:'waiting',game_state:st});if(error)throw error;showWaiting(st)}catch(e){msg('Napaka: '+e.message)}}
+ async function joinRoom(){try{await ensureAuth();const c=$('bu3ptMpCode').value.trim().toUpperCase();if(c.length!==6)throw Error('Vnesi 6-mestno kodo.');msg('Joining room…');const {data,error}=await sb.from('basket_matches').select('*').eq('room_code',c).maybeSingle();if(error)throw error;if(!data)throw Error('Soba ne obstaja.');if(data.player2_name)throw Error('Soba je že zasedena.');room=c;slot=1;const st=data.game_state||{};if(st.mode!=='3ptcontest')throw Error('Ta koda ni za 3PT Contest.');st.names=[data.player1_name||st.names?.[0]||'PLAYER 1',$('bu3ptMpNick').value.trim()||nick()];st.phase='playing';st.turn=0;const {error:up}=await sb.from('basket_matches').update({player2_name:st.names[1],status:'playing',game_state:st}).eq('room_code',c);if(up)throw up;showWaiting(st)}catch(e){msg('Napaka: '+e.message)}}
+ async function quickMatch(){try{await ensureAuth();msg('🔎 Iščem nasprotnika · največ 10 sekund…');const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'threeptcontest',p_nickname:$('bu3ptMpNick').value.trim()||nick()});if(error)throw error;queueId=data.queue_id;if(data.status==='matched'){room=data.room_code;slot=data.slot;await attachRoom();return}const start=Date.now();while(Date.now()-start<10000){await new Promise(r=>setTimeout(r,500));const {data:s,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:queueId});if(se)throw se;if(s.status==='matched'){room=s.room_code;slot=s.slot;await attachRoom();return}}
+ try{await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;msg('Ni bilo igralca. Začenjam proti računalniku…');room=null;slot=0;startBot();
+ }catch(e){console.warn('3PT Quick Match -> bot:',e.message);try{if(queueId)await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;msg('Iščem nasprotnika…');await new Promise(r=>setTimeout(r,1800+Math.random()*2800));msg('Nasprotnik najden! Začenjam…');room=null;slot=0;startBot()}}
+ async function attachRoom(){const {data,error}=await sb.from('basket_matches').select('*').eq('room_code',room).maybeSingle();if(error)throw error;if(!data)throw Error('Soba ni več na voljo.');let st=data.game_state||{};if(slot===0&&!st.names?.[1])st.names[1]=data.player2_name||'PLAYER 2';showWaiting(st)}
+ function showWaiting(st){lastState=st;$('bu3ptMpLobby')?.remove();const old=$('bu3ptMpWait');if(old)old.remove();const e=document.createElement('div');e.id='bu3ptMpWait';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(500px,96vw);text-align:center"><div class="eyebrow">3PT MULTIPLAYER</div><h2>ROOM '+(room||'BOT')+'</h2><p id="bu3ptMpWaitText">'+(st.phase==='waiting'?'Čakam na drugega igralca…':'Povezano! Pripravljam tekmo…')+'</p><div style="font-size:22px;font-weight:900;margin:14px">'+(st.names||[]).join('  VS  ')+'</div><p>Vsak igralec ima 60 sekund in 25 metov. Igrata eden za drugim.</p><button class="secondary" id="bu3ptMpCancel">CANCEL</button></div>';document.body.append(e);$('bu3ptMpCancel').onclick=()=>{cleanupChannel();e.remove();active=false};if(room){cleanupChannel();channel=sb.channel('bu3pt-contest-'+room).on('postgres_changes',{event:'UPDATE',schema:'public',table:'basket_matches',filter:'room_code=eq.'+room},p=>onUpdate(p.new?.game_state)).subscribe();if(st.phase==='playing'&&st.names?.[1])onUpdate(st)} }
+ function onUpdate(st){if(!st||st.mode!=='3ptcontest')return;lastState=st;const wait=$('bu3ptMpWait');if(st.phase==='waiting')return;if(st.phase==='playing'){if(wait)$('bu3ptMpWaitText').textContent=st.turn===slot?'Na vrsti si! Izberi igralca.':'Nasprotnik igra svoj nastop…';if(st.turn===slot&&!active&&!st.results[slot])startOwnRun();return}if(st.phase==='complete')showFinal(st)}
+ function startOwnRun(){if(active||!window.BU3PTContest)return;active=true;$('bu3ptMpWait')?.remove();window.BU3PTContest.start(p=>window.BU3PTContest.begin(p,r=>submitResult(r)));}
+ async function submitResult(r){const {data,error}=await sb.from('basket_matches').select('game_state').eq('room_code',room).single();if(error){active=false;alert('Napaka pri branju rezultata: '+error.message);return}const st=data.game_state;if(st.results[slot]){active=false;return}st.results[slot]=r;if(slot===0){st.turn=1;st.phase='playing'}else{st.phase='complete'}const {error:up}=await sb.from('basket_matches').update({game_state:st,status:st.phase==='complete'?'finished':'playing',player1_score:st.results[0]?.score||0,player2_score:st.results[1]?.score||0}).eq('room_code',room);active=false;if(up){alert('Rezultata ni bilo mogoče shraniti: '+up.message);return}if(st.phase==='complete')showFinal(st);else showWaiting(st)}
+ function showFinal(st){cleanupChannel();$('bu3ptMpWait')?.remove();const a=st.results[0],b=st.results[1];if(!a||!b)return;const win=a.score===b.score?'TIE GAME':a.score>b.score?st.names[0]+' WINS!':st.names[1]+' WINS!';const old=$('bu3ptMpFinal');if(old)old.remove();const e=document.createElement('div');e.id='bu3ptMpFinal';e.className='overlay';e.style.zIndex='153';e.innerHTML='<div class="modal" style="width:min(540px,96vw);text-align:center"><div class="eyebrow">FINAL RESULTS</div><h2>🏆 '+win+'</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0"><div class="stat"><small>'+st.names[0]+'</small><b style="font-size:32px">'+a.score+'</b><span>'+a.made+'/25</span></div><div class="stat"><small>'+st.names[1]+'</small><b style="font-size:32px">'+b.score+'</b><span>'+b.made+'/25</span></div></div><p>'+a.player+' vs '+b.player+'</p><button class="primary" id="bu3ptMpAgain" style="width:100%">PLAY AGAIN</button><button class="secondary" id="bu3ptMpDone" style="width:100%;margin-top:8px">BACK TO 3PT MENU</button></div>';document.body.append(e);$('bu3ptMpDone').onclick=()=>{e.remove();$('threePtMenu').classList.remove('hidden')};$('bu3ptMpAgain').onclick=()=>{e.remove();room=null;slot=null;modal()}}
+ function startBot(){const st={mode:'3ptcontest',phase:'playing',names:[nick(),botNames[Math.floor(Math.random()*botNames.length)]],results:[null,null],turn:0};showWaiting(st);setTimeout(()=>{if(!active){active=true;window.BU3PTContest.start(p=>window.BU3PTContest.begin(p,r=>{const bm=Math.floor(11+Math.random()*10),bot={player:st.names[1],score:bm+Math.floor(Math.random()*4),made:bm,remaining:0,results:[],stations:[]};st.results[0]=r;st.results[1]=bot;st.phase='complete';active=false;showFinal(st)}))}},500)}
+ document.addEventListener('DOMContentLoaded',()=>{const b=$('threePtContestMpBtn');if(b)b.onclick=()=>{$('threePtMenu').classList.add('hidden');modal()}});
+})();
+</script>
+
 </body></html>
