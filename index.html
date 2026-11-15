@@ -3898,14 +3898,14 @@ window.FTAnim=API;
  const myCode=()=>String(uid).replace(/[^a-z0-9]/gi,'').slice(0,6).toUpperCase()||'GUEST';
  async function loadFriends(){friends=[];if(!server){render();return}
   try{const r=await sb.rpc('bu_friends_list');friends=r.error?[]:(r.data||[]);if(r.error)msgTxt='Friends need the latest Supabase SQL.'}catch(_){friends=[]}render()}
- async function addFriend(){const v=($('lkCode').value||'').trim().toUpperCase();if(!v)return;
+ async function addFriend(){const v=($('lkCode').value||'').trim().slice(0,24);if(!v)return;
   if(!server){msgTxt='Sign in and run the SQL to add friends.';render();return}
   try{const r=await sb.rpc('bu_add_friend',{p_code:v});msgTxt=r.error?'Could not add friend.':(r.data&&r.data.ok?'Friend added: '+r.data.nickname:(r.data&&r.data.reason)||'Code not found.')}catch(_){msgTxt='Could not add friend.'}
   friends=null;render()}
  function friendsHtml(){
   const rows=(friends||[]).map(f=>`<div class="lkFriend"><div class="lkFAv">${buStickman(f.outfit&&Object.keys(f.outfit).length?{...DEF,...f.outfit}:DEF,{size:34})}</div><div><b>${String(f.nickname||'PLAYER').replace(/[<>&]/g,'')}</b><small>${Number(f.wins)||0} wins · ${Number(f.played)||0} games · ${Number(f.xp)||0} XP</small></div></div>`).join('');
   return `<div class="lkRow"><label>YOUR FRIEND CODE</label><div class="lkCode"><b>${W.code||myCode()}</b><button class="lkBtn" id="lkCopy" style="width:auto">COPY INVITE</button></div></div>
-  <div class="lkRow"><label>ADD A FRIEND</label><div class="lkCode"><input id="lkCode" maxlength="8" placeholder="CODE" style="text-transform:uppercase;width:120px"><button class="lkBtn buy" id="lkAddBtn" style="width:auto">ADD</button></div></div>
+  <div class="lkRow"><label>ADD A FRIEND · CODE OR NICKNAME</label><div class="lkCode"><input id="lkCode" maxlength="24" placeholder="Code or nickname" style="width:170px"><button class="lkBtn buy" id="lkAddBtn" style="width:auto">ADD</button></div></div>
   ${msgTxt?`<p class="lkHint" style="color:#ffd16d">${msgTxt}</p>`:''}
   <div class="lkRow"><label>FRIENDS${friends===null?' · LOADING…':''}</label>${rows||'<p class="lkHint">No friends yet. Share your code, then challenge them to a room in any mode.</p>'}</div>`}
  window.buMyLook=()=>({...W.outfit});
