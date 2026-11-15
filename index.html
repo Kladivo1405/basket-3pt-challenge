@@ -1130,9 +1130,9 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    <button class="primary" id="ftReplay" style="width:100%;margin-top:12px;display:none">PLAY AGAIN</button><button class="secondary" id="ftExit" style="width:100%;margin-top:10px">BACK TO MENU</button></div>`;
   document.body.append(el);
   $('freeThrowGame').classList.remove('hidden');
-  if(window.FTAnim){FTAnim.setLook((window.buCurrentLook?buCurrentLook():null));FTAnim.mount($('ftCourt'))}
+  if(window.FTAnim){FTAnim.setLook((window.buCurrentLook?buCurrentLook():null));FTAnim.setSpeed(1.7);FTAnim.mount($('ftCourt'))}
   $('ftShoot').onclick=ftShoot;
-  $('ftExit').onclick=()=>{clearInterval(ftTimer);if(window.FTAnim)FTAnim.destroy();$('freeThrowGame').remove();$('freeThrowMenu').classList.remove('hidden')};
+  $('ftExit').onclick=()=>{clearInterval(ftTimer);if(window.FTAnim){FTAnim.destroy();FTAnim.setSpeed(1)}$('freeThrowGame').remove();$('freeThrowMenu').classList.remove('hidden')};
   $('ftReplay').onclick=()=>startFreeThrow();
   ftStartMeter();
  }
@@ -1191,10 +1191,10 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
     $('ftCall').textContent=g.made>=10?'INCREDIBLE STREAK!':g.made>=5?'GREAT RUN!':'GOOD TRY!';
     $('ftCall').className='ftCall ftMissCall';$('ftCourt').classList.add('ftMissScene');
    }else{
-    $('ftShoot').disabled=false;
-    $('ftShoot').textContent='NEXT SHOT';
-    $('ftShoot').onclick=ftPrepareNextShot;
+    $('ftShoot').disabled=true;
+    $('ftShoot').textContent='GET READY…';
     $('ftDifficulty').textContent='NEXT TARGET ZONE: '+Math.max(1,Math.round(g.target*100))+'%';
+    setTimeout(()=>{if(ftGame===g&&$('ftShoot')&&!g.over)ftPrepareNextShot()},650);
    }
   };
   if(window.FTAnim)FTAnim.shoot({hit,err,streak:g.made},done);else done();
@@ -2553,7 +2553,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!submenu) return;
   submenu.addEventListener('click', function (event) {
     const button = event.target.closest('button');
-    if (!button || button.id === 'threePtBackMenu' || button.disabled) return;
+    if (!button || button.id === 'threePtBackMenu' || button.id === 'leaderboardOpen' || button.id === 'badgeCollectionOpen' || button.disabled) return;
     submenu.classList.add('hidden');
   }, true);
 });
@@ -3089,6 +3089,7 @@ window.buShowMatchIntro=function(me,opponent){
 @media(max-width:520px){.dHeroMain h3{font-size:18px}.dGrid{grid-template-columns:1fr}.dSlots{grid-template-columns:repeat(5,minmax(0,1fr))}}
 .buIntroSticks{display:flex;justify-content:center;align-items:flex-end;gap:18px;margin:10px 0 0}.buIntroSticks b{color:#ffb347;font-size:20px;padding-bottom:50px}.buIntroSticks svg{filter:drop-shadow(0 6px 8px #0008)}
 .styleRow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.styleChip{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px;border-radius:14px;background:#0f1f33;border:1px solid #ffffff22;color:#fff;cursor:pointer}.styleChip span{font-size:20px}.styleChip b{font-size:12px}.styleChip small{font-size:9px;color:#9fb2c8}.styleChip.on{border-color:#ffb347;background:linear-gradient(145deg,#3a2a12,#0f1f33);box-shadow:0 0 0 1px #ffb34780}
+#leaderboardModal,#badgeCollectionModal{z-index:90!important}
 </style>
 <script>
 /* FTAnim v1 - realistic free throw animation (canvas, side view, simulated ball physics) */
