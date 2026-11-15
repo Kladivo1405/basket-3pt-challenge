@@ -2957,12 +2957,12 @@ window.buShowMatchIntro=function(me,opponent){
    const now=Date.now();
    if(uniq){if(_seen.has(uniq))return;_seen.add(uniq)}
    else if(_last[mode]&&now-_last[mode]<15000)return;
-   _last[mode]=now;try{window.BU_award&&BU_award(won?25:8,mode)}catch(_){}
+   _last[mode]=now;try{window.buLog&&buLog('match',mode,{won:!!won})}catch(_){}try{window.BU_award&&BU_award(won?25:8,mode)}catch(_){}
    return BU.recordResult(mode,!!won);
   };
   BU.solo=async function(xp,uniq){
    if(uniq){if(_seen.has(uniq))return;_seen.add(uniq)}
-   try{await loadProfile();profile.xp=(Number(profile.xp)||0)+Math.max(0,Math.round(xp));try{window.BU_award&&BU_award(xp/4,'solo')}catch(_){}await saveProfile();updateMenu()}
+   try{await loadProfile();profile.xp=(Number(profile.xp)||0)+Math.max(0,Math.round(xp));try{window.buLog&&buLog('solo_run','solo')}catch(_){}try{window.BU_award&&BU_award(xp/4,'solo')}catch(_){}await saveProfile();updateMenu()}
    catch(e){console.warn('Solo XP failed:',e.message)}
   };
  }
@@ -3975,6 +3975,33 @@ window.FTAnim=API;
   document.body.append(b);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',btn);else btn();
+})();
+</script>
+<script>
+/* Basketball Universe · activity log (anonymous analytics: visit, guest/login/register, mode opened, matches).
+   Mark YOUR devices once by opening the game with ?owner=1 (use ?owner=0 to unmark) so your events are tagged YOU. */
+(function(){
+ try{const q=new URLSearchParams(location.search).get('owner');if(q==='1')localStorage.setItem('bu_owner','1');if(q==='0')localStorage.removeItem('bu_owner')}catch(_){}
+ const owner=()=>{try{return localStorage.getItem('bu_owner')==='1'}catch(_){return false}};
+ const sb=window.buSupabase;if(!sb)return;
+ const device=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?'mobile':'desktop';
+ let user=null;
+ const once=k=>{try{if(sessionStorage.getItem(k))return false;sessionStorage.setItem(k,'1')}catch(_){}return true};
+ window.buLog=async function(event,mode,meta){
+  try{if(!user){const {data}=await sb.auth.getSession();user=data&&data.session&&data.session.user}
+   if(!user)return;
+   const provider=user.is_anonymous?'anonymous':((user.app_metadata&&user.app_metadata.provider)||'email');
+   await sb.rpc('bu_log_event',{p_event:event,p_mode:mode||null,p_owner:owner(),p_guest:!!user.is_anonymous,p_provider:provider,p_device:device,p_referrer:(document.referrer||'').slice(0,120)||null,p_meta:meta||{}});
+  }catch(_){}
+ };
+ try{sb.auth.onAuthStateChange((ev,session)=>{
+  user=session&&session.user||null;if(!user)return;
+  const k=ev+':'+user.id+':'+(user.is_anonymous?'g':'a');
+  if(ev==='SIGNED_IN'||ev==='INITIAL_SESSION'){if(!once('l:'+k))return;buLog(user.is_anonymous?'guest_start':'login')}
+  else if(ev==='USER_UPDATED'&&!user.is_anonymous&&user.email){if(!once('r:'+k))return;buLog('register')}
+ })}catch(_){}
+ setTimeout(()=>{if(once('visit'))buLog('visit')},1500);
+ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#threePtMode,#freeThrowMainBtn,#draftModeBtn,#parketOpenBtn,#hoopDuelOpenBtn,#soloMode,#onlineMode,#threePtContestBtn,#threePtContestMpBtn,#soloDraftStart,#dailyDraftStart');if(b)buLog('open_mode',b.id)},true);
 })();
 </script>
 </body></html>
