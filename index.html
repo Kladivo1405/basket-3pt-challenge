@@ -491,6 +491,29 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 @keyframes pkHoopOnlyMiss{0%{opacity:1;left:calc(50% - 15px);bottom:48px;transform:scale(1) rotate(0)}38%{opacity:1;left:calc(50% - 15px);bottom:220px;transform:scale(.76) rotate(170deg)}58%{opacity:1;left:calc(50% + 45px);bottom:202px;transform:scale(.63) rotate(300deg)}78%{opacity:.9;left:calc(50% + 95px);bottom:160px;transform:scale(.54) rotate(430deg)}100%{opacity:0;left:calc(50% + 145px);bottom:120px;transform:scale(.43) rotate(560deg)}}
 @keyframes pkNetRipple{0%{transform:translateX(-50%) scaleX(1) skewX(0)}18%{transform:translateX(-50%) scaleX(.72) skewX(13deg)}38%{transform:translateX(-50%) scaleX(1.18) skewX(-12deg)}58%{transform:translateX(-50%) scaleX(.82) skewX(8deg)}78%{transform:translateX(-50%) scaleX(1.08) skewX(-4deg)}100%{transform:translateX(-50%) scaleX(1) skewX(0)}}
 </style>
+<style>
+/* Broadcast-style championship ceremony — no emoji fireworks or sparkles */
+.buChampionship{background:linear-gradient(180deg,#0b111e 0%,#142238 55%,#080d16 100%);border:1px solid #b9984c55;padding:36px 18px;min-height:570px;isolation:isolate}
+.buChampionship:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 55px,#ffffff04 56px 57px),radial-gradient(ellipse at 50% 2%,#d2b46d44,transparent 53%);pointer-events:none}
+.buArenaLights{position:absolute;top:0;left:10%;right:10%;height:110px;background:linear-gradient(90deg,transparent,#f7d18a24,transparent);filter:blur(16px)}
+.buChampionship .championContent{width:100%;max-width:520px}
+.buFinalsLabel{font-size:10px;letter-spacing:3px;font-weight:900;color:#d0b97d;margin-bottom:15px}
+.buChampionshipBanner{font-size:clamp(29px,7.5vw,52px);line-height:1.02;letter-spacing:1px;font-weight:1000;color:#f5f0df;text-shadow:0 4px 15px #000b}
+.buChampionshipVisual{margin:15px auto 12px;min-height:165px;display:grid;place-items:center;background:radial-gradient(ellipse at center,#d5ac5640,transparent 62%)}
+.buTrophyStage{display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 10px 18px #000b)}
+.buTrophyCup{font-size:95px;line-height:1.2;filter:saturate(.8)}
+.buTrophyBase{background:linear-gradient(90deg,#92723e,#e6c987,#92723e);color:#10151c;font-size:10px;font-weight:1000;letter-spacing:2px;padding:5px 22px;border-radius:2px}
+.buChampionshipSeason{font-size:clamp(16px,4vw,24px);font-weight:900;letter-spacing:1.5px;color:#fff;text-transform:uppercase}
+.buFinalScore{font-size:12px!important;letter-spacing:2px;color:#b9c4d1!important;margin:12px 0 23px!important}
+.buFinalScore strong{color:#f3d493;font-size:17px;margin-left:5px}
+.buFinalsMvp{display:flex;align-items:center;gap:15px;text-align:left;border:1px solid #c7a56d55;background:linear-gradient(110deg,#27364b,#111a29);padding:14px;border-radius:12px;margin:12px 0 26px}
+.buMvpPortrait{width:80px;height:88px;flex-shrink:0;display:flex;align-items:end;justify-content:center;overflow:hidden;background:#ffffff10;border-radius:8px}
+.buMvpPortrait img{max-width:100%;height:100%;object-fit:contain;object-position:bottom}
+.buFinalsMvp small{display:block;font-size:9px;letter-spacing:1.3px;color:#d3b77e;font-weight:900}
+.buFinalsMvp strong{display:block;font-size:clamp(17px,4.5vw,24px);color:#fff;margin:6px 0}
+.buFinalsMvp span{display:block;font-size:11px;color:#bfc9d6}
+.buChampionship #newDraft{width:100%;min-height:53px;background:linear-gradient(90deg,#d1a55c,#f2cd87);color:#15191d;font-weight:1000}
+</style>
 </head>
 <body><div class="wrap">
 <header class="top"><div class="brand">BASKETBALL <span>UNIVERSE</span></div><div class="topright"><span class="tag">HEAD TO HEAD · FIRST TO 5</span><button class="secondary smallbtn sound-on" id="soundBtn">🔊 SOUND ON</button><button class="secondary smallbtn" id="inviteBtn">↗ INVITE</button></div></header>
@@ -2191,6 +2214,13 @@ function renderDraft(){
   $('draftSeason').onclick=()=>seasonIntro();
  }
  let seasonRunning=false;
+ let seasonSpeed='slow';
+ let seasonPaused=false;
+ function seasonSpeedUI(){
+  ['slow','fast','instant'].forEach(k=>{const b=$(k==='instant'?'instantSeason':k+'Season');if(b){b.classList.toggle('on',seasonSpeed===k);b.style.outline=seasonSpeed===k?'2px solid #ffb347':'';b.style.outlineOffset='2px';}});
+  const pause=$('pauseSeason');if(pause){pause.hidden=!seasonRunning;pause.textContent=seasonPaused?'▶ RESUME':'⏸ PAUSE';}
+  const hint=$('seasonSpeedHint');if(hint)hint.textContent=seasonRunning?(seasonPaused?'PAUSED · choose a speed or resume':'RUNNING · switch speed at any time'):'Choose a speed to start. You can change it while the season runs.';
+ }
  function renderSeasonMatches(){
   const matchList=$('seasonMatchList');
   if(matchList)matchList.innerHTML=state.seasonGames.slice().reverse().map(g=>`<div class="seasonMatch"><span class="seasonGameNo">#${g.game}</span><span class="seasonOpponent">${g.home?'vs':'@'} ${g.opponent}</span><strong class="${g.win?'seasonWin':'seasonLoss'}">${g.own} – ${g.opp}</strong><b class="${g.win?'seasonWin':'seasonLoss'}">${g.win?'W':'L'}</b></div>`).join('');
@@ -2225,8 +2255,10 @@ function renderDraft(){
    <div class="seasonSpeedOptions">
     <button class="primary" id="slowSeason">🐢 SLOW<br><small>One game at a time</small></button>
     <button class="primary" id="fastSeason">⚡ FAST<br><small>Rapid game list</small></button>
-    <button class="secondary" id="instantSeason">⏩ FINAL SCORE<br><small>Show only final record</small></button>
+    <button class="secondary" id="instantSeason">⏩ INSTANT<br><small>Finish remaining games</small></button>
    </div>
+   <button class="secondary" id="pauseSeason" hidden style="width:100%;margin-top:10px">⏸ PAUSE</button>
+   <div class="muted" id="seasonSpeedHint" style="margin-top:9px;font-size:12px">Choose a speed to start. You can change it while the season runs.</div>
   </div>
   <div class="seasonLiveBoard" id="seasonLiveBoard">
    <div class="seasonLiveTop"><span>REGULAR SEASON</span><strong id="seasonGameCount">0 / 82 GAMES</strong></div>
@@ -2238,9 +2270,12 @@ function renderDraft(){
   $('randomFranchise').onclick=()=>{state.franchiseTeam=rand(nbaOpponentPool);seasonIntro()};
   stage.querySelectorAll('[data-style]').forEach(btn=>btn.onclick=()=>{state.style=btn.dataset.style;seasonIntro()});
   stage.querySelectorAll('[data-franchise]').forEach(btn=>btn.onclick=()=>{state.franchiseTeam=btn.dataset.franchise;seasonIntro()});
-  $('slowSeason').onclick=()=>simulateSeason('slow');
-  $('fastSeason').onclick=()=>simulateSeason('fast');
-  $('instantSeason').onclick=()=>simulateSeason('instant');
+  const chooseSpeed=k=>{seasonSpeed=k;seasonPaused=false;seasonSpeedUI();if(!seasonRunning)simulateSeason();};
+  $('slowSeason').onclick=()=>chooseSpeed('slow');
+  $('fastSeason').onclick=()=>chooseSpeed('fast');
+  $('instantSeason').onclick=()=>chooseSpeed('instant');
+  $('pauseSeason').onclick=()=>{seasonPaused=!seasonPaused;seasonSpeedUI()};
+  seasonSpeedUI();
  }
  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
  const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
@@ -2307,7 +2342,7 @@ function renderDraft(){
    <svg class="seasonSpark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Season form"><line x1="0" x2="${W}" y1="${zero}" y2="${zero}" stroke="#ffffff30" stroke-dasharray="3 4"/><path d="${line}" fill="none" stroke="#ffb347" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>
    <div class="seasonSparkCap">SEASON FORM · WINS MINUS LOSSES OVER 82 GAMES</div></div>`;
  }
- async function simulateSeason(speed){
+ async function simulateSeason(){
   if(seasonRunning||state.seasonGames.length>=82)return;
   if(!draftNickname()){
    const nick=$('draftNickname');
@@ -2315,19 +2350,20 @@ function renderDraft(){
    return;
   }
   seasonRunning=true;
-  ['slowSeason','fastSeason','instantSeason'].forEach(id=>{const b=$(id);if(b)b.disabled=true});
-  const delay=speed==='slow'?1100:speed==='fast'?160:0;
+  seasonSpeedUI();
+  // Always yield between games so speed buttons and Pause remain responsive on mobile.
   while(state.seasonGames.length<82){
+   if(seasonPaused){await new Promise(resolve=>setTimeout(resolve,100));continue;}
    createSeasonGame();
    updateSeasonStatus();
-   if(speed!=='instant')renderSeasonMatches();
-   if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+   if(seasonSpeed!=='instant'||state.seasonGames.length===82)renderSeasonMatches();
+   const delay=seasonSpeed==='slow'?1100:seasonSpeed==='fast'?160:0;
+   await new Promise(resolve=>setTimeout(resolve,delay));
   }
   seasonRunning=false;
-  if(speed==='instant'){
-   const list=$('seasonMatchList');
-   if(list)list.innerHTML=`<div class="draftScoreboard"><div class="draftScore">FINAL RECORD<b>${state.wins}–${state.losses}</b></div><div class="draftScore">WIN RATE<b>${(state.wins/82*100).toFixed(1)}%</b></div></div><p class="muted">82 games simulated. Individual match results hidden in this mode.</p>`;
-  }else renderSeasonMatches();
+  seasonPaused=false;
+  seasonSpeedUI();
+  renderSeasonMatches();
   await saveDraftSeasonScore();
   renderSeasonEnd();
  }
@@ -2473,7 +2509,7 @@ function renderDraft(){
  function renderChampion(){
   if(window.BU)BU.report('draft',true,'draft-'+state.runId+'-c');try{window.BU_badge&&BU_badge('champion')}catch(_){}
   const playoffMvp=positions.map(pos=>state.picked[pos]).filter(Boolean).sort((a,b)=>(state.playoffPlayerStats[b.name]||0)-(state.playoffPlayerStats[a.name]||0))[0];
-  stage.innerHTML=`<div class="championCelebration"><div class="fireworks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="championContent"><div class="championTrophy">🏆</div><div class="eyebrow">NBA CHAMPIONS</div><h2>YOU ARE THE CHAMPION!</h2><p>You won the Finals ${state.seriesW}–${state.seriesL} and conquered the playoffs.</p><div class="championConfetti">🎆 ✨ 🎇 ✨ 🎆</div>${playoffMvp?`<div class="championTournamentMvp">${playerPortrait(playoffMvp)}<b>PLAYOFF MVP</b><strong>${escapeDraftText(playoffMvp.name)}</strong><span>${state.playoffPlayerStats[playoffMvp.name]||0} TOTAL POINTS</span></div>`:''}<button class="primary" id="newDraft">NEW DRAFT</button></div></div>`;
+  stage.innerHTML=`<div class="championCelebration buChampionship"><div class="buArenaLights" aria-hidden="true"></div><div class="championContent"><div class="buFinalsLabel">BASKETBALL UNIVERSE · THE FINALS</div><div class="buChampionshipBanner">WORLD CHAMPIONS</div><div class="buChampionshipVisual"><div class="buTrophyStage"><div class="buTrophyCup">🏆</div><div class="buTrophyBase">CHAMPIONS</div></div></div><div class="buChampionshipSeason">${escapeDraftText(state.franchiseTeam||state.team?.team||'YOUR TEAM')}</div><p class="buFinalScore">FINALS SERIES <strong>${state.seriesW} — ${state.seriesL}</strong></p>${playoffMvp?`<div class="buFinalsMvp"><div class="buMvpPortrait">${playerPortrait(playoffMvp)}</div><div><small>FINALS · MOST VALUABLE PLAYER</small><strong>${escapeDraftText(playoffMvp.name)}</strong><span>${state.playoffPlayerStats[playoffMvp.name]||0} PLAYOFF POINTS</span></div></div>`:''}<button class="primary" id="newDraft">START NEW SEASON</button></div></div>`;
   $('newDraft').onclick=()=>{resetDraft();renderDraft()};
  }
  function renderHalftime(){
@@ -2489,13 +2525,16 @@ function renderDraft(){
   const mvpPts=mvp?(state.playoffGamePlayerPts[mvp.name]||0):0;
   const box=positions.map(pos=>state.picked[pos]).filter(Boolean).sort((a,b)=>(state.playoffGamePlayerPts[b.name]||0)-(state.playoffGamePlayerPts[a.name]||0));
   stage.innerHTML=`<div class="gameRecapHero"><div class="eyebrow">${roundNameSafe()} · GAME ${state.game} FINAL</div><div class="recapScore"><div>${teamCrest(state.franchiseTeam||state.team?.team)}<b>${state.gamePts}</b><small>${escapeDraftText(state.franchiseTeam||state.franchiseTeam||state.team?.team||'YOUR TEAM')}</small></div><span>—</span><div>${teamCrest(currentPlayoffOpponent())}<b>${state.oppPts}</b><small>${escapeDraftText(currentPlayoffOpponent())}</small></div></div><h2>${won?'BIG WIN!':'TOUGH LOSS'}</h2><p>Series now ${state.seriesW}–${state.seriesL}</p></div>
+   <button class="primary" id="continuePlayoffTop" style="width:100%;margin:12px 0 8px;min-height:54px;position:sticky;top:8px;z-index:5;box-shadow:0 8px 25px #0009">NEXT GAME →</button>
    ${playerMvpCard()}
    <div class="draftTile"><div class="eyebrow">FULL BOX SCORE</div><h3>PLAYER POINTS</h3>${box.map((p,i)=>`<div class="playoffStatRow"><span class="playoffRank">${i+1}</span><span class="playoffPlayerName"><b>${escapeDraftText(p.name)}</b><small>${p.pos}</small></span><strong>${state.playoffGamePlayerPts[p.name]||0} PTS</strong></div>`).join('')}</div>
    <button class="primary" id="continuePlayoff" style="width:100%;margin-top:12px">CONTINUE PLAYOFFS</button>`;
-  $('continuePlayoff').onclick=()=>{
+  const advancePlayoffGame=()=>{
    if(state.seriesW===4||state.seriesL===4){finishPlayoffSeries();return}
    state.game++;state.quarter=1;state.gamePts=0;state.oppPts=0;state.boost=false;state.boostSpent=false;state.halftimeUsed=false;state.halftimeBoost=0;state.playoffGamePlayerPts={};renderPlayoff();
   };
+  $('continuePlayoff').onclick=advancePlayoffGame;
+  $('continuePlayoffTop').onclick=advancePlayoffGame;
  }
  function roundNameSafe(){return playoffRounds[state.playoffRound]?.name||'PLAYOFFS'}
  function finishPlayoffSeries(){
@@ -3740,6 +3779,11 @@ window.FTAnim=API;
    window.TEAM_LOGOS={'Boston Celtics':'logos/bos.svg'} and they replace the shield everywhere. */
 (function(){
  window.TEAM_LOGOS=window.TEAM_LOGOS||{};
+ // Official NBA team marks served from the NBA's public logo CDN.
+ // Trademark rights remain with the NBA and respective teams; images require internet access.
+ const NBA_LOGO_IDS={"Atlanta Hawks":1610612737,"Boston Celtics":1610612738,"Brooklyn Nets":1610612751,"Charlotte Hornets":1610612766,"Chicago Bulls":1610612741,"Cleveland Cavaliers":1610612739,"Dallas Mavericks":1610612742,"Denver Nuggets":1610612743,"Detroit Pistons":1610612765,"Golden State Warriors":1610612744,"Houston Rockets":1610612745,"Indiana Pacers":1610612754,"LA Clippers":1610612746,"Los Angeles Lakers":1610612747,"Memphis Grizzlies":1610612763,"Miami Heat":1610612748,"Milwaukee Bucks":1610612749,"Minnesota Timberwolves":1610612750,"New Orleans Pelicans":1610612740,"New York Knicks":1610612752,"Oklahoma City Thunder":1610612760,"Orlando Magic":1610612753,"Philadelphia 76ers":1610612755,"Phoenix Suns":1610612756,"Portland Trail Blazers":1610612757,"Sacramento Kings":1610612758,"San Antonio Spurs":1610612759,"Toronto Raptors":1610612761,"Utah Jazz":1610612762,"Washington Wizards":1610612764};
+ for(const [name,id] of Object.entries(NBA_LOGO_IDS)){if(!window.TEAM_LOGOS[name])window.TEAM_LOGOS[name]=`https://cdn.nba.com/logos/nba/${id}/primary/L/logo.svg`;}
+
  const T={
   'Atlanta Hawks':['ATL','#e03a3e','#c1d32f'],'Boston Celtics':['BOS','#007a33','#ba9653'],'Brooklyn Nets':['BKN','#111111','#ffffff'],'Charlotte Hornets':['CHA','#1d1160','#00788c'],
   'Chicago Bulls':['CHI','#ce1141','#111111'],'Cleveland Cavaliers':['CLE','#860038','#fdbb30'],'Dallas Mavericks':['DAL','#00538c','#b8c4ca'],'Denver Nuggets':['DEN','#0e2240','#fec524'],
