@@ -2,7 +2,7 @@
 <html lang="sl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827"><title>Basket 3PT Challenge · NBA Edition v0.8</title>
+<meta name="theme-color" content="#101827"><title>Basketball Universe · v0.86</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0b1422;--panel:#17263a;--panel2:#20344c;--orange:#f28c28;--gold:#ffd166;--green:#42e695;--red:#ff647c;--muted:#a8b6c8;--white:#f6f8fc}
@@ -2117,6 +2117,7 @@ $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
   if(slot===0){window.__mdQuickRoomCode=code;await mdCreateRoom();}else{$('mdCode').value=code;await mdJoinRoom();}
  }
  qbtn.onclick=async()=>{
+  const searchStarted=Date.now();
   if(qactive)return;qactive=true;qbtn.disabled=true;mdSay('🔎 Searching for an opponent… up to 10 seconds.');
   try{
    await qauth();const nick=$('mdNick').value.trim().slice(0,16)||mdName();
@@ -2129,7 +2130,7 @@ $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
     if(st.status==='matched'){mdSay('🏀 Opponent '+(st.opponent||'')+' found! Opening draft…');await qopen(st.room_code,st.slot,st.opponent);qactive=false;return;}
    }
    if(qactive){await qcancel();const botName='ClutchKing'+Math.floor(10+Math.random()*89);await window.buShowMatchIntro(nick,botName);mdStartBotDraft(nick,botName);qactive=false;}
-  }catch(e){console.warn('Quick Match -> bot:',e.message);try{await qcancel()}catch(_){}await new Promise(r=>setTimeout(r,1800+Math.random()*2800));qactive=true;const nick2=$('mdNick').value.trim().slice(0,16)||mdName(),botName='ClutchKing'+Math.floor(10+Math.random()*89);await window.buShowMatchIntro(nick2,botName);mdStartBotDraft(nick2,botName);qactive=false;}
+  }catch(e){console.warn('Quick Match -> bot:',e.message);try{await qcancel()}catch(_){}await new Promise(r=>setTimeout(r,Math.max(0,10000-(Date.now()-searchStarted))));qactive=true;const nick2=$('mdNick').value.trim().slice(0,16)||mdName(),botName='ClutchKing'+Math.floor(10+Math.random()*89);await window.buShowMatchIntro(nick2,botName);mdStartBotDraft(nick2,botName);qactive=false;}
   finally{qbtn.disabled=false;}
  };
 
@@ -2703,7 +2704,7 @@ document.addEventListener('DOMContentLoaded', function () {
    else stage.querySelectorAll("[data-hoop]").forEach(b=>b.disabled=true);
   }else if(state.phase==="shoot"){
    const me=state.attacker,bot=!!state.players[me].bot;
-   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">SHOT ATTEMPT</div><h2>FREE THROW · HOOP <em>${state.chosen}</em></h2><p>${safe(state.players[me].name)} · ${bot?"CPU RELEASE":"stop the marker inside the 20% target"}</p></div>${scoreboard()}${stageHtml("")}${meter()}<p style="text-align:center;color:#a9bbce">The defender has guarded one basket. If it is the same as yours, the shot is blocked even with a perfect release.</p>`;
+   stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">SHOT ATTEMPT</div><h2>FREE THROW · HOOP <em>${state.chosen}</em></h2><p>${safe(state.players[me].name)} · ${bot?(window.__hdQuickBotName?"taking the shot":"CPU RELEASE"):"stop the marker inside the 20% target"}</p></div>${scoreboard()}${stageHtml("")}${meter()}<p style="text-align:center;color:#a9bbce">The defender has guarded one basket. If it is the same as yours, the shot is blocked even with a perfect release.</p>`;
    mountStage();
    if(bot){
     clearInterval(meterTimer);
@@ -2743,7 +2744,8 @@ document.addEventListener('DOMContentLoaded', function () {
   else{$h("hdCode").value=code;await join();}
  }
  hdQuick.onclick=async()=>{
-  if(hdQuickBusy)return;hdQuickBusy=true;hdQuick.disabled=true;msg("Searching for an opponent…");
+  const searchStarted=Date.now();
+  if(hdQuickBusy)return;hdQuickBusy=true;hdQuick.disabled=true;msg("Searching for an opponent… up to 10 seconds.");
   try{
    await hdQuickAuth();
    const {data,error}=await hsb.rpc("basket_quick_match",{p_mode:"blockout",p_nickname:nick()});if(error)throw error;hdQueueId=data.queue_id;
@@ -2756,9 +2758,9 @@ document.addEventListener('DOMContentLoaded', function () {
    }
    if(hdQuickBusy){
     await hdQuickCancel();const botName="RimReaper"+Math.floor(10+Math.random()*89);
-    window.__hdQuickBotName=botName;await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();
+    window.__hdQuickBotName=botName;msg("🏀 Opponent found!");await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();
    }
-  }catch(e){console.warn("Quick Match -> bot:",e.message);try{await hdQuickCancel()}catch(_){}await new Promise(r=>setTimeout(r,1800+Math.random()*2800));hdQuickBusy=true;const botName="RimReaper"+Math.floor(10+Math.random()*89);window.__hdQuickBotName=botName;await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();}
+  }catch(e){console.warn("Quick Match -> bot:",e.message);try{await hdQuickCancel()}catch(_){}await new Promise(r=>setTimeout(r,Math.max(0,10000-(Date.now()-searchStarted))));hdQuickBusy=true;const botName="RimReaper"+Math.floor(10+Math.random()*89);window.__hdQuickBotName=botName;msg("🏀 Opponent found!");await window.buShowMatchIntro(nick(),botName);$h("hdBot").click();}
   finally{hdQuick.disabled=false;}
  };
  $h("hdCreate").onclick=create;$h("hdJoin").onclick=join;
@@ -3446,19 +3448,43 @@ const S={look:null,def:false,host:null,shake:0,dist:4.5,zoom:1,canvas:null,ctx:n
  trail:[],net:null,rimAmp:0,rimPh:0,bAmp:0,bPh:0,glow:0,bp:null,endT:0,fin:false,callSet:false};
 function setCall(text,cls){const el=S.host&&S.host.querySelector('.ftCall');if(el){el.textContent=text;el.className='ftCall '+(cls||'')}}
 function snd(type,s){
+ if(window.BURealAudio&&BURealAudio.play(type==='swish'?'swish':type==='rim'?'rim':type==='board'?'board':'',Math.max(.3,Math.min(1,s||.7))))return;
+ if(type==='swish'||type==='rim'||type==='board')return;
  if(typeof tone!=='function')return;
  try{
-  if(type==='rim')tone(300+Math.random()*60,0,.14,'triangle',.07*(.5+s),180);
+  if(type==='rim'){
+   // Metallic rim: short, inharmonic ringing partials rather than a single electronic beep.
+   const c=audio();if(!c)return;
+   const now=c.currentTime, strength=Math.min(1,Math.max(.2,s||.5));
+   [510,790,1170,1810].forEach((hz,i)=>{
+    const o=c.createOscillator(),g=c.createGain();o.type='sine';
+    o.frequency.setValueAtTime(hz*(.97+Math.random()*.06),now);
+    const duration=.17+i*.045;
+    g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime((.065/(i+1))*strength,now+.004);
+    g.gain.exponentialRampToValueAtTime(.0001,now+duration);
+    o.connect(g);g.connect(c.destination);o.start(now);o.stop(now+duration+.01);
+   });
+  }
   else if(type==='board')tone(150,0,.1,'square',.045*(.5+s));
-  else if(type==='swish')tone(2200,0,.22,'sine',.025,700);
+  else if(type==='swish'){
+   // Broadband, filtered net-rustle: plays only when the ball actually passes the rim.
+   const c=audio();if(!c)return;const duration=.32,now=c.currentTime;
+   const b=c.createBuffer(1,Math.ceil(c.sampleRate*duration),c.sampleRate),data=b.getChannelData(0);
+   for(let i=0;i<data.length;i++){const t=i/c.sampleRate;data[i]=(Math.random()*2-1)*(Math.sin(Math.PI*t/duration)**1.6);}
+   const src=c.createBufferSource(),hp=c.createBiquadFilter(),lp=c.createBiquadFilter(),g=c.createGain();
+   src.buffer=b;hp.type='highpass';hp.frequency.value=850;lp.type='lowpass';lp.frequency.value=6600;
+   g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime(.24,now+.055);
+   g.gain.exponentialRampToValueAtTime(.0001,now+duration);
+   src.connect(hp);hp.connect(lp);lp.connect(g);g.connect(c.destination);src.start(now);src.stop(now+duration);
+  }
   else if(type==='floor')tone(110,0,.12,'sine',.05*(.4+s));
  }catch(e){}
 }
 function onEvent(e){
- if(e.type==='rim'){S.rimAmp=Math.min(6,2+4*e.s);S.rimPh=0;snd('rim',e.s)}
+ if(e.type==='rim'){try{window.BUArena&&BUArena.impact('rim')}catch(_){}S.rimAmp=Math.min(6,2+4*e.s);S.rimPh=0;snd('rim',e.s)}
  else if(e.type==='board'){S.bAmp=Math.min(2.5,.8+2*e.s);S.bPh=0;snd('board',e.s)}
  else if(e.type==='swish'){
-  S.glow=1;snd('swish',1);
+  S.glow=1;snd('swish',1);try{if(window.BUArena){BUArena.impact('swish');BUArena.ftShot(true)}}catch(_){}
   S.net.pts.forEach((p,i)=>{if(!p.pin){const r=Math.floor(i/NC);p.py-=3+r*.8;p.px+=(Math.random()-.5)*1.5}});
   S.callSet=true;
   setCall(S.sim.rim?'BUCKET!':((S.opts&&S.opts.streak>=3)?'ON FIRE! 🔥':'SWISH!'),'ftHit');try{window.buSfx&&buSfx('cheer')}catch(_){}
@@ -3471,7 +3497,7 @@ function onEvent(e){
 }
 function finish(){
  if(S.fin)return;S.fin=true;S.mode='post';
- if(!S.callSet)setCall(S.sim.rim||S.sim.board?'RIM OUT!':'AIRBALL!','ftMissed');
+ if(!S.callSet)setCall(S.sim.rim||S.sim.board?'RIM OUT!':'AIRBALL!','ftMissed');try{if(!S.sim.made&&window.BUArena)BUArena.ftShot(false)}catch(_){}
  const cb=S.cb;S.cb=null;
  setTimeout(()=>{if(cb)cb({hit:S.sim.made,rim:S.sim.rim,blocked:!!S.sim.blk})},Math.round(420/(S.speed||1)));
 }
@@ -3619,10 +3645,10 @@ window.FTAnim=API;
   el.innerHTML='<div class="modal" style="width:min(560px,96vw);max-height:90vh;overflow:auto"><div class="eyebrow">BASKETBALL UNIVERSE · 3PT SOLO CONTEST</div><h2>CHOOSE YOUR SHOOTER</h2><p>Choose a player. His shooting ability sets the size of the target zone.</p><div id="bu3ptContestChoices" class="candidategrid"></div><button class="secondary" id="bu3ptContestCancel" style="width:100%;margin-top:12px">BACK</button></div>';
   document.body.append(el);const host=$('bu3ptContestChoices');
   choices.forEach(p=>{const b=document.createElement('button');b.className='candidate';b.innerHTML='<strong>'+p.name+'</strong><span class="crestRow">'+(window.buTeamCrest?buTeamCrest(p.team,false,'xs'):'')+p.team+' · '+p.pos+'</span><em>'+Number(p.pct).toFixed(1)+'% 3PT</em><span>Target zone: '+Math.round(targetFor(p)*100)+'%</span>';b.onclick=()=>{el.remove();if(pickCallback){const cb=pickCallback;pickCallback=null;cb(p)}else begin(p)};host.append(b)});
-  $('bu3ptContestCancel').onclick=()=>el.remove();
+  $('bu3ptContestCancel').onclick=()=>{el.remove();if(!pickCallback)$('threePtMenu').classList.remove('hidden')};
  }
  function begin(player,onComplete){
-  cleanup();completeCallback=typeof onComplete==='function'?onComplete:null;game={player,station:0,shot:0,made:0,score:0,results:[],marker:0,dir:1,target:targetFor(player),busy:false,remaining:60,ended:false};
+  cleanup();completeCallback=typeof onComplete==='function'?onComplete:null;game={player,station:0,shot:0,made:0,score:0,results:[],marker:0,dir:1,target:targetFor(player),busy:false,remaining:60,deadline:null,ended:false};
   const old=$('bu3ptContest');if(old)old.remove();
   const el=document.createElement('div');el.id='bu3ptContest';el.className='overlay';el.style.zIndex='151';
   el.innerHTML=`<div class="modal" style="width:min(720px,97vw);max-height:94vh;overflow:auto;text-align:center">
@@ -3643,16 +3669,16 @@ window.FTAnim=API;
   $('bu3ptTargetLabel').textContent='TARGET '+Math.round(game.target*100)+'%';
   const width=game.target*100;$('bu3ptTarget').style.width=width+'%';$('bu3ptTarget').style.left=((100-width)/2)+'%';
   if(window.FTAnim){FTAnim.setLook((window.buCurrentLook?buCurrentLook():null));FTAnim.setSpeed(1.8);FTAnim.mount($('bu3ptCourt'),{dist:spots[0].dist})}
-  $('bu3ptShoot').onclick=shoot;$('bu3ptExit').onclick=()=>finish(true);
-  render();startMeter();
-  timer=setInterval(()=>{if(!game||game.ended)return;game.remaining=Math.max(0,game.remaining-.1);$('bu3ptClock').textContent=Math.ceil(game.remaining);if(game.remaining<=0&&!game.busy)finish(false);},100);
+  $('bu3ptShoot').onclick=shoot;$('bu3ptExit').onclick=()=>finish(true);try{window.BUArena&&BUArena.attach($('bu3ptCourt'),'3PT CONTEST')}catch(_){}
+  render();startMeter();$('bu3ptCall').textContent='SHOOT TO START THE CLOCK';
+  timer=setInterval(()=>{if(!game||game.ended||game.deadline===null)return;game.remaining=Math.max(0,(game.deadline-Date.now())/1000);$('bu3ptClock').textContent=Math.ceil(game.remaining);try{window.BUArena&&BUArena.clock(game.remaining)}catch(_){}if(game.remaining<=0&&!game.busy)finish(false);},100);
  }
  function startMeter(){clearInterval(raf);if(!game||game.ended)return;game.marker=0;game.dir=1;game.busy=false;$('bu3ptShoot').disabled=false;$('bu3ptShoot').textContent='STOP & SHOOT';raf=setInterval(()=>{if(!game||game.ended||game.busy)return;game.marker+=game.dir*1.48;if(game.marker>=100){game.marker=100;game.dir=-1}if(game.marker<=0){game.marker=0;game.dir=1}$('bu3ptMarker').style.left=game.marker+'%';},16)}
  function render(){if(!game)return;$('bu3ptScore').textContent=game.score;$('bu3ptMade').textContent=game.made+'/25';$('bu3ptStation').textContent=(game.station+1)+'/5';$('bu3ptSpotName').textContent=spots[game.station].name;$('bu3ptRackCount').textContent='BALL '+(game.shot+1)+' / 5';$('bu3ptRackDots').innerHTML=Array.from({length:5},(_,i)=>'<span style="width:16px;height:16px;border-radius:50%;display:inline-block;background:'+(game.results[game.station*5+i]===true?'#42e695':game.results[game.station*5+i]===false?'#687487':i===4?'#e7b83e':'#e77d32')+';border:1px solid #ffffff55"></span>').join('')}
- function shoot(){if(!game||game.ended||game.busy||game.remaining<=0)return;game.busy=true;clearInterval(raf);$('bu3ptShoot').disabled=true;
+ function shoot(){if(!game||game.ended||game.busy||game.remaining<=0)return;if(game.deadline===null)game.deadline=Date.now()+60000;game.busy=true;clearInterval(raf);$('bu3ptShoot').disabled=true;
   const left=(100-game.target*100)/2,right=left+game.target*100,hit=game.marker>=left&&game.marker<=right,err=(game.marker-50)/Math.max(1,game.target*50),money=game.shot===4;
   game.results.push(hit);if(hit){game.made++;game.score+=money?2:1}
-  const shotNo=game.shot+1,station=game.station;
+  const shotNo=game.shot+1,station=game.station;try{window.BUArena&&BUArena.shot(hit,game.made,game.results.length-game.made,game.score)}catch(_){}
   $('bu3ptCall').className='feedback '+(hit?'good':'bad');$('bu3ptCall').textContent=hit?(money?'MONEYBALL! +2':'BUCKET! +1'):'NO GOOD';
   render();
   const next=()=>{
@@ -3664,7 +3690,7 @@ window.FTAnim=API;
   };
   if(window.FTAnim)FTAnim.shoot({hit,err,streak:game.made},next);else setTimeout(next,650);
  }
- function finish(quit){if(!game||game.ended)return;game.ended=true;clearInterval(timer);clearInterval(raf);if(window.FTAnim){FTAnim.destroy();FTAnim.setSpeed(1)}
+ function finish(quit){if(!game||game.ended)return;game.ended=true;clearInterval(timer);clearInterval(raf);if(window.FTAnim){FTAnim.destroy();FTAnim.setSpeed(1)}try{window.BUArena&&BUArena.detach()}catch(_){}
   const g=game;if(completeCallback){const cb=completeCallback;completeCallback=null;const result={player:g.player.name,score:g.score,made:g.made,remaining:Math.ceil(g.remaining),results:g.results.slice(),stations:spots.map((sp,i)=>g.results.slice(i*5,i*5+5).filter(Boolean).length)};game=null;{const ov=$('bu3ptContest');if(ov)ov.remove()}cb(result);return}window.BU&&BU.solo(Math.min(90,10+g.score*2),'c3s-'+Date.now());const old=$('bu3ptContest');if(old)old.remove();const el=document.createElement('div');el.id='bu3ptContestResult';el.className='overlay';el.style.zIndex='152';
   const rows=spots.map((s,i)=>{const a=g.results.slice(i*5,i*5+5),m=a.filter(Boolean).length;return '<div style="display:flex;justify-content:space-between;padding:9px 12px;border-radius:9px;background:#ffffff0b;margin:5px 0"><span>'+s.name+'</span><b>'+m+'/5</b></div>'}).join('');
   el.innerHTML='<div class="modal" style="width:min(520px,96vw);max-height:90vh;overflow:auto;text-align:center"><div class="eyebrow">'+(quit?'CONTEST ENDED':'FINAL SCORE')+'</div><h2>🏀 '+g.score+' POINTS</h2><div style="font-size:42px;color:#ffd166;font-weight:1000">'+g.made+'/25</div><p>'+g.player.name+' · '+Math.round(g.target*100)+'% target · '+Math.ceil(g.remaining)+' sec left</p><h3 style="text-align:left">STATION RESULTS</h3>'+rows+'<button class="primary" id="bu3ptAgain" style="width:100%;margin-top:12px">PLAY AGAIN</button><button class="secondary" id="bu3ptResultBack" style="width:100%;margin-top:8px">BACK TO 3PT MENU</button></div>';
@@ -3687,21 +3713,21 @@ window.FTAnim=API;
  function cleanupChannel(){if(channel&&typeof sb!=='undefined'&&sb){try{sb.removeChannel(channel)}catch(_){}}channel=null}
  async function ensureAuth(){if(typeof sb==='undefined'||!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error}}
  function modal(){let old=$('bu3ptMpLobby');if(old)old.remove();let e=document.createElement('div');e.id='bu3ptMpLobby';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(520px,96vw)"><div class="eyebrow">BASKETBALL UNIVERSE · ONLINE</div><h2>🏆 3PT MULTIPLAYER</h2><p>Each player takes 25 shots in 60 seconds. Player one goes first, then player two.</p><label class="field">TVOJ NICKNAME</label><input id="bu3ptMpNick" maxlength="16" value="'+nick().replace(/"/g,'&quot;')+'" placeholder="Your nickname"><button class="primary" id="bu3ptMpCreate" style="width:100%;margin-top:10px">CREATE ROOM</button><button class="primary" id="bu3ptMpQuick" style="width:100%;margin-top:8px">⚡ QUICK MATCH</button><div style="height:1px;background:#ffffff22;margin:16px 0"></div><label class="field">ROOM CODE</label><input id="bu3ptMpCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="bu3ptMpJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="bu3ptMpMsg" style="min-height:20px;margin-bottom:0"></p><button class="secondary" id="bu3ptMpBack" style="width:100%;margin-top:8px">BACK</button></div>';document.body.append(e);
- $('bu3ptMpBack').onclick=()=>e.remove();$('bu3ptMpCreate').onclick=createRoom;$('bu3ptMpJoin').onclick=joinRoom;$('bu3ptMpQuick').onclick=quickMatch;
+ $('bu3ptMpBack').onclick=()=>{e.remove();$('threePtMenu').classList.remove('hidden')};$('bu3ptMpCreate').onclick=createRoom;$('bu3ptMpJoin').onclick=joinRoom;$('bu3ptMpQuick').onclick=quickMatch;
  }
  function msg(t){if($('bu3ptMpMsg'))$('bu3ptMpMsg').textContent=t}
  async function createRoom(){try{await ensureAuth();msg('Creating room…');room=code();slot=0;const st={mode:'3ptcontest',phase:'waiting',names:[$('bu3ptMpNick').value.trim()||nick(),'WAITING…'],results:[null,null],turn:0};const {error}=await sb.from('basket_matches').insert({room_code:room,player1_name:st.names[0],player2_name:null,status:'waiting',game_state:st});if(error)throw error;showWaiting(st)}catch(e){msg('Error: '+e.message)}}
  async function joinRoom(){try{await ensureAuth();const c=$('bu3ptMpCode').value.trim().toUpperCase();if(c.length!==6)throw Error('Enter the 6-character code.');msg('Joining room…');const {data,error}=await sb.from('basket_matches').select('*').eq('room_code',c).maybeSingle();if(error)throw error;if(!data)throw Error('Room does not exist.');if(data.player2_name)throw Error('Room is already full.');room=c;slot=1;const st=data.game_state||{};if(st.mode!=='3ptcontest')throw Error('Ta koda ni za 3PT Contest.');st.names=[data.player1_name||st.names?.[0]||'PLAYER 1',$('bu3ptMpNick').value.trim()||nick()];st.phase='playing';st.turn=0;const {error:up}=await sb.from('basket_matches').update({player2_name:st.names[1],status:'playing',game_state:st}).eq('room_code',c);if(up)throw up;showWaiting(st)}catch(e){msg('Error: '+e.message)}}
- async function quickMatch(){try{await ensureAuth();msg('🔎 Searching for an opponent · up to 10 seconds…');const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'threeptcontest',p_nickname:$('bu3ptMpNick').value.trim()||nick()});if(error)throw error;queueId=data.queue_id;if(data.status==='matched'){room=data.room_code;slot=data.slot;await attachRoom();return}const start=Date.now();while(Date.now()-start<10000){await new Promise(r=>setTimeout(r,500));const {data:s,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:queueId});if(se)throw se;if(s.status==='matched'){room=s.room_code;slot=s.slot;await attachRoom();return}}
- try{await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;msg('No player found. Starting against the computer…');room=null;slot=0;startBot();
- }catch(e){console.warn('3PT Quick Match -> bot:',e.message);try{if(queueId)await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;msg('Searching for an opponent…');await new Promise(r=>setTimeout(r,1800+Math.random()*2800));msg('Opponent found! Starting…');room=null;slot=0;startBot()}}
+ async function quickMatch(){const searchStarted=Date.now();try{await ensureAuth();msg('🔎 Searching for an opponent · up to 10 seconds…');const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'threeptcontest',p_nickname:$('bu3ptMpNick').value.trim()||nick()});if(error)throw error;queueId=data.queue_id;if(data.status==='matched'){room=data.room_code;slot=data.slot;await attachRoom();return}while(Date.now()-searchStarted<10000){await new Promise(r=>setTimeout(r,500));const {data:s,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:queueId});if(se)throw se;if(s.status==='matched'){room=s.room_code;slot=s.slot;await attachRoom();return}}
+ try{await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;msg('🏀 Opponent found!');room=null;slot=0;startBot();
+ }catch(e){console.warn('3PT Quick Match -> bot:',e.message);try{if(queueId)await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;await new Promise(r=>setTimeout(r,Math.max(0,10000-(Date.now()-searchStarted))));msg('🏀 Opponent found!');room=null;slot=0;startBot()}}
  async function attachRoom(){const {data,error}=await sb.from('basket_matches').select('*').eq('room_code',room).maybeSingle();if(error)throw error;if(!data)throw Error('Room is no longer available.');let st=data.game_state||{};if(slot===0&&!st.names?.[1])st.names[1]=data.player2_name||'PLAYER 2';showWaiting(st)}
- function showWaiting(st){lastState=st;$('bu3ptMpLobby')?.remove();const old=$('bu3ptMpWait');if(old)old.remove();const e=document.createElement('div');e.id='bu3ptMpWait';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(500px,96vw);text-align:center"><div class="eyebrow">3PT MULTIPLAYER</div><h2>ROOM '+(room||'BOT')+'</h2><p id="bu3ptMpWaitText">'+(st.phase==='waiting'?'Waiting for the other player…':'Connected! Preparing the match…')+'</p><div style="font-size:22px;font-weight:900;margin:14px">'+(st.names||[]).join('  VS  ')+'</div><p>Each player gets 60 seconds and 25 shots. You play one after the other.</p><button class="secondary" id="bu3ptMpCancel">CANCEL</button></div>';document.body.append(e);$('bu3ptMpCancel').onclick=()=>{cleanupChannel();e.remove();active=false};if(room){cleanupChannel();channel=sb.channel('bu3pt-contest-'+room).on('postgres_changes',{event:'UPDATE',schema:'public',table:'basket_matches',filter:'room_code=eq.'+room},p=>onUpdate(p.new?.game_state)).subscribe();if(st.phase==='playing'&&st.names?.[1])onUpdate(st)} }
+ function showWaiting(st){lastState=st;$('bu3ptMpLobby')?.remove();const old=$('bu3ptMpWait');if(old)old.remove();const e=document.createElement('div');e.id='bu3ptMpWait';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(500px,96vw);text-align:center"><div class="eyebrow">3PT MULTIPLAYER</div><h2>ROOM '+(room||'QUICK MATCH')+'</h2><p id="bu3ptMpWaitText">'+(st.phase==='waiting'?'Waiting for the other player…':'Connected! Preparing the match…')+'</p><div style="font-size:22px;font-weight:900;margin:14px">'+(st.names||[]).join('  VS  ')+'</div><p>Each player gets 60 seconds and 25 shots. You play one after the other.</p><button class="secondary" id="bu3ptMpCancel">CANCEL</button></div>';document.body.append(e);$('bu3ptMpCancel').onclick=()=>{cleanupChannel();e.remove();active=false;$('threePtMenu').classList.remove('hidden')};if(room){cleanupChannel();channel=sb.channel('bu3pt-contest-'+room).on('postgres_changes',{event:'UPDATE',schema:'public',table:'basket_matches',filter:'room_code=eq.'+room},p=>onUpdate(p.new?.game_state)).subscribe();if(st.phase==='playing'&&st.names?.[1])onUpdate(st)} }
  function onUpdate(st){if(!st||st.mode!=='3ptcontest')return;lastState=st;const wait=$('bu3ptMpWait');if(st.phase==='waiting')return;if(st.phase==='playing'){if(wait)$('bu3ptMpWaitText').textContent=st.turn===slot?'Your turn! Choose a player.':'Opponent is taking their turn…';if(st.turn===slot&&!active&&!st.results[slot])startOwnRun();return}if(st.phase==='complete')showFinal(st)}
  function startOwnRun(){if(active||!window.BU3PTContest)return;active=true;$('bu3ptMpWait')?.remove();window.BU3PTContest.start(p=>window.BU3PTContest.begin(p,r=>submitResult(r)));}
  async function submitResult(r){const {data,error}=await sb.from('basket_matches').select('game_state').eq('room_code',room).single();if(error){active=false;alert('Error reading result: '+error.message);return}const st=data.game_state;if(st.results[slot]){active=false;return}st.results[slot]=r;if(slot===0){st.turn=1;st.phase='playing'}else{st.phase='complete'}const {error:up}=await sb.from('basket_matches').update({game_state:st,status:st.phase==='complete'?'finished':'playing',player1_score:st.results[0]?.score||0,player2_score:st.results[1]?.score||0}).eq('room_code',room);active=false;if(up){alert('Could not save the result: '+up.message);return}if(st.phase==='complete')showFinal(st);else showWaiting(st)}
  function showFinal(st){cleanupChannel();$('bu3ptMpWait')?.remove();const a=st.results[0],b=st.results[1];if(!a||!b)return;try{if(window.BU&&a.score!==b.score){const mine=(slot==null?0:slot),ms=[a.score,b.score];BU.report('threept',ms[mine]>ms[1-mine],'c3-'+(room||'bot')+'-'+a.score+'-'+b.score+'-'+a.made)}}catch(_){}const win=a.score===b.score?'TIE GAME':a.score>b.score?st.names[0]+' WINS!':st.names[1]+' WINS!';const old=$('bu3ptMpFinal');if(old)old.remove();const e=document.createElement('div');e.id='bu3ptMpFinal';e.className='overlay';e.style.zIndex='153';e.innerHTML='<div class="modal" style="width:min(540px,96vw);text-align:center"><div class="eyebrow">FINAL RESULTS</div><h2>🏆 '+win+'</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0"><div class="stat"><small>'+st.names[0]+'</small><b style="font-size:32px">'+a.score+'</b><span>'+a.made+'/25</span></div><div class="stat"><small>'+st.names[1]+'</small><b style="font-size:32px">'+b.score+'</b><span>'+b.made+'/25</span></div></div><p>'+a.player+' vs '+b.player+'</p><button class="primary" id="bu3ptMpAgain" style="width:100%">PLAY AGAIN</button><button class="secondary" id="bu3ptMpDone" style="width:100%;margin-top:8px">BACK TO 3PT MENU</button></div>';document.body.append(e);$('bu3ptMpDone').onclick=()=>{e.remove();$('threePtMenu').classList.remove('hidden')};$('bu3ptMpAgain').onclick=()=>{e.remove();room=null;slot=null;modal()}}
- function startBot(){const st={mode:'3ptcontest',phase:'playing',names:[nick(),botNames[Math.floor(Math.random()*botNames.length)]],results:[null,null],turn:0};showWaiting(st);setTimeout(()=>{if(!active){active=true;window.BU3PTContest.start(p=>window.BU3PTContest.begin(p,r=>{const bm=Math.floor(11+Math.random()*10),bot={player:st.names[1],score:bm+Math.floor(Math.random()*4),made:bm,remaining:0,results:[],stations:[]};st.results[0]=r;st.results[1]=bot;st.phase='complete';active=false;showFinal(st)}))}},500)}
+ function startBot(){const st={mode:'3ptcontest',phase:'playing',names:[nick(),botNames[Math.floor(Math.random()*botNames.length)]],results:[null,null],turn:0};showWaiting(st);setTimeout(()=>{if(!active){active=true;window.BU3PTContest.start(p=>window.BU3PTContest.begin(p,r=>{const bm=Math.floor(11+Math.random()*10),bot={player:st.names[1],score:bm+Math.floor(Math.random()*4),made:bm,remaining:0,results:[],stations:[]};st.results[0]=r;st.results[1]=bot;st.phase='complete';active=false;showWaiting({...st,phase:'playing',turn:1});setTimeout(()=>showFinal(st),2200+Math.random()*2200)}))}},500)}
  document.addEventListener('DOMContentLoaded',()=>{const b=$('threePtContestMpBtn');if(b)b.onclick=()=>{$('threePtMenu').classList.add('hidden');modal()}});
 })();
 </script>
@@ -4002,6 +4028,51 @@ window.FTAnim=API;
  })}catch(_){}
  setTimeout(()=>{if(once('visit'))buLog('visit')},1500);
  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#threePtMode,#freeThrowMainBtn,#draftModeBtn,#parketOpenBtn,#hoopDuelOpenBtn,#soloMode,#onlineMode,#threePtContestBtn,#threePtContestMpBtn,#soloDraftStart,#dailyDraftStart');if(b)buLog('open_mode',b.id)},true);
+})();
+</script>
+<style id="bu86Style">
+.bu86hud{position:absolute;left:9px;right:9px;top:9px;z-index:8;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;font:900 11px Arial,sans-serif;text-shadow:0 2px 6px #000}
+.bu86hud span{background:#071321cc;border:1px solid #ffffff55;padding:6px 10px;border-radius:5px;letter-spacing:1.3px}
+.bu86hud .bu86fire{color:#ffd166;box-shadow:0 0 15px #f28c2888;animation:bu86pulse .5s infinite alternate}
+.bu86ribbon{position:absolute;left:10%;right:10%;bottom:14px;z-index:9;text-align:center;pointer-events:none;font:1000 clamp(18px,5vw,32px) Arial,sans-serif;color:#ffd166;text-shadow:0 2px 5px #000,0 0 14px #e46d24;opacity:0;transition:opacity .22s}
+.bu86ribbon.on{opacity:1;animation:bu86pulse .45s infinite alternate}
+.bu86crowd{position:absolute;bottom:0;left:0;right:0;height:19px;z-index:7;opacity:.72;pointer-events:none;background:repeating-linear-gradient(90deg,#152c47 0 5px,#355575 5px 9px,#152c47 9px 12px);border-top:2px solid #d2a657}
+.bu86crowd.loud{animation:bu86crowd .18s infinite alternate;background:repeating-linear-gradient(90deg,#193852 0 5px,#e6a950 5px 9px,#17314c 9px 12px)}
+.bu86settings{position:fixed;right:12px;bottom:12px;z-index:160;border:1px solid #f6c35a88;border-radius:12px;padding:7px 10px;background:#102238;color:#fff;font:700 11px Arial;display:flex;gap:8px;align-items:center;box-shadow:0 4px 20px #0009}
+.bu86settings select{background:#1d3550;color:#fff;border:1px solid #ffffff55;border-radius:6px;font-size:11px;padding:5px}
+@keyframes bu86pulse{to{transform:scale(1.04);filter:brightness(1.3)}}
+@keyframes bu86crowd{to{transform:translateY(3px)}}
+@media(prefers-reduced-motion:reduce){.bu86hud .bu86fire,.bu86ribbon.on,.bu86crowd.loud{animation:none}}
+</style>
+<script id="bu86Arena">
+(function(){'use strict';
+ let host=null,hud=null,ribbon=null,crowd=null,hide=0,ctx=null,streak=0,miss=0,lastCountdown=-1,lastImpact=0;
+ const settings=document.createElement('div');settings.className='bu86settings';settings.innerHTML='<label for="bu86quality">GRAPHICS</label><select id="bu86quality"><option value="ultra">ULTRA</option><option value="medium">MEDIUM</option><option value="low">LOW</option></select><label for="bu86audio">CROWD</label><input type="checkbox" id="bu86audio" checked style="width:16px;height:16px;accent-color:#f7bb58">';
+ function init(){if(!settings.isConnected)document.body.append(settings);settings.querySelector('#bu86quality').value=localStorage.getItem('bu86quality')||'ultra';settings.querySelector('#bu86audio').checked=localStorage.getItem('bu86crowd')!=='off';settings.querySelector('#bu86quality').onchange=e=>{localStorage.setItem('bu86quality',e.target.value);applyQuality()};settings.querySelector('#bu86audio').onchange=e=>localStorage.setItem('bu86crowd',e.target.checked?'on':'off')}
+ function quality(){return settings.querySelector('#bu86quality')?.value||'medium'}
+ function enabled(){return !!settings.querySelector('#bu86audio')?.checked}
+ function audio(){if(!enabled())return null;try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}catch(_){return null}}
+ function noise(duration,volume,pitch){const c=audio();if(!c)return;const n=Math.round(c.sampleRate*duration),b=c.createBuffer(1,n,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();src.buffer=b;f.type='bandpass';f.frequency.value=pitch||750;f.Q.value=.45;g.gain.setValueAtTime(.001,c.currentTime);g.gain.linearRampToValueAtTime(volume,c.currentTime+.06);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+duration);src.connect(f);f.connect(g);g.connect(c.destination);src.start();src.stop(c.currentTime+duration+.01)}
+ function chant(word){if(!enabled())return;window.BURealAudio&&BURealAudio.play(word==='BOOOOO!'?'boo':'mvp',.7)}
+ function flash(text){if(!ribbon)return;ribbon.textContent=text;ribbon.classList.add('on');clearTimeout(hide);hide=setTimeout(()=>ribbon&&ribbon.classList.remove('on'),1600);if(crowd&&quality()!=='low'){crowd.classList.add('loud');setTimeout(()=>crowd&&crowd.classList.remove('loud'),1400)}}
+ function applyQuality(){if(!host)return;const q=quality();if(crowd)crowd.style.display=q==='low'?'none':'';if(hud)hud.style.filter=q==='ultra'?'drop-shadow(0 0 8px #ffb52e55)':'none'}
+ function attach(el,title){init();detach();if(!el)return;host=el;host.style.position='relative';hud=document.createElement('div');hud.className='bu86hud';hud.innerHTML='<span>BU SPORTS · LIVE</span><span class="bu86status"></span>';hud.querySelector('.bu86status').textContent=title||'ARENA';ribbon=document.createElement('div');ribbon.className='bu86ribbon';crowd=document.createElement('div');crowd.className='bu86crowd';host.append(hud,ribbon,crowd);streak=0;miss=0;lastCountdown=-1;applyQuality()}
+ function detach(){clearTimeout(hide);for(const e of [hud,ribbon,crowd])if(e)e.remove();hud=ribbon=crowd=host=null;streak=miss=0;lastCountdown=-1}
+ function shot(hit,made,missed,score){if(!host)return;streak=hit?streak+1:0;miss=hit?0:miss+1;const st=hud?.querySelector('.bu86status');if(st){st.textContent='SCORE '+score+' · '+made+' MADE';st.classList.toggle('bu86fire',streak>=3)}if(hit){window.BURealAudio&&BURealAudio.play('cheer',.36);if(streak===3)flash('🔥 ON FIRE!');if(streak>=5&&streak%5===0){flash('🏆 MVP! MVP!');chant('MVP! MVP!')}}else if(miss===3){flash('CROWD WHISTLES');window.BURealAudio&&BURealAudio.play('boo',.35)}else if(miss>=5&&miss%5===0){flash('BOOOOO!');chant('BOOOOO!')}}
+ function impact(type){if(!host)return;const now=performance.now();if(now-lastImpact<100)return;lastImpact=now;if(type==='swish'&&quality()==='ultra'){host.style.filter='brightness(1.13)';setTimeout(()=>{if(host)host.style.filter=''},180)}}
+ function clock(seconds){if(!host||seconds>5||seconds<=0)return;const n=Math.ceil(seconds);if(n===lastCountdown)return;lastCountdown=n;flash(String(n))}
+ function ftShot(hit){if(!host||host.id==='bu3ptCourt')return;shot(hit,0,0,hit?1:0)}
+ window.BUArena={attach,detach,shot,impact,clock,ftShot};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+ // Attach to FTAnim stages as well, without changing its shot physics.
+ const wait=setInterval(()=>{if(!window.FTAnim)return;clearInterval(wait);const original=FTAnim.mount;FTAnim.mount=function(el,options){const result=original.apply(this,arguments);try{attach(el,options&&options.defender?'BLOCKOUT · LIVE':'FREE THROW · LIVE')}catch(_){}return result};const oldDestroy=FTAnim.destroy;FTAnim.destroy=function(){detach();return oldDestroy.apply(this,arguments)}} ,100);
+})();
+</script>
+<script id="bu87RealAudio">
+(function(){'use strict';
+const files={swish:['sounds/swish1.mp3','sounds/swish2.mp3'],rim:['sounds/rim.mp3'],board:['sounds/backboard.mp3'],boo:['sounds/boo.mp3'],cheer:['sounds/cheer.mp3'],mvp:['sounds/mvp.mp3']};
+const pools={};let unlocked=false;
+function play(type,volume){if(!files[type])return false;const list=files[type];const src=list[Math.floor(Math.random()*list.length)];let a;try{a=new Audio(src);a.preload='auto';a.volume=Math.max(0,Math.min(1,volume==null?.7:volume));a.play().catch(()=>{});return true}catch(_){return false}}
+window.BURealAudio={play,files};
 })();
 </script>
 </body></html>
