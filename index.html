@@ -1414,36 +1414,60 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  let pkMeterTimer=null,pkMarker=0,pkDirection=1;
  function pkStartMeter(target){
   clearInterval(pkMeterTimer);pkMarker=0;pkDirection=1;
-  window.__pkAnimId=null;const stage=$('pkFTStage');if(stage&&window.FTAnim)FTAnim.setLook(null),FTAnim.mount(stage,{dist:pkAnimDist(pkState?.phase,pkState?.spot)});
+  window.__pkAnimId=null;const stage=$('pkFTStage');if(stage&&window.FTAnim){try{FTAnim.setLook(null);FTAnim.mount(stage,{dist:pkAnimDist(pkState?.phase,pkState?.spot)})}catch(e){console.error('Parket court preview failed:',e)}}
   const zone=$('pkTargetZone'),marker=$('pkShotMarker');
   zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%';
   marker.style.left='0%';
   pkMeterTimer=setInterval(()=>{pkMarker+=pkDirection*1.45;if(pkMarker>=100){pkMarker=100;pkDirection=-1}if(pkMarker<=0){pkMarker=0;pkDirection=1}if($('pkShotMarker'))$('pkShotMarker').style.left=pkMarker+'%'},16);
  }
+ let pkPlaybackTimer=null,pkPlaybackTimerId=null;
+ function pkCanAdvancePlayback(pb){
+  return pkLocal||pkSlot===pb.shooter||(pkSlot===0&&!!pkState?.players?.[pb.shooter]?.bot);
+ }
+ function pkCompletePlayback(shotId){
+  const pb=pkState?.shotPlayback;
+  if(!pb||pb.id!==shotId||!pkCanAdvancePlayback(pb))return;
+  clearTimeout(pkPlaybackTimer);pkPlaybackTimer=null;pkPlaybackTimerId=null;
+  delete pkState.shotPlayback;
+  window.__pkAnimId=null;
+  pkFinishShot(pb.shooter,!!pb.hit);
+ }
+ function pkWatchPlayback(pb){
+  if(!pkCanAdvancePlayback(pb)||pkPlaybackTimerId===pb.id)return;
+  clearTimeout(pkPlaybackTimer);pkPlaybackTimerId=pb.id;
+  // Animation completion normally advances the turn. This guard also covers a failed renderer.
+  pkPlaybackTimer=setTimeout(()=>pkCompletePlayback(pb.id),12000);
+ }
  function pkAnimateShot(hit){
   clearInterval(pkMeterTimer);
-  const host=$('pkFTStage');if(!host||!window.FTAnim)return;
-  const pb=pkState?.shotPlayback||{};
-  window.__pkAnimId=pb.id;
-  FTAnim.setLook(window.buLookResolve?buLookResolve(pkState&&pkState.players&&pkState.players[pb.shooter],((typeof pkLocal!=='undefined'&&pkLocal)?pb.shooter===0:pb.shooter===pkSlot)):null);FTAnim.mount(host,{dist:pkAnimDist(pb.phase,pb.spot)});
-  {const fc=host.querySelector('.ftCall');if(fc)fc.textContent=''}
-  const target=Number(pb.target||pkDistanceTarget(pb.spot||0,pkState?.players?.[pb.shooter]?.player)||.2);
-  const err=((pb.release??50)-50)/Math.max(1,target*50);
-  FTAnim.shoot({hit:!!hit,err,streak:(pkState?.scores&&pkState.scores[pb.shooter])||0},()=>{});
+  const host=$('pkFTStage'),pb=pkState?.shotPlayback;
+  if(!pb)return;
+  pkWatchPlayback(pb);
+  if(!host||!window.FTAnim)return;
+  try{
+   let appearance=null;
+   try{appearance=window.buLookResolve?buLookResolve(pkState.players?.[pb.shooter],pkLocal?pb.shooter===0:pb.shooter===pkSlot):null}
+   catch(e){console.warn('Player appearance unavailable:',e.message)}
+   FTAnim.setLook(appearance);
+   FTAnim.mount(host,{dist:pkAnimDist(pb.phase,pb.spot)});
+   window.__pkAnimId=pb.id;
+   const fc=host.querySelector('.ftCall');if(fc)fc.textContent='';
+   const target=Number(pb.target||pkDistanceTarget(pb.spot||0,pkState.players?.[pb.shooter]?.player)||.2);
+   const err=((pb.release??50)-50)/Math.max(1,target*50);
+   FTAnim.shoot({hit:!!hit,err,streak:pkState.scores?.[pb.shooter]||0},()=>pkCompletePlayback(pb.id));
+  }catch(e){console.error('Parket shot animation failed:',e)}
  }
  function pkPlayShot(me,hit){
+  if(pkState?.shotPlayback)return;
   clearInterval(pkMeterTimer);
   const shotId=String(Date.now())+'-'+me;
-  pkState.shotPlayback={id:shotId,shooter:me,hit:!!hit,phase:pkState.phase,spot:pkState.spot||0,release:pkMarker,target:pkState.phase==='shootout'?Math.max(.045,pkDistanceTarget(6,pkState.players[me]?.player)-(((pkState.shootoutRound||1)-1)*.018)):pkDistanceTarget(pkState.spot||0,pkState.players[me]?.player)};
+  const pb={id:shotId,shooter:me,hit:!!hit,phase:pkState.phase,spot:pkState.spot||0,release:pkMarker,target:pkState.phase==='shootout'?Math.max(.045,pkDistanceTarget(6,pkState.players[me]?.player)-(((pkState.shootoutRound||1)-1)*.018)):pkDistanceTarget(pkState.spot||0,pkState.players[me]?.player)};
+  pkState.shotPlayback=pb;
   pkSave().then(()=>{
+   if(pkState?.shotPlayback?.id!==shotId)return;
+   pkWatchPlayback(pb);
    pkRender();
-   // Only the active player's device advances the shared state after everyone has seen the shot.
-   if(pkLocal||pkSlot===me){setTimeout(()=>{
-    if(!pkState?.shotPlayback||pkState.shotPlayback.id!==shotId)return;
-    delete pkState.shotPlayback;
-    pkFinishShot(me,!!hit);
-   },5200)}
-  }).catch(e=>console.error(e));
+  }).catch(e=>{console.error(e);pkWatchPlayback(pb)});
  }
  function pkResolveBotShot(target,me=1){
   const left=(100-target*100)/2,right=left+target*100;
@@ -4015,8 +4039,8 @@ window.FTAnim=API;
   ${msgTxt?`<p class="lkHint" style="color:#ffd16d">${msgTxt}</p>`:''}
   <div class="lkRow"><label>FRIENDS${friends===null?' · LOADING…':''}</label>${rows||'<p class="lkHint">No friends yet. Share your code, then challenge them to a room in any mode.</p>'}</div>`}
  window.buMyLook=()=>({...W.outfit});
- window.buBotLook=function(name){let h=0;String(name||'bot').split('').forEach(c=>h=(h*31+c.charCodeAt(0))>>>0);const pick=(a,o)=>a[(h>>o)%a.length];
-  return {skin:pick(SKINS,1),hair:pick(HAIRS,3)[0],hairColor:pick(HAIRC,5),jersey:'t:'+pick(TEAMS,7),number:String((h>>9)%99),shoes:pick(SHOES,11)[0],acc:pick(ACCS,13)[0]}};
+ window.buBotLook=function(name){let h=0;String(name||'bot').split('').forEach(c=>h=(h*31+c.charCodeAt(0))>>>0);const pick=(a,o)=>a[(h>>>o)%a.length];
+  return {skin:pick(SKINS,1),hair:pick(HAIRS,3)[0],hairColor:pick(HAIRC,5),jersey:'t:'+pick(TEAMS,7),number:String((h>>>9)%99),shoes:pick(SHOES,11)[0],acc:pick(ACCS,13)[0]}};
  window.buLookResolve=function(p,mine){if(p&&p.look)return look({...DEF,...p.look});if(p&&p.bot)return look(window.buBotLook(p.name));return mine?look():null};
  function mountBtn(){
   if($('buLockerOpen'))return;const p=$('buProfileOpen');if(!p)return;
