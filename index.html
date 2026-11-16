@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="sl">
+<html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827"><title>Basketball Universe · v0.86</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="theme-color" content="#101827"><title>Basketball Universe · Playtest arena</title>
+<meta name="description" content="Play Basketball Universe: a responsive playtest for mobile and desktop with recorded arena audio.">
 <style>
 :root{--bg:#0b1422;--panel:#17263a;--panel2:#20344c;--orange:#f28c28;--gold:#ffd166;--green:#42e695;--red:#ff647c;--muted:#a8b6c8;--white:#f6f8fc}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#334e6b 0,#0b1422 52%);color:var(--white);font-family:Arial,sans-serif;min-height:100vh}
@@ -73,7 +73,8 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
 }
 
 #badgeCollectionModal,#specialChallengeModal,#dailyPreviewModal{z-index:45}
-#badgeCollectionModal .modal,#specialChallengeModal .modal,#dailyPreviewModal .modal{max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}\n.challengeOptions{display:grid;gap:8px;margin-top:14px}
+#badgeCollectionModal .modal,#specialChallengeModal .modal,#dailyPreviewModal .modal{max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.challengeOptions{display:grid;gap:8px;margin-top:14px}
 .challengeOption{display:flex;align-items:center;gap:11px;text-align:left;background:#0c1828;color:#f6f8fc;border:1px solid #ffffff22;padding:12px;border-radius:12px;width:100%}
 .challengeOption .cIcon{font-size:25px;width:34px;text-align:center}
 .challengeOption b{display:block;font-size:12px}
@@ -553,14 +554,14 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </aside>
 </div></div>
 
-<div id="modeMenu"><div class="menuCard"><div class="eyebrow">WELCOME TO THE ARENA</div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>BUILD YOUR TEAM · COMPETE · BECOME A LEGEND</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div id="buAccountBar" style="margin:18px 0 8px;padding:14px;border:1px solid #ffffff24;border-radius:16px;background:#0d1b2c;text-align:left">
+<div id="modeMenu"><div class="arenaIdentity"><div class="arenaLogo">BU<span> / BASKETBALL UNIVERSE</span></div><div class="arenaSeason">THE COURT IS YOURS · EST. 2026</div></div><div class="arenaArtwork" aria-hidden="true"><svg viewBox="0 0 600 720" fill="none"><path d="M70 670V65h460v605H70Z" stroke="currentColor"/><path d="M70 365h460M225 65v155h150V65M225 670V515h150v155" stroke="currentColor"/><circle cx="300" cy="365" r="75" stroke="currentColor"/><path d="M70 140a230 230 0 0 0 460 0M70 595a230 230 0 0 1 460 0" stroke="currentColor"/><circle cx="300" cy="139" r="12" stroke="currentColor"/><circle cx="300" cy="596" r="12" stroke="currentColor"/></svg><span>MAKE<br>YOUR<br><b>MARK.</b></span><small>ONE COURT. ENDLESS POSSIBILITIES.</small></div><div class="menuCard"><div class="eyebrow">PLAYTEST ARENA <span class="testDevice"></span></div><h1>BASKETBALL<br><span style="color:#f28c28">UNIVERSE</span></h1><p>REAL SOUNDS · 60 SECONDS · YOUR COURT</p><label class="field" for="menuNick">YOUR NICKNAME</label><input id="menuNick" maxlength="16" value="" placeholder="Enter your nickname"><div id="buAccountBar" style="margin:18px 0 8px;padding:14px;border:1px solid #ffffff24;border-radius:16px;background:#0d1b2c;text-align:left">
  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-  <div><div style="font-size:10px;letter-spacing:2px;color:#ffc66d;font-weight:900">YOUR BASKETBALL ID</div><div id="buAccountSummary" style="font-weight:800;margin-top:4px">Playing as guest</div><div id="buLevelSummary" style="font-size:12px;color:#b5c5d8;margin-top:3px">LEVEL 1 · 0 XP</div></div>
-  <button class="secondary" id="buProfileOpen" style="min-width:112px">MY PROFILE</button>
+  <div><div style="font-size:10px;letter-spacing:2px;color:#ffc66d;font-weight:900">YOUR PLAYTEST ID</div><div id="buAccountSummary" style="font-weight:800;margin-top:4px">Guest · playtest</div><div id="buLevelSummary" style="font-size:12px;color:#b5c5d8;margin-top:3px">LEVEL 1 · 0 XP</div></div>
+  <button class="secondary" id="buProfileOpen" style="min-width:112px">MY STATS</button>
  </div>
  <div style="height:7px;background:#24364b;border-radius:10px;overflow:hidden;margin-top:12px"><div id="buXpBar" style="height:100%;width:0%;background:linear-gradient(90deg,#f28c28,#ffd36d)"></div></div>
 </div>
-<div class="modeBtns"><button class="primary" id="threePtMode">🏀 3PT</button><button class="primary" id="freeThrowMainBtn">🎯 FREE THROW</button><button class="primary" id="draftModeBtn">🎲 DRAFT</button><button class="secondary" id="fantasyModeBtn" disabled>⭐ FANTASY · COMING SOON</button></div></div></div>
+<button id="testQuick" class="primary testQuick">PLAY NOW <span>3PT · 60 seconds →</span></button><div class="testActions"><button class="secondary" id="testAudioOpen">PREVIEW SOUNDS</button><button class="secondary" data-audio-toggle aria-pressed="true">SOUND ON</button></div><p class="testLocal">Playtest · progress stays on this device</p><div class="modeBtns"><button class="primary" id="threePtMode"><span class="modeNumber">01</span><span>3PT CHALLENGE<small>Find your range. Light it up.</small></span><span class="modeArrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19 19 5M5 5h14v14"/></svg></span></button><button class="primary" id="freeThrowMainBtn"><span class="modeNumber">02</span><span>FREE THROW<small>Stay focused. Own the line.</small></span><span class="modeArrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19 19 5M5 5h14v14"/></svg></span></button><button class="primary" id="draftModeBtn"><span class="modeNumber">03</span><span>DRAFT<small>Build a roster. Chase the title.</small></span><span class="modeArrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19 19 5M5 5h14v14"/></svg></span></button><button class="secondary" id="fantasyModeBtn" disabled><span class="modeNumber">04</span><span>FANTASY<small>A new way to compete.</small></span><span class="soonLabel">SOON</span></button></div></div></div>
 
 <div class="overlay hidden" id="threePtMenu" style="z-index:65">
  <div class="modal" style="width:min(560px,94vw)">
@@ -680,7 +681,7 @@ button{border:0;border-radius:11px;padding:13px 17px;font-weight:900;cursor:poin
  </div>
 </div>
 
-<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Create a room and send the code to a friend, or join theirs. Everyone plays on their own phone.</p><label class="field" for="nick1">TVOJ NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><button class="primary" id="threePtQuickMatchBtn" style="width:100%;margin-top:9px">⚡ QUICK MATCH · FIND OPPONENT</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Server connection is ready.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button><button class="secondary" id="setupBackToMenu" style="width:100%;margin-top:9px">← BACK TO MENU</button></div></div>
+<div class="overlay hidden" id="setup"><div class="modal"><div class="eyebrow">WELCOME TO THE ARENA</div><h2>Online 3PT Challenge</h2><p>Create a room and send the code to a friend, or join theirs. Everyone plays on their own phone.</p><label class="field" for="nick1">YOUR NICKNAME</label><input id="nick1" maxlength="16" placeholder="Enter your nickname" value=""><button class="primary" id="createRoom">CREATE ONLINE GAME</button><button class="primary" id="threePtQuickMatchBtn" style="width:100%;margin-top:9px">⚡ QUICK MATCH · FIND OPPONENT</button><div style="height:1px;background:#ffffff22;margin:18px 0"></div><label class="field" for="roomInput">KODA SOBE</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="joinRoom" style="width:100%;margin-top:9px">JOIN GAME</button><p id="connectionMsg" style="min-height:18px;margin-bottom:0">Server connection is ready.</p><button class="secondary" id="localStart" style="width:100%;margin-top:12px">PLAY ON ONE DEVICE</button><button class="secondary" id="setupBackToMenu" style="width:100%;margin-top:9px">← BACK TO MENU</button></div></div>
 <div class="overlay hidden" id="draft"><div class="modal"><div class="eyebrow">PLAYER DRAFT · 3 PICKS</div><h2>Choose your shooter</h2><p id="draftPrompt">You have three random players to choose from. Pick your weapon.</p><div class="candidategrid" id="candidateGrid"></div></div></div>
 <div class="overlay hidden" id="between"><div class="modal"><div class="eyebrow" id="betweenEyebrow">ROUND COMPLETE</div><h2 id="betweenTitle">PLAYER 1 takes the round!</h2><p id="betweenText">Pass the phone to the next shooter.</p><div class="endbuttons"><button class="primary" id="nextTurn">NEXT PLAYER</button><button class="secondary" id="betweenMenu">MAIN MENU</button></div></div></div>
 <div class="overlay hidden" id="gameover"><div class="modal"><div class="eyebrow">FINAL BUZZER</div><h2 id="winnerTitle">CHAMPION!</h2><div class="finalnum" id="finalWins">5–3</div><p id="winnerText">What a contest.</p><button class="primary" id="rematch">REMATCH</button></div></div>
@@ -717,8 +718,8 @@ const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function audio(){if(!soundEnabled)return null;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx}catch(e){return null}}
 function tone(freq,start,duration,type="sine",volume=.08,slideTo=null){let c=audio();if(!c)return;let o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+start);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,c.currentTime+start+duration);g.gain.setValueAtTime(.001,c.currentTime+start);g.gain.exponentialRampToValueAtTime(volume,c.currentTime+start+.025);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+start+duration);o.connect(g);g.connect(c.destination);o.start(c.currentTime+start);o.stop(c.currentTime+start+duration+.03)}
-function cheer(){tone(523,0,.16,"triangle",.09);tone(659,.12,.18,"triangle",.09);tone(784,.25,.32,"triangle",.1);tone(1046,.42,.42,"sine",.07)}
-function boo(){tone(260,0,.36,"sawtooth",.055,150);tone(190,.18,.55,"triangle",.06,95);tone(145,.42,.7,"sine",.06,85)}
+function cheer(){}
+function boo(){}
 function startMatch(){names=[$("nick1").value.trim()||"PLAYER 1",($("nick2")?.value||"").trim()||"PLAYER 2"];wins=[0,0];round=1;turn=0;roundScores=[null,null];$("setup").classList.add("hidden");beginTurn()}
 function beginTurn(){shot=0;score=0;made=0;streak=0;results=[];locked=false;player=null;$("playerName").textContent="Choose your player";$("playerTeam").textContent="Three random choices";$("playerPct").textContent="—";$("turnName").textContent=names[turn];$("roundLabel").textContent="ROUND "+round+" · "+names[turn];$("feedback").className="feedback";$("feedback").textContent="Pick your shooter."; $("comment").textContent="Three players. One choice. Make it count.";$("status").textContent=names[turn]+" is choosing a shooter.";$("shootBtn").disabled=true;$("between").classList.add("hidden");$("gameover").classList.add("hidden");update();showDraft()}
 function showDraft(){let choices=[];while(choices.length<2){let candidate=pick(players);if(!choices.some(p=>p.name===candidate.name))choices.push(candidate)}choices.push(jokePlayer);$("draftPrompt").textContent=names[turn]+", pick one of two random NBA players or Gregor Hlebec. Be brave!";$("candidateGrid").innerHTML="";choices.forEach((p,i)=>{let b=document.createElement("button");b.className="candidate";b.innerHTML="<span>OPTION "+(i+1)+(i===2?" · WILD CARD":"")+"</span><strong>"+p.name+"</strong><span class=\"crestRow\">"+(window.buTeamCrest?buTeamCrest(p.team,false,"xs"):"")+p.team+"</span><em>"+p.pct.toFixed(1)+"% 3P</em>";b.onclick=()=>selectPlayer(p);$("candidateGrid").appendChild(b)});$("draft").classList.remove("hidden")}
@@ -783,7 +784,7 @@ function renderRemote(st){
  $('shootBtn').disabled=!(isMyTurn&&remotePhase==='shooting'&&!locked&&!!player);
  if(remotePhase==='waiting'){$('draft').classList.add('hidden');$('between').classList.add('hidden');$('gameover').classList.add('hidden');$('shootBtn').disabled=true;$('status').textContent='Waiting for your friend to join…'}
  else if(remotePhase==='draft'){
-   if(isMyTurn){$('draftPrompt').textContent=names[turn]+', izberi svojega strelca.';$('candidateGrid').innerHTML='';remoteCandidates.forEach((p,i)=>{let b=document.createElement('button');b.className='candidate';b.innerHTML='<span>OPTION '+(i+1)+(i===2?' · WILD CARD':'')+'</span><strong>'+p.name+'</strong><span class="crestRow">'+(window.buTeamCrest?buTeamCrest(p.team,false,'xs'):'')+p.team+'</span><em>'+p.pct.toFixed(1)+'% 3P</em>';b.onclick=()=>remoteSelect(p);$('candidateGrid').appendChild(b)});$('draft').classList.remove('hidden')}else{$('draft').classList.add('hidden');$('status').textContent='Waiting for '+names[turn]+' to choose a shooter…'}
+   if(isMyTurn){$('draftPrompt').textContent=names[turn]+', choose your shooter.';$('candidateGrid').innerHTML='';remoteCandidates.forEach((p,i)=>{let b=document.createElement('button');b.className='candidate';b.innerHTML='<span>OPTION '+(i+1)+(i===2?' · WILD CARD':'')+'</span><strong>'+p.name+'</strong><span class="crestRow">'+(window.buTeamCrest?buTeamCrest(p.team,false,'xs'):'')+p.team+'</span><em>'+p.pct.toFixed(1)+'% 3P</em>';b.onclick=()=>remoteSelect(p);$('candidateGrid').appendChild(b)});$('draft').classList.remove('hidden')}else{$('draft').classList.add('hidden');$('status').textContent='Waiting for '+names[turn]+' to choose a shooter…'}
    $('between').classList.add('hidden');$('gameover').classList.add('hidden');
  } else if(remotePhase==='shooting'){$('draft').classList.add('hidden');$('between').classList.add('hidden');$('gameover').classList.add('hidden');if(!isMyTurn)$('status').textContent=names[turn]+' is shooting…'}
  else if(remotePhase==='between'){$('draft').classList.add('hidden');$('gameover').classList.add('hidden');$('between').classList.remove('hidden');$('nextTurn').disabled=!isMyTurn;$('nextTurn').textContent=turn===0?'LET '+names[1]+' SHOOT':'NEXT ROUND';}
@@ -809,7 +810,7 @@ $('createRoom').onclick=createOnline;$('joinRoom').onclick=joinOnline;
 (function setupThreePtQuickMatch(){
  const btn=$('threePtQuickMatchBtn');if(!btn)return;
  let active=false,queueId=null;
- async function auth(){if(!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
+ async function auth(){if(!sb)throw Error('Online services are unavailable.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
  async function cancel(){if(queueId)try{await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;active=false;}
  async function startRoom(code,slot,opponent){
   await window.buShowMatchIntro($('nick1').value.trim()||'PLAYER 1',opponent||'Opponent');
@@ -886,9 +887,9 @@ $('nextTurn').onclick=()=>{
  if(turn===0){turn=1;beginTurn()}else{turn=0;round++;roundScores=[null,null];beginTurn()}
 };
 $('copyInvite').onclick=async()=>{let link=location.href.split('?')[0]+'?room='+roomCode;try{await navigator.clipboard.writeText(link);$('onlineStatus').textContent='Invite link copied! Code: '+roomCode}catch(e){$('onlineStatus').textContent='Send your friend this code: '+roomCode}};
-$('inviteBtn').onclick=()=>{if(remoteMode){$('onlineStatus').textContent='Room code: '+roomCode}else alert('Najprej ustvari spletno sobo.')};
+$('inviteBtn').onclick=()=>{if(remoteMode){$('onlineStatus').textContent='Room code: '+roomCode}else alert('Create an online room first.')};
 const roomFromUrl=new URLSearchParams(location.search).get('room');if(roomFromUrl){$('roomInput').value=roomFromUrl.toUpperCase()}
-if(!sb)setConnectMsg('Error: Supabase library did not load. Refresh the page or check your internet.',true);else setConnectMsg('Supabase library loaded. The connection will be checked when you create a room.');
+if(!sb)setConnectMsg('Playtest: play locally on this device.',true);else setConnectMsg('Supabase library loaded. The connection will be checked when you create a room.');
 update();
 
 // ===== NBA EDITION v0.8 enhancements =====
@@ -943,7 +944,7 @@ async function loadLeaderboard(){
   if(error) throw error;
   if(!data||!data.length){box.innerHTML='<p>No results yet. Be the first on the leaderboard!</p>';return;}
   box.innerHTML=data.map((r,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 8px;border-bottom:1px solid #ffffff22"><div><b>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${escapeHtml(r.nickname)}</b><div class="muted" style="font-size:12px">${r.games_played||0} rounds played</div></div><strong style="color:var(--gold);font-size:22px">${r.best_score} PTS</strong></div>`).join('');
- } catch(e){box.innerHTML='<p>Napaka pri nalaganju lestvice: '+escapeHtml(e.message)+'</p>';}
+ } catch(e){box.innerHTML='<p>Could not load the leaderboard: '+escapeHtml(e.message)+'</p>';}
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 $('leaderboardOpen').onclick=(ev)=>{ev.preventDefault();$('leaderboardModal').classList.remove('hidden');$('leaderboardModal').style.zIndex='50';$('leaderboardRows').innerHTML='<p>Loading leaderboard…</p>';requestAnimationFrame(()=>loadLeaderboard())};
@@ -1230,7 +1231,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   {id:'steady',icon:'🎯',name:'PURE SHOOTING',desc:'No random help – pure accuracy.',rule:'No random HOT ZONE bonus.',player:'Choose your shooter.'},
   {id:'double',icon:'✨',name:'DOUBLE POINTS',desc:'Every basket counts double.',rule:'Every make is worth 2 points.',player:'Choose your shooter.'},
   {id:'comeback',icon:'🚀',name:'SECOND HALF',desc:'Save your best for the end.',rule:'Last 10 shots: +18 percentage points.',player:'Choose your shooter.'},
-  {id:'midrange',icon:'🎯',name:'MID-RANGE MASTER',desc:'Today we leave the three-point line and shoot from mid-range.',rule:'Mid-range challenge: higher base hit chance, 25 shots.',player:'Luka Dončić in Stephen Curry dobita posebne mid-range ocene.'}
+  {id:'midrange',icon:'🎯',name:'MID-RANGE MASTER',desc:'Today we leave the three-point line and shoot from mid-range.',rule:'Mid-range challenge: higher base hit chance, 25 shots.',player:'Luka Dončić and Stephen Curry have special mid-range ratings.'}
  ];
  const specials=[
   {id:'sudden',icon:'☠️',name:'SUDDEN DEATH',desc:'The first miss ends the challenge.',rule:'The run ends on the first miss.'},
@@ -1252,7 +1253,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   $('modeMenu').classList.add('hidden');$('setup').classList.add('hidden');
   $('specialChallengeModal').classList.add('hidden');$('dailyPreviewModal').classList.add('hidden');
   $('roomBanner').classList.add('hidden');
-  showGameInstructions(mode==='special'?'SPECIAL CHALLENGE':mode==='daily'?'DAILY CHALLENGE':'3PT SHOOTOUT',['Make as many shots as you can and score as many points as possible.','Use the shoot buttons and keep an eye on the clock or shot count.','Po koncu igre bo prikazan rezultat in statistika.'],beginTurn);
+  showGameInstructions(mode==='special'?'SPECIAL CHALLENGE':mode==='daily'?'DAILY CHALLENGE':'3PT SHOOTOUT',['Make as many shots as you can and score as many points as possible.','Use the shoot buttons and keep an eye on the clock or shot count.','Your score and stats appear at the end of the game.'],beginTurn);
  }
  function drawSpecials(){
   const host=$('specialChallengeOptions');host.innerHTML='';
@@ -1543,7 +1544,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  let pkQuickActive=false,pkQuickQueueId=null,pkQuickTimer=null;
  function pkQuickName(){return ['ClutchKing','SkyHook','HoopMaster','SwishPro','FastBreak','RimRunner'][Math.floor(Math.random()*6)]+Math.floor(10+Math.random()*89)}
  async function pkQuickAuth(){
-  if(!sb)throw Error('Supabase ni na voljo.');
+  if(!sb)throw Error('Online services are unavailable.');
   const {data}=await sb.auth.getSession();
   if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}
  }
@@ -2133,7 +2134,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   
 $('mdCreate').onclick=mdCreateRoom;$('mdJoin').onclick=mdJoinRoom;
  const qbtn=$('mdQuickMatch');let qactive=false,qid=null;
- async function qauth(){if(!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
+ async function qauth(){if(!sb)throw Error('Online services are unavailable.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error;}}
  async function qcancel(){if(qid)try{await sb.rpc('basket_quick_cancel',{p_queue_id:qid})}catch(_){};qid=null;qactive=false;}
  async function qopen(code,slot,opponent){
   await window.buShowMatchIntro($('mdNick').value.trim()||mdName(),opponent||'Opponent');
@@ -2932,7 +2933,12 @@ window.buShowMatchIntro=function(me,opponent){
   if(data)profile=data;
   else{
    const initial={user_id:sessionUser.id,nickname:currentNick(),avatar:'🏀',xp:0};
-   const r=await sb.from('bu_profiles').insert(initial).select().single();if(r.error)throw r.error;profile=r.data;
+   const r=await sb.from('bu_profiles').insert(initial).select().single();
+   if(r.error){
+    if(r.error.code!=='23505')throw r.error;
+    const existing=await sb.from('bu_profiles').select('*').eq('user_id',sessionUser.id).single();
+    if(existing.error)throw existing.error;profile=existing.data;
+   }else profile=r.data;
   }
   const sr=await sb.from('bu_game_stats').select('*').eq('user_id',sessionUser.id);
   if(sr.error)throw sr.error;stats=sr.data||[];
@@ -3036,7 +3042,7 @@ window.buShowMatchIntro=function(me,opponent){
  $('buProfileOpen').onclick=open;$('buAccountClose').onclick=close;
  $('buAccountModal').addEventListener('click',e=>{if(e.target===$('buAccountModal'))close()});
  sb.auth.onAuthStateChange((event,session)=>{if(session?.user){sessionUser=session.user;loadProfile().catch(e=>console.warn(e));if(event==='PASSWORD_RECOVERY')renderSetNewPassword();}});
- (async()=>{try{await loadProfile();}catch(e){console.warn('Account module:',e.message);$('buAccountSummary').textContent='Profile setup needed · check SQL';$('buLevelSummary').textContent=e.message}})();
+ (async()=>{try{await loadProfile();}catch(e){console.warn('Account module:',e.message);$('buAccountSummary').textContent='Guest · cloud profile unavailable';$('buLevelSummary').textContent='You can still play. Cloud progress is not synced.'}})();
 })();
 </script>
 
@@ -3716,26 +3722,16 @@ window.FTAnim=API;
   cleanup();completeCallback=typeof onComplete==='function'?onComplete:null;game={player,station:0,shot:0,made:0,score:0,results:[],marker:0,dir:1,target:targetFor(player),busy:false,remaining:60,deadline:null,ended:false};
   const old=$('bu3ptContest');if(old)old.remove();
   const el=document.createElement('div');el.id='bu3ptContest';el.className='overlay';el.style.zIndex='151';
-  el.innerHTML=`<div class="modal" style="width:min(720px,97vw);max-height:94vh;overflow:auto;text-align:center">
-   <div class="eyebrow">BASKETBALL UNIVERSE · THREE-POINT CONTEST</div><h2 style="margin:5px 0 10px">🏀 3PT SOLO CONTEST</h2>
-   <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;background:#0c1929;border:1px solid #ffffff20;border-radius:12px;padding:10px;margin-bottom:10px"><div style="text-align:left;min-width:0"><b id="bu3ptPlayer"></b><div class="muted" id="bu3ptRating"></div></div><div style="text-align:right"><small style="display:block;color:#a8b6c8;letter-spacing:1px">TIME LEFT</small><b id="bu3ptClock" style="font-size:30px;color:#ffd166;font-variant-numeric:tabular-nums">60</b></div></div>
-   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px"><div class="stat"><small>SCORE</small><b id="bu3ptScore">0</b></div><div class="stat"><small>MADE</small><b id="bu3ptMade">0/25</b></div><div class="stat"><small>STATION</small><b id="bu3ptStation">1/5</b></div></div>
-   <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin:8px 2px"><b id="bu3ptSpotName" style="color:#ffd166">LEFT CORNER</b><span id="bu3ptRackCount" class="muted">BALL 1 / 5</span></div>
-   <div id="bu3ptCourt" class="ftStage"></div>
-   <div style="display:flex;justify-content:space-between;color:#a8b6c8;font-size:10px;margin:8px 2px 5px"><span>EARLY</span><b id="bu3ptTargetLabel" style="color:#ffd166">TARGET 12%</b><span>LATE</span></div>
-   <div class="ftMeter" style="height:30px"><div id="bu3ptTarget" class="ftTarget"></div><div id="bu3ptMarker" class="ftMarker"></div></div>
-   <div id="bu3ptCall" class="feedback" style="min-height:42px">GET READY</div>
-   <button class="primary" id="bu3ptShoot" style="width:100%;font-size:17px;margin-top:7px">STOP & SHOOT</button>
-   <div id="bu3ptRackDots" style="display:flex;justify-content:center;gap:8px;margin:12px 0"></div>
-   <button class="secondary" id="bu3ptExit" style="width:100%;margin-top:6px">QUIT CONTEST</button>
-  </div>`;
+  el.innerHTML=`<div class="modal testContest"><header class="testContestHead"><div><div class="eyebrow">BU · PLAYTEST ARENA <span class="testDevice"></span></div><h2>3PT CONTEST</h2></div><div class="testClock"><small>TIME</small><b id="bu3ptClock">60</b></div></header>
+ <div class="testContestGrid"><section class="testPlayArea"><div class="testPlayer"><div><b id="bu3ptPlayer"></b><div class="muted" id="bu3ptRating"></div></div><span class="livePill">● LIVE</span></div><div class="testSpot"><b id="bu3ptSpotName">LEFT CORNER</b><span id="bu3ptRackCount">BALL 1 / 5</span></div><div id="bu3ptCourt" class="ftStage"></div><div id="bu3ptRackDots" class="testRack"></div></section>
+ <section class="testControlArea"><div class="testStats"><div class="stat"><small>SCORE</small><b id="bu3ptScore">0</b></div><div class="stat"><small>MADE</small><b id="bu3ptMade">0/25</b></div><div class="stat"><small>STATION</small><b id="bu3ptStation">1/5</b></div></div><div class="testRelease"><h3>FIND YOUR RHYTHM.</h3><p>Stop the marker inside the gold zone.<br>Every fifth ball scores double.</p><div class="ftMeterLabels"><span>EARLY</span><b id="bu3ptTargetLabel">TARGET 12%</b><span>LATE</span></div><div class="ftMeter"><div id="bu3ptTarget" class="ftTarget"></div><div id="bu3ptMarker" class="ftMarker"></div></div><div id="bu3ptCall" class="feedback">GET READY</div><button class="primary" id="bu3ptShoot">STOP & SHOOT</button><small class="testKeyboard">SPACE TO SHOOT · 25 BALLS · 60 SECONDS</small></div><div class="testCrowdHint">3 consecutive makes → MVP!<br>3 consecutive misses → BOOO!</div><div class="testActions"><button class="secondary" data-audio-toggle aria-pressed="true">SOUND ON</button><button class="secondary" id="testInGameAudio">AUDIO</button></div><button class="secondary" id="bu3ptExit">END RUN</button></section></div></div>`;
   document.body.append(el);
   $('bu3ptPlayer').textContent=player.name;$('bu3ptRating').textContent=player.team+' · '+player.pct+'% career 3PT';
   $('bu3ptTargetLabel').textContent='TARGET '+Math.round(game.target*100)+'%';
   const width=game.target*100;$('bu3ptTarget').style.width=width+'%';$('bu3ptTarget').style.left=((100-width)/2)+'%';
   if(window.FTAnim){FTAnim.setLook((window.buCurrentLook?buCurrentLook():null));FTAnim.setSpeed(1.8);FTAnim.mount($('bu3ptCourt'),{dist:spots[0].dist})}
-  $('bu3ptShoot').onclick=shoot;$('bu3ptExit').onclick=()=>finish(true);try{window.BUArena&&BUArena.attach($('bu3ptCourt'),'3PT CONTEST')}catch(_){}
-  render();startMeter();$('bu3ptCall').textContent='SHOOT TO START THE CLOCK';
+  $('bu3ptShoot').onclick=shoot;$('testInGameAudio').onclick=()=>window.BUTestUI.openAudio();window.BUTestAudioRefresh?.();$('bu3ptExit').onclick=()=>finish(true);try{window.BUArena&&BUArena.attach($('bu3ptCourt'),'3PT CONTEST')}catch(_){}
+  render();startMeter();$('bu3ptCall').textContent='FIRST SHOT STARTS THE CLOCK';
   timer=setInterval(()=>{if(!game||game.ended||game.deadline===null)return;game.remaining=Math.max(0,(game.deadline-Date.now())/1000);$('bu3ptClock').textContent=Math.ceil(game.remaining);try{window.BUArena&&BUArena.clock(game.remaining)}catch(_){}if(game.remaining<=0&&!game.busy)finish(false);},100);
  }
  function startMeter(){clearInterval(raf);if(!game||game.ended)return;game.marker=0;game.dir=1;game.busy=false;$('bu3ptShoot').disabled=false;$('bu3ptShoot').textContent='STOP & SHOOT';raf=setInterval(()=>{if(!game||game.ended||game.busy)return;game.marker+=game.dir*1.48;if(game.marker>=100){game.marker=100;game.dir=-1}if(game.marker<=0){game.marker=0;game.dir=1}$('bu3ptMarker').style.left=game.marker+'%';},16)}
@@ -3776,13 +3772,13 @@ window.FTAnim=API;
  function nick(){return ($('nick1')?.value||'').trim().slice(0,16)||'PLAYER'}
  function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
  function cleanupChannel(){if(channel&&typeof sb!=='undefined'&&sb){try{sb.removeChannel(channel)}catch(_){}}channel=null}
- async function ensureAuth(){if(typeof sb==='undefined'||!sb)throw Error('Supabase ni na voljo.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error}}
- function modal(){let old=$('bu3ptMpLobby');if(old)old.remove();let e=document.createElement('div');e.id='bu3ptMpLobby';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(520px,96vw)"><div class="eyebrow">BASKETBALL UNIVERSE · ONLINE</div><h2>🏆 3PT MULTIPLAYER</h2><p>Each player takes 25 shots in 60 seconds. Player one goes first, then player two.</p><label class="field">TVOJ NICKNAME</label><input id="bu3ptMpNick" maxlength="16" value="'+nick().replace(/"/g,'&quot;')+'" placeholder="Your nickname"><button class="primary" id="bu3ptMpCreate" style="width:100%;margin-top:10px">CREATE ROOM</button><button class="primary" id="bu3ptMpQuick" style="width:100%;margin-top:8px">⚡ QUICK MATCH</button><div style="height:1px;background:#ffffff22;margin:16px 0"></div><label class="field">ROOM CODE</label><input id="bu3ptMpCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="bu3ptMpJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="bu3ptMpMsg" style="min-height:20px;margin-bottom:0"></p><button class="secondary" id="bu3ptMpBack" style="width:100%;margin-top:8px">BACK</button></div>';document.body.append(e);
+ async function ensureAuth(){if(typeof sb==='undefined'||!sb)throw Error('Online services are unavailable.');const {data}=await sb.auth.getSession();if(!data?.session){const {error}=await sb.auth.signInAnonymously();if(error)throw error}}
+ function modal(){let old=$('bu3ptMpLobby');if(old)old.remove();let e=document.createElement('div');e.id='bu3ptMpLobby';e.className='overlay';e.style.zIndex='149';e.innerHTML='<div class="modal" style="width:min(520px,96vw)"><div class="eyebrow">BASKETBALL UNIVERSE · ONLINE</div><h2>🏆 3PT MULTIPLAYER</h2><p>Each player takes 25 shots in 60 seconds. Player one goes first, then player two.</p><label class="field">YOUR NICKNAME</label><input id="bu3ptMpNick" maxlength="16" value="'+nick().replace(/"/g,'&quot;')+'" placeholder="Your nickname"><button class="primary" id="bu3ptMpCreate" style="width:100%;margin-top:10px">CREATE ROOM</button><button class="primary" id="bu3ptMpQuick" style="width:100%;margin-top:8px">⚡ QUICK MATCH</button><div style="height:1px;background:#ffffff22;margin:16px 0"></div><label class="field">ROOM CODE</label><input id="bu3ptMpCode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase"><button class="secondary" id="bu3ptMpJoin" style="width:100%;margin-top:8px">JOIN ROOM</button><p id="bu3ptMpMsg" style="min-height:20px;margin-bottom:0"></p><button class="secondary" id="bu3ptMpBack" style="width:100%;margin-top:8px">BACK</button></div>';document.body.append(e);
  $('bu3ptMpBack').onclick=()=>{e.remove();$('threePtMenu').classList.remove('hidden')};$('bu3ptMpCreate').onclick=createRoom;$('bu3ptMpJoin').onclick=joinRoom;$('bu3ptMpQuick').onclick=quickMatch;
  }
  function msg(t){if($('bu3ptMpMsg'))$('bu3ptMpMsg').textContent=t}
  async function createRoom(){try{await ensureAuth();msg('Creating room…');room=code();slot=0;const st={mode:'3ptcontest',phase:'waiting',names:[$('bu3ptMpNick').value.trim()||nick(),'WAITING…'],results:[null,null],turn:0};const {error}=await sb.from('basket_matches').insert({room_code:room,player1_name:st.names[0],player2_name:null,status:'waiting',game_state:st});if(error)throw error;showWaiting(st)}catch(e){msg('Error: '+e.message)}}
- async function joinRoom(){try{await ensureAuth();const c=$('bu3ptMpCode').value.trim().toUpperCase();if(c.length!==6)throw Error('Enter the 6-character code.');msg('Joining room…');const {data,error}=await sb.from('basket_matches').select('*').eq('room_code',c).maybeSingle();if(error)throw error;if(!data)throw Error('Room does not exist.');if(data.player2_name)throw Error('Room is already full.');room=c;slot=1;const st=data.game_state||{};if(st.mode!=='3ptcontest')throw Error('Ta koda ni za 3PT Contest.');st.names=[data.player1_name||st.names?.[0]||'PLAYER 1',$('bu3ptMpNick').value.trim()||nick()];st.phase='playing';st.turn=0;const {error:up}=await sb.from('basket_matches').update({player2_name:st.names[1],status:'playing',game_state:st}).eq('room_code',c);if(up)throw up;showWaiting(st)}catch(e){msg('Error: '+e.message)}}
+ async function joinRoom(){try{await ensureAuth();const c=$('bu3ptMpCode').value.trim().toUpperCase();if(c.length!==6)throw Error('Enter the 6-character code.');msg('Joining room…');const {data,error}=await sb.from('basket_matches').select('*').eq('room_code',c).maybeSingle();if(error)throw error;if(!data)throw Error('Room does not exist.');if(data.player2_name)throw Error('Room is already full.');room=c;slot=1;const st=data.game_state||{};if(st.mode!=='3ptcontest')throw Error('This code is not for a 3PT Contest.');st.names=[data.player1_name||st.names?.[0]||'PLAYER 1',$('bu3ptMpNick').value.trim()||nick()];st.phase='playing';st.turn=0;const {error:up}=await sb.from('basket_matches').update({player2_name:st.names[1],status:'playing',game_state:st}).eq('room_code',c);if(up)throw up;showWaiting(st)}catch(e){msg('Error: '+e.message)}}
  async function quickMatch(){const searchStarted=Date.now();try{await ensureAuth();msg('🔎 Searching for an opponent · up to 10 seconds…');const {data,error}=await sb.rpc('basket_quick_match',{p_mode:'threeptcontest',p_nickname:$('bu3ptMpNick').value.trim()||nick()});if(error)throw error;queueId=data.queue_id;if(data.status==='matched'){room=data.room_code;slot=data.slot;await attachRoom();return}while(Date.now()-searchStarted<10000){await new Promise(r=>setTimeout(r,500));const {data:s,error:se}=await sb.rpc('basket_quick_status',{p_queue_id:queueId});if(se)throw se;if(s.status==='matched'){room=s.room_code;slot=s.slot;await attachRoom();return}}
  try{await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;msg('🏀 Opponent found!');room=null;slot=0;startBot();
  }catch(e){console.warn('3PT Quick Match -> bot:',e.message);try{if(queueId)await sb.rpc('basket_quick_cancel',{p_queue_id:queueId})}catch(_){};queueId=null;await new Promise(r=>setTimeout(r,Math.max(0,10000-(Date.now()-searchStarted))));msg('🏀 Opponent found!');room=null;slot=0;startBot()}}
@@ -4043,36 +4039,7 @@ window.FTAnim=API;
 })();
 </script>
 
-<script>
-/* Basketball Universe · extra sound effects + mute */
-(function(){
- let muted=false;try{muted=localStorage.getItem('bu_muted')==='1'}catch(_){}
- const base=window.tone;
- if(typeof base==='function'){window.tone=function(){if(muted)return;return base.apply(this,arguments)}}
- function ctx(){try{return typeof audio==='function'?audio():null}catch(_){return null}}
- function noise(c,dur,type,f0,f1,vol){const n=Math.floor(c.sampleRate*dur),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
-  const s=c.createBufferSource();s.buffer=b;const f=c.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(f0,c.currentTime);f.frequency.linearRampToValueAtTime(f1,c.currentTime+dur);
-  const g=c.createGain();g.gain.setValueAtTime(vol,c.currentTime);g.gain.linearRampToValueAtTime(0.0001,c.currentTime+dur);s.connect(f);f.connect(g);g.connect(c.destination);s.start()}
- window.buSfx=function(name){
-  if(muted)return;const c=ctx();if(!c&&name!=='coin')return;
-  try{
-   if(name==='coin'&&typeof base==='function'){base(988,0,.08,'sine',.07);base(1319,.08,.16,'sine',.07)}
-   else if(name==='cheer'){noise(c,1.25,'bandpass',500,1400,.10);setTimeout(()=>{try{noise(c,.8,'bandpass',900,600,.06)}catch(_){}},350)}
-   else if(name==='slap'){noise(c,.14,'lowpass',1400,200,.22);base&&base(90,0,.12,'square',.07,50)}
-   else if(name==='buzzer'&&base){base(140,0,.5,'sawtooth',.07)}
-  }catch(_){}
- };
- function btn(){
-  if(document.getElementById('buMute'))return;
-  const b=document.createElement('button');b.id='buMute';b.type='button';b.setAttribute('aria-label','Toggle sound');
-  const set=()=>{b.textContent=muted?'🔇':'🔊'};set();
-  b.onclick=()=>{muted=!muted;try{localStorage.setItem('bu_muted',muted?'1':'0')}catch(_){}set();if(!muted&&window.buSfx)buSfx('coin')};
-  b.style.cssText='position:fixed;left:12px;bottom:12px;z-index:90;width:38px;height:38px;border-radius:50%;border:1px solid #ffffff30;background:#12233acc;color:#fff;font-size:17px;cursor:pointer;backdrop-filter:blur(4px)';
-  document.body.append(b);
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',btn);else btn();
-})();
-</script>
+
 <script>
 /* Basketball Universe · activity log (anonymous analytics: visit, guest/login/register, mode opened, matches).
    Mark YOUR devices once by opening the game with ?owner=1 (use ?owner=0 to unmark) so your events are tagged YOU. */
@@ -4114,35 +4081,19 @@ window.FTAnim=API;
 @keyframes bu86crowd{to{transform:translateY(3px)}}
 @media(prefers-reduced-motion:reduce){.bu86hud .bu86fire,.bu86ribbon.on,.bu86crowd.loud{animation:none}}
 </style>
-<script id="bu86Arena">
-(function(){'use strict';
- let host=null,hud=null,ribbon=null,crowd=null,hide=0,ctx=null,streak=0,miss=0,lastCountdown=-1,lastImpact=0;
- const settings=document.createElement('div');settings.className='bu86settings';settings.innerHTML='<label for="bu86quality">GRAPHICS</label><select id="bu86quality"><option value="ultra">ULTRA</option><option value="medium">MEDIUM</option><option value="low">LOW</option></select><label for="bu86audio">CROWD</label><input type="checkbox" id="bu86audio" checked style="width:16px;height:16px;accent-color:#f7bb58">';
- function init(){if(!settings.isConnected)document.body.append(settings);settings.querySelector('#bu86quality').value=localStorage.getItem('bu86quality')||'ultra';settings.querySelector('#bu86audio').checked=localStorage.getItem('bu86crowd')!=='off';settings.querySelector('#bu86quality').onchange=e=>{localStorage.setItem('bu86quality',e.target.value);applyQuality()};settings.querySelector('#bu86audio').onchange=e=>localStorage.setItem('bu86crowd',e.target.checked?'on':'off')}
- function quality(){return settings.querySelector('#bu86quality')?.value||'medium'}
- function enabled(){return !!settings.querySelector('#bu86audio')?.checked}
- function audio(){if(!enabled())return null;try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}catch(_){return null}}
- function noise(duration,volume,pitch){const c=audio();if(!c)return;const n=Math.round(c.sampleRate*duration),b=c.createBuffer(1,n,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();src.buffer=b;f.type='bandpass';f.frequency.value=pitch||750;f.Q.value=.45;g.gain.setValueAtTime(.001,c.currentTime);g.gain.linearRampToValueAtTime(volume,c.currentTime+.06);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+duration);src.connect(f);f.connect(g);g.connect(c.destination);src.start();src.stop(c.currentTime+duration+.01)}
- function chant(word){if(!enabled())return;window.BURealAudio&&BURealAudio.play(word==='BOOOOO!'?'boo':'mvp',.7)}
- function flash(text){if(!ribbon)return;ribbon.textContent=text;ribbon.classList.add('on');clearTimeout(hide);hide=setTimeout(()=>ribbon&&ribbon.classList.remove('on'),1600);if(crowd&&quality()!=='low'){crowd.classList.add('loud');setTimeout(()=>crowd&&crowd.classList.remove('loud'),1400)}}
- function applyQuality(){if(!host)return;const q=quality();if(crowd)crowd.style.display=q==='low'?'none':'';if(hud)hud.style.filter=q==='ultra'?'drop-shadow(0 0 8px #ffb52e55)':'none'}
- function attach(el,title){init();detach();if(!el)return;host=el;host.style.position='relative';hud=document.createElement('div');hud.className='bu86hud';hud.innerHTML='<span>BU SPORTS · LIVE</span><span class="bu86status"></span>';hud.querySelector('.bu86status').textContent=title||'ARENA';ribbon=document.createElement('div');ribbon.className='bu86ribbon';crowd=document.createElement('div');crowd.className='bu86crowd';host.append(hud,ribbon,crowd);streak=0;miss=0;lastCountdown=-1;applyQuality()}
- function detach(){clearTimeout(hide);for(const e of [hud,ribbon,crowd])if(e)e.remove();hud=ribbon=crowd=host=null;streak=miss=0;lastCountdown=-1}
- function shot(hit,made,missed,score){if(!host)return;streak=hit?streak+1:0;miss=hit?0:miss+1;const st=hud?.querySelector('.bu86status');if(st){st.textContent='SCORE '+score+' · '+made+' MADE';st.classList.toggle('bu86fire',streak>=3)}if(hit){window.BURealAudio&&BURealAudio.play('cheer',.36);if(streak===3)flash('🔥 ON FIRE!');if(streak>=5&&streak%5===0){flash('🏆 MVP! MVP!');chant('MVP! MVP!')}}else if(miss===3){flash('CROWD WHISTLES');window.BURealAudio&&BURealAudio.play('boo',.35)}else if(miss>=5&&miss%5===0){flash('BOOOOO!');chant('BOOOOO!')}}
- function impact(type){if(!host)return;const now=performance.now();if(now-lastImpact<100)return;lastImpact=now;if(type==='swish'&&quality()==='ultra'){host.style.filter='brightness(1.13)';setTimeout(()=>{if(host)host.style.filter=''},180)}}
- function clock(seconds){if(!host||seconds>5||seconds<=0)return;const n=Math.ceil(seconds);if(n===lastCountdown)return;lastCountdown=n;flash(String(n))}
- function ftShot(hit){if(!host||host.id==='bu3ptCourt')return;shot(hit,0,0,hit?1:0)}
- window.BUArena={attach,detach,shot,impact,clock,ftShot};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
- // Attach to FTAnim stages as well, without changing its shot physics.
- const wait=setInterval(()=>{if(!window.FTAnim)return;clearInterval(wait);const original=FTAnim.mount;FTAnim.mount=function(el,options){const result=original.apply(this,arguments);try{attach(el,options&&options.defender?'BLOCKOUT · LIVE':'FREE THROW · LIVE')}catch(_){}return result};const oldDestroy=FTAnim.destroy;FTAnim.destroy=function(){detach();return oldDestroy.apply(this,arguments)}} ,100);
-})();
-</script>
-<script id="bu87RealAudio">
-(function(){'use strict';
-const files={swish:['sounds/swish1.mp3','sounds/swish2.mp3'],rim:['sounds/rim.mp3'],board:['sounds/backboard.mp3'],boo:['sounds/boo.mp3'],cheer:['sounds/cheer.mp3'],mvp:['sounds/mvp.mp3']};
-const pools={};let unlocked=false;
-function play(type,volume){if(!files[type])return false;const list=files[type];const src=list[Math.floor(Math.random()*list.length)];let a;try{a=new Audio(src);a.preload='auto';a.volume=Math.max(0,Math.min(1,volume==null?.7:volume));a.play().catch(()=>{});return true}catch(_){return false}}
-window.BURealAudio={play,files};
-})();
-</script>
-</body></html>
+<script src="test-audio.js"></script><script src="test-arena.js"></script>
+
+<style id="arenaRefresh">
+:root{--bg:#090e13;--panel:#15212b;--muted:#a9b6c1;--orange:#ff9a3c;--gold:#ffc779}
+body{background:#0b1118;font-family:Inter,"Segoe UI",Arial,sans-serif}button,input,select{font:inherit}button{font-weight:800;transition:background .18s,transform .18s,border-color .18s}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #ffc779;outline-offset:4px}button:not(:disabled):hover{filter:brightness(1.08)}button:not(:disabled):active{transform:translateY(1px)}
+#modeMenu{background:radial-gradient(ellipse at 14% 10%,#22332e60,transparent 55%),#0a1016;overflow:auto;display:flex;justify-content:flex-end;padding:100px max(5vw,24px) 72px;gap:6vw;align-items:center}
+.arenaIdentity{position:absolute;left:5vw;right:5vw;top:30px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffffff19;padding-bottom:22px}.arenaLogo{font-weight:950;font-size:26px;color:#ffad60;font-style:italic}.arenaLogo span{font-size:10px;letter-spacing:2px;font-style:normal;color:#e4e9ed;margin-left:14px}.arenaSeason{font-size:10px;letter-spacing:2px;color:#94a5af}
+.arenaArtwork{position:relative;flex:1;max-width:650px;min-height:630px;color:#b4cbb72b;align-self:center}.arenaArtwork svg{position:absolute;width:100%;height:100%;inset:0;transform:rotate(-16deg) scale(.95);stroke-width:2}.arenaArtwork>span{position:absolute;left:5%;top:110px;color:#edf0e7;font-size:clamp(65px,7.5vw,115px);font-weight:950;letter-spacing:-6px;line-height:.91;font-style:italic}.arenaArtwork b{color:#ff9a3c}.arenaArtwork small{position:absolute;bottom:50px;left:7%;font-size:10px;letter-spacing:3px;color:#9aa99f}
+#modeMenu .menuCard{position:relative;width:480px;flex-shrink:0;background:#131e27;border:1px solid #ffffff16;border-radius:24px;padding:30px;text-align:left;box-shadow:0 24px 80px #0004}#modeMenu .eyebrow{font-size:9px;letter-spacing:2.5px;color:#ffb16b}#modeMenu h1{font-size:43px;letter-spacing:-1.8px;line-height:.98;margin:15px 0}#modeMenu h1 span{color:#ffad60!important}#modeMenu .menuCard>p{font-size:9px;letter-spacing:1.2px;color:#a3b1bd;margin-bottom:24px}#modeMenu input{background:#0c141c;border-color:#ffffff20;border-radius:9px;padding:12px;font-size:14px}#modeMenu .field{font-size:9px;margin-top:16px}
+#buAccountBar{background:#0d161e!important;border-color:#ffffff12!important;padding:13px!important;border-radius:12px!important;margin-top:12px!important}#buAccountSummary{font-size:12px}#buLevelSummary{font-size:10px!important}#buAccountBar button{font-size:9px;padding:9px;min-width:0!important}#buAccountBar>div:first-child{gap:9px!important}#buAccountBar>div:last-child{height:4px!important;margin-top:10px!important}
+#modeMenu .modeBtns{gap:8px;margin-top:20px}#modeMenu .modeBtns button{display:flex;align-items:center;gap:15px;width:100%;text-align:left;min-height:74px;padding:14px 16px;border:1px solid #ffffff1a;border-radius:12px;background:#1a2833;color:#f5f6f7;box-shadow:none;font-size:14px;letter-spacing:.4px}#modeMenu .modeBtns button:first-child{background:#ffad60;color:#161b1e;border-color:#ffad60}#modeMenu .modeBtns button:hover:not(:disabled){border-color:#ffad60;transform:translateX(3px)}#modeMenu .modeBtns small{display:block;font-weight:400;font-size:11px;letter-spacing:0;margin-top:5px;opacity:.7}.modeNumber{font-size:11px;opacity:.5;font-variant-numeric:tabular-nums}.modeArrow{margin-left:auto;font-size:23px;font-weight:400}.soonLabel{margin-left:auto;font-size:8px;letter-spacing:1px;border:1px solid #ffffff40;padding:5px;border-radius:4px}#modeMenu .modeBtns button:disabled{opacity:.4;min-height:64px}
+.panel,.modal{background:linear-gradient(145deg,#1b2935,#111c26);border-color:#ffffff1c}.modal{max-height:calc(100dvh - 40px);overflow:auto}.overlay{overflow:auto}.stats b,.finalnum,.person .wins{font-variant-numeric:tabular-nums}.bu86settings{border-color:#ffffff25;background:#111c26eF;border-radius:8px;font-size:9px}.buToast{font-size:12px}
+@media(max-width:1050px){.arenaArtwork>span{font-size:78px}.arenaArtwork{min-height:580px}#modeMenu{gap:20px;padding-left:24px;padding-right:24px}.arenaSeason{display:none}}
+@media(max-width:780px){#modeMenu{display:block;padding:91px 16px 80px}.arenaArtwork{display:none}#modeMenu .menuCard{width:min(480px,100%);margin:auto;padding:24px}.arenaIdentity{top:23px;left:24px;right:24px;padding-bottom:18px}#modeMenu h1{font-size:40px}.arenaLogo span{font-size:9px}#modeMenu .modeBtns button{min-height:68px}.bu86settings{bottom:9px;right:9px}.top{flex-wrap:wrap}.topright{flex-wrap:wrap}.controlrow{flex-wrap:wrap}.shoot{min-width:130px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style><link rel="stylesheet" href="test.css"><script src="test-ui.js"></script></body></html>
