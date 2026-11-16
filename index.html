@@ -2627,8 +2627,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const bar=$h("hdMarker");if(bar)bar.style.left="0%";
   meterTimer=setInterval(()=>{marker+=dir*1.5;if(marker>=100){marker=100;dir=-1}if(marker<=0){marker=0;dir=1}const m=$h("hdMarker");if(m)m.style.left=marker+"%"},16);
  }
+ function statsHtml(){
+  if(!state||!state.stats)return '';
+  const t=state.stats;
+  return `<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0;text-align:center">${[['SHOTS',t.shots],['BLOCKED',t.blocked],['MISSED',t.missed],['SCORED',t.scored]].map(([name,num])=>`<div style="background:#13263b;border:1px solid #ffffff24;border-radius:10px;padding:9px 2px"><b style="display:block;color:#ffca74;font-size:19px">${num||0}</b><span style="font-size:9px;color:#b8c9dc;letter-spacing:.5px">${name}</span></div>`).join('')}</div>`;
+ }
  function scoreboard(){
-  return `<div class="draftScoreboard" style="margin:12px 0"><div class="draftScore">${safe(state.players[0].name)}<b>${state.scores[0]}</b></div><div class="draftScore">${safe(state.players[1].name)}<b>${state.scores[1]}</b></div></div><div style="text-align:center;color:#a9bbce;font-weight:800;letter-spacing:2px">FIRST TO 5 POINTS</div>`;
+  return `<div class="draftScoreboard" style="margin:12px 0"><div class="draftScore">${safe(state.players[0].name)}<b>${state.scores[0]}</b></div><div class="draftScore">${safe(state.players[1].name)}<b>${state.scores[1]}</b></div></div><div style="text-align:center;color:#a9bbce;font-weight:800;letter-spacing:2px">FIRST TO 5 POINTS</div>${statsHtml()}`;
  }
 
  function hoopSvg(n){
@@ -2674,6 +2679,17 @@ document.addEventListener('DOMContentLoaded', function () {
  async function finishPossession(hit,blocked){
   const shooter=state.attacker;
   if(hit&&!blocked)state.scores[shooter]++;
+  if(!state.stats)state.stats={shots:0,blocked:0,missed:0,scored:0};
+  state.stats.shots++;
+  if(blocked)state.stats.blocked++;
+  else if(!hit)state.stats.missed++;
+  else state.stats.scored++;
+  // Record only finished human shots. The bot may use past tendencies, never the current secret pick.
+  if(local&&shooter===0){
+   if(!state.humanHoopHistory)state.humanHoopHistory=[];
+   state.humanHoopHistory.push(state.chosen);
+   if(state.humanHoopHistory.length>40)state.humanHoopHistory.shift();
+  }
   state.lastResult={hit:!!hit,blocked:!!blocked,shooter,chosen:state.chosen,blockedHoop:state.blockedHoop};
   if(state.scores[shooter]>=5){state.phase="finished";state.winner=shooter}
   else{
@@ -2694,9 +2710,19 @@ document.addEventListener('DOMContentLoaded', function () {
   return 1+Math.floor(Math.random()*3);
  }
  function botBlock(){
+  // Fair AI: never read state.chosen (the secret current basket).
+  // The defender can learn which basket the player tended to choose in earlier rounds.
   const d=state.difficulty||"medium";
-  const chance=d==="hard"?.72:d==="easy"?.28:.5;
-  return Math.random()<chance?state.chosen:1+Math.floor(Math.random()*3);
+  const history=(state.humanHoopHistory||[]).filter(n=>n>=1&&n<=3);
+  const learn=d==="hard"?.80:d==="medium"?.35:0;
+  const weights=[1,1,1];
+  history.slice(-15).forEach((n,i)=>{weights[n-1]+=(i+1)/15});
+  const total=weights.reduce((a,b)=>a+b,0);
+  if(history.length>=3&&Math.random()<learn){
+   let r=Math.random()*total;
+   for(let i=0;i<3;i++){r-=weights[i];if(r<=0)return i+1;}
+  }
+  return 1+Math.floor(Math.random()*3);
  }
  function render(){
   if(!state)return;
@@ -2704,7 +2730,7 @@ document.addEventListener('DOMContentLoaded', function () {
   $h("hoopDuelGame").classList.toggle("hidden",state.phase==="lobby");
   if(state.phase==="lobby"){
    $h("hdLobbyStage").innerHTML=`<div class="draftTile"><div class="eyebrow">ROOM ${room}</div><h3>${state.players.length}/2 PLAYERS</h3>${state.players.map((p,i)=>`<div class="ftBoardRow"><span>${i+1}. ${safe(p.name)}</span><strong>${p.ready?"READY":"WAITING"}</strong></div>`).join("")}${slot===0?'<button class="primary" id="hdStart" style="width:100%" '+(state.players.length<2?'disabled':'')+'>START MATCH</button>':""}</div>`;
-   if($h("hdStart"))$h("hdStart").onclick=async()=>{state.phase="choose";state.attacker=0;state.defender=1;state.scores=[0,0];state.possession=1;await save();render()};
+   if($h("hdStart"))$h("hdStart").onclick=async()=>{state.phase="choose";state.attacker=0;state.defender=1;state.scores=[0,0];state.stats={shots:0,blocked:0,missed:0,scored:0};state.possession=1;await save();render()};
    return;
   }
   const stage=$h("hdGameStage");
@@ -2712,7 +2738,7 @@ document.addEventListener('DOMContentLoaded', function () {
    clearInterval(meterTimer);
    try{window.BU&&BU.report("blockout",(local?0:slot)===state.winner,"hd-"+room+"-"+state.scores.join("-")+"-"+(state.possession||0))}catch(_){}
    stage.innerHTML=`<div class="pkGameHeader"><div class="pkGameEyebrow">THREE HOOPS · FINAL</div><h2>🏆 ${safe(state.players[state.winner].name)} <em>WINS!</em></h2></div>${scoreboard()}<button class="primary" id="hdAgain" style="width:100%;margin-top:15px">PLAY AGAIN</button>`;
-   $h("hdAgain").onclick=async()=>{state.phase="choose";state.scores=[0,0];state.attacker=0;state.defender=1;state.possession=1;state.chosen=null;state.blockedHoop=null;await save();render()};
+   $h("hdAgain").onclick=async()=>{state.phase="choose";state.scores=[0,0];state.stats={shots:0,blocked:0,missed:0,scored:0};state.humanHoopHistory=[];state.attacker=0;state.defender=1;state.possession=1;state.chosen=null;state.blockedHoop=null;await save();render()};
    return;
   }
   if(state.phase==="playback"){
@@ -2805,7 +2831,7 @@ document.addEventListener('DOMContentLoaded', function () {
  $h("hdCreate").onclick=create;$h("hdJoin").onclick=join;
  $h("hdBot").onclick=()=>{
   local=true;room="BOT";slot=0;channel=null;
-  state={mode:"three_hoops_blockout",phase:"choose",difficulty:$h("hdDifficulty").value,players:[{name:nick(),look:window.buMyLook?buMyLook():undefined},{name:window.__hdQuickBotName||("CPU · "+$h("hdDifficulty").value.toUpperCase()),bot:true}],scores:[0,0],attacker:0,defender:1,possession:1};
+  state={mode:"three_hoops_blockout",phase:"choose",difficulty:$h("hdDifficulty").value,players:[{name:nick(),look:window.buMyLook?buMyLook():undefined},{name:window.__hdQuickBotName||("CPU · "+$h("hdDifficulty").value.toUpperCase()),bot:true}],scores:[0,0],stats:{shots:0,blocked:0,missed:0,scored:0},humanHoopHistory:[],attacker:0,defender:1,possession:1};
   $h("hoopDuelLobby").classList.add("hidden");$h("hoopDuelGame").classList.remove("hidden");render();
  };
  $h("hdBack").onclick=()=>{$h("hoopDuelLobby").classList.add("hidden");$h("freeThrowMenu").classList.remove("hidden")};
