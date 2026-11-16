@@ -1412,9 +1412,18 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
  }
 
  let pkMeterTimer=null,pkMarker=0,pkDirection=1;
- function pkStartMeter(target){
+ function pkShooterLook(shooter){
+  try{return window.buLookResolve?buLookResolve(pkState?.players?.[shooter],pkLocal?shooter===0:shooter===pkSlot):null}
+  catch(e){console.warn('Player appearance unavailable:',e.message);return null}
+ }
+ function pkStartMeter(target,shooter){
   clearInterval(pkMeterTimer);pkMarker=0;pkDirection=1;
-  window.__pkAnimId=null;const stage=$('pkFTStage');if(stage&&window.FTAnim){try{FTAnim.setLook(null);FTAnim.mount(stage,{dist:pkAnimDist(pkState?.phase,pkState?.spot)})}catch(e){console.error('Parket court preview failed:',e)}}
+  window.__pkAnimId=null;
+  const stage=$('pkFTStage');
+  if(stage&&window.FTAnim){try{
+   FTAnim.setLook(pkShooterLook(shooter));
+   FTAnim.mount(stage,{dist:pkAnimDist(pkState?.phase,pkState?.spot)});
+  }catch(e){console.error('Parket court preview failed:',e)}}
   const zone=$('pkTargetZone'),marker=$('pkShotMarker');
   zone.style.width=(target*100)+'%';zone.style.left=((100-target*100)/2)+'%';
   marker.style.left='0%';
@@ -1445,10 +1454,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
   pkWatchPlayback(pb);
   if(!host||!window.FTAnim)return;
   try{
-   let appearance=null;
-   try{appearance=window.buLookResolve?buLookResolve(pkState.players?.[pb.shooter],pkLocal?pb.shooter===0:pb.shooter===pkSlot):null}
-   catch(e){console.warn('Player appearance unavailable:',e.message)}
-   FTAnim.setLook(appearance);
+   FTAnim.setLook(pkShooterLook(pb.shooter));
    FTAnim.mount(host,{dist:pkAnimDist(pb.phase,pb.spot)});
    window.__pkAnimId=pb.id;
    const fc=host.querySelector('.ftCall');if(fc)fc.textContent='';
@@ -1528,7 +1534,7 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    const shotNo=Math.floor((pkState.shootTurn||0)/players.length)+1;
    const target=Math.max(.025,pkDistanceTarget(6,players[turn]?.player)-(((pkState.shootoutRound||1)-1)*.01));
    s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">BASKETBALL UNIVERSE · PARKET</div><h2>FREE THROW <em>SHOOTOUT</em></h2><p>Keep shooting until one player makes it and the others miss. The target gets smaller each tied round.</p></div>'+pkScoreboard(players,alive)+'<div class="pkTurnBanner"><span>SUDDEN DEATH · ROUND '+(pkState.shootoutRound||1)+'</span><strong>'+(players[turn]?.name||'PLAYER')+' IS SHOOTING</strong></div>'+pkShotScene(target,'pkShootoutBtn','STOP & SHOOT',players[turn]?.name)+'<div class="pkShotWatcher">'+(botTurn?'<b>CPU</b> IS SHOOTING · WATCH THE RELEASE':(pkLocal||pkSlot===turn?'<b>YOUR TURN</b> · STOP THE BAR IN THE TARGET':'WATCHING '+(players[turn]?.name||'OPPONENT')+' · LIVE SHOT METER'))+'</div>';
-   pkStartMeter(target);
+   pkStartMeter(target,turn);
    if(botTurn){clearInterval(pkMeterTimer);if(!pkState.botPending){pkState.botPending=true;setTimeout(()=>{pkState.botPending=false;const chance=Math.min(.95,pkBotChance()*(pkPlayerShotChance(players[turn]?.player,6)/.72)),center=50,offset=(Math.random()<chance?(Math.random()-.5)*target*65:(Math.random()<.5?-1:1)*(target*50+8+Math.random()*25));pkMarker=Math.max(0,Math.min(100,center+offset));pkPlayShot(turn,Math.abs(pkMarker-50)<=target*50)},1100)}}
    else if(pkLocal||pkSlot===turn)$('pkShootoutBtn').onclick=()=>{const left=(100-target*100)/2,right=left+target*100,hit=pkMarker>=left&&pkMarker<=right;pkPlayShot(turn,hit)};else $('pkShootoutBtn').disabled=true;
   }else if(pkState.phase==='choose'){
@@ -1538,19 +1544,19 @@ endTurn=function(){if(soloMode&&!remoteMode){window.__lastLeaderboardSave=saveLe
    s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">NEXT POSSESSION</div><h2>CHOOSE YOUR <em>SPOT</em></h2><p>'+(((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser))?players[chooser].name+' · tap a spot on the court':players[chooser].name+' is choosing a spot')+'</p></div>'+pkScoreboard(players,alive)+'<div class="pkCourtDiagram">'+court+PK_SPOTS.map((sp,i)=>'<button class="pkCourtDot" style="left:'+(sp.x/5)+'%;top:'+(sp.y/6.2)+'%" data-spot="'+i+'" title="'+sp.n+'" aria-label="'+sp.n+'"></button>').join('')+'</div><p id="pkSpotName">'+((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser)?'Pick where you want to shoot from':'Waiting for '+players[chooser].name+' to pick a spot…')+'</p>';
    const nameEl=$('pkSpotName');
    s.querySelectorAll('[data-spot]').forEach(b=>{const i=+b.dataset.spot;const show=()=>{if(nameEl)nameEl.textContent=PK_SPOTS[i].n+' · '+PK_SPOTS[i].d.toFixed(1)+' m from the basket'};b.onpointerenter=show;b.onfocus=show});
-   const pickSpot=i=>{pkState.spot=i;pkState.spotName=PK_SPOTS[i].n;pkState.phase='survivor';pkState.alive=players.map((_,k)=>k);pkState.shotIndex=0;pkSave().then(pkRender)};
+   const pickSpot=i=>{pkState.spot=i;pkState.spotName=PK_SPOTS[i].n;pkState.phase='survivor';pkState.alive=[chooser,...players.map((_,k)=>k).filter(k=>k!==chooser)];pkState.shotIndex=0;pkState.headToHeadResults={};pkSave().then(pkRender)};
    if((pkLocal&&!players[chooser]?.bot)||(!pkLocal&&pkSlot===chooser))s.querySelectorAll('[data-spot]').forEach(b=>b.onclick=()=>pickSpot(+b.dataset.spot));
    else{s.querySelectorAll('[data-spot]').forEach(b=>b.disabled=true);if(players[chooser]?.bot&&!pkState.botChoosePending){pkState.botChoosePending=true;setTimeout(()=>{pkState.botChoosePending=false;pickSpot(pkState.difficulty==='hard'?2:pkState.difficulty==='easy'?10:5)},850)}}
   }else if(pkState.phase==='survivor'){
    const me=alive[pkState.shotIndex%Math.max(1,alive.length)],botTurn=!!players[me]?.bot;
    const target=pkDistanceTarget(pkState.spot||0,players[me]?.player);
    s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">BASKETBALL UNIVERSE · PARKET</div><h2>PARKET <em>· SURVIVOR</em></h2><p>Position: '+(pkState.spotName||'Court spot')+' · '+players[me].name+' shooting</p></div>'+pkScoreboard(players,alive)+'<div class="pkTurnBanner"><span>ROUND '+(pkState.round||1)+'</span><strong>'+(players[me].name)+' · SHOOT TO SURVIVE</strong></div>'+pkShotScene(target,'pkSurvivorShoot','STOP & SHOOT',players[me]?.name)+'<div class="pkShotWatcher">'+(botTurn?'<b>CPU</b> IS SHOOTING · WATCH THE RELEASE':(pkLocal||pkSlot===me?'<b>YOUR TURN</b> · STOP THE BAR IN THE TARGET':'WATCHING '+(players[me]?.name||'OPPONENT')+' · LIVE SHOT METER'))+'</div>';
-   pkStartMeter(target);
+   pkStartMeter(target,me);
    if(botTurn){clearInterval(pkMeterTimer);if(!pkState.botPending){pkState.botPending=true;setTimeout(()=>{pkState.botPending=false;const chance=Math.min(.95,pkBotChance()*(pkPlayerShotChance(players[me]?.player,pkState.spot||0)/.72)),center=50,offset=(Math.random()<chance?(Math.random()-.5)*target*65:(Math.random()<.5?-1:1)*(target*50+8+Math.random()*25));pkMarker=Math.max(0,Math.min(100,center+offset));pkResolveBotShot(target,me)},1200)}}
    else if(pkLocal||pkSlot===me)$('pkSurvivorShoot').onclick=()=>{const left=(100-target*100)/2,right=left+target*100,hit=pkMarker>=left&&pkMarker<=right;pkPlayShot(me,hit)};else $('pkSurvivorShoot').disabled=true;
   }else if(pkState.phase==='roundwin'){
    const winner=pkState.winner;s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">ROUND COMPLETE</div><h2>🏆 '+players[winner].name+' <em>WINS THE ROUND</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkNextRound">NEXT ROUND</button>';
-   $('pkNextRound').onclick=()=>{if(pkState.scores[winner]>=7)pkState.phase='finished';else{pkState.phase='choose';pkState.orderIndex=0;pkState.order=players.map((_,i)=>i).sort((a,b)=>(pkState.scores[b]||0)-(pkState.scores[a]||0)||a-b);}pkSave().then(pkRender)};
+   $('pkNextRound').onclick=()=>{if(pkState.scores[winner]>=7)pkState.phase='finished';else{pkState.phase='choose';pkState.orderIndex=0;pkState.order=[winner,...players.map((_,i)=>i).filter(i=>i!==winner)];pkState.round=(pkState.round||1)+1;}pkSave().then(pkRender)};
   }else if(pkState.phase==='finished'){const w=pkState.scores.indexOf(Math.max(...pkState.scores));try{window.BU&&BU.report('parket',pkLocal?!players[w].bot:w===pkSlot,'pk-'+(pkRoom||'L')+'-'+pkState.scores.join('-')+'-'+(pkState.round||0))}catch(_){}s.innerHTML='<div class="pkGameHeader"><div class="pkGameEyebrow">FINAL RESULT</div><h2>🏆 '+players[w].name+' <em>WINS PARKET!</em></h2></div>'+pkScoreboard(players,alive)+'<button class="primary" id="pkRematch">REMATCH</button>'; $('pkRematch').onclick=()=>{pkState.phase='choose';pkState.scores=players.map(()=>0);pkState.order=players.map((_,i)=>i);pkState.orderIndex=0;pkState.round=1;pkState.shotIndex=0;pkState.winner=null;pkSave().then(pkRender)}}
  }
  async function pkCreate(){
