@@ -1,5 +1,6 @@
 -- READ ONLY: checks installed permissions and lists unreviewed exposed RPCs.
 WITH known(name) AS (VALUES
+ ('bu_career_v5'),
  ('bu_blockout_create_v4'),('bu_blockout_join_v4'),('bu_blockout_get_v4'),('bu_blockout_action_v4'),('bu_blockout_claim_v4'),('bu_blockout_board_v4'),('bu_blockout_queue_v4'),
  ('bu_room_member_v1'),('bu_room_join_v1'),('bu_quick_match_v1'),('bu_quick_status_v1'),('bu_quick_cancel_v1'),
  ('bu_ranking_start_v2'),('bu_ranking_submit_v2'),('bu_ranking_list_v2'),('bu_wardrobe_get'),('bu_wardrobe_buy'),
