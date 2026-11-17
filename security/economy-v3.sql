@@ -13,6 +13,15 @@ CREATE INDEX IF NOT EXISTS bu_progress_quota_v3 ON bu_private.progress_events_v3
 ALTER TABLE bu_private.progress_events_v3 ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON bu_private.progress_events_v3 FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON SCHEMA bu_private FROM PUBLIC,anon,authenticated;
+-- Keep the original cosmetics privately recoverable before normalizing old data.
+CREATE TABLE IF NOT EXISTS bu_private.wardrobe_legacy_v3(
+ user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+ outfit jsonb,owned jsonb,snapshot_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+ALTER TABLE bu_private.wardrobe_legacy_v3 ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON bu_private.wardrobe_legacy_v3 FROM PUBLIC,anon,authenticated;
+INSERT INTO bu_private.wardrobe_legacy_v3(user_id,outfit,owned)
+SELECT user_id,outfit,owned FROM public.bu_wardrobe ON CONFLICT(user_id) DO NOTHING;
 
 CREATE OR REPLACE FUNCTION bu_private.outfit_v3(o jsonb,owned jsonb,strict boolean DEFAULT true)
 RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
