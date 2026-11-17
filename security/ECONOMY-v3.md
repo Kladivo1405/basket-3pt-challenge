@@ -27,7 +27,9 @@ uses `bu_add_friend`, which the earlier narrow audit name filter missed.
 - Outfit saves validate allowed fields/colors and owned catalog items on the
   server. Confirmed purchases still use the live public shop catalog. The catalog
   was read with its published read-only API: 44 items, no player records.
-- Invalid/unowned old outfit fields reset to defaults. Existing purchases remain
+- Original outfit/ownership records are snapshotted privately before normalization,
+  without overwriting that snapshot on rerun. Invalid/unowned old outfit fields
+  reset to defaults. Existing purchases remain
   owned. Already-worn Champion Gold is grandfathered; new reported draft wins
   grant its server-side entitlement. This is still based on a practice result.
 - Daily rewards keep row locking and use UTC dates consistently in client/server.
