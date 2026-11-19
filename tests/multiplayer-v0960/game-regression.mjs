@@ -1,0 +1,38 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {webcrypto} from 'node:crypto';
+import {TextEncoder} from 'node:util';
+import {JSDOM} from 'jsdom';
+const source=fs.readFileSync(new URL('../../index.html',import.meta.url),'utf8');
+const dom=new JSDOM('<body><input id="menuNick" value="Player"><button id="testQuick"></button><button id="parketBackBtn"></button><button id="hdBack"></button></body>',{url:'https://example.com/',runScripts:'outside-only'}),w=dom.window;
+Object.defineProperty(w,'crypto',{value:webcrypto});w.TextEncoder=TextEncoder;
+for(const id of ['buHTMLPurifier','buSecurity'])w.eval(source.match(new RegExp('<script id="'+id+'">([\\s\\S]*?)</script>'))[1]);
+w.eval(fs.readFileSync(new URL('../../rankings-v0940.js',import.meta.url),'utf8'));
+const R=w.BURankings;assert(R.compareTimed({made:25,elapsedMs:42001},{made:25,elapsedMs:42000})>0);assert(R.compareTimed({made:25,elapsedMs:59999},{made:24,elapsedMs:30000})<0);assert.equal(R.compareTimed({made:25,elapsedMs:42000},{made:25,elapsedMs:42000}),0);assert.equal(R.seconds(41998),'41.998s');
+const calls=[],bad='<img src=x onerror=alert(1)>',rows=[{rank:1,nickname:bad,result:{made:25,score:30,elapsedMs:41998},mine:true}];
+w.buSupabase={auth:{async getSession(){return {data:{session:{user:{id:'guest'}}}}}},async rpc(name,args){calls.push([name,args]);if(name==='bu_ranking_start_v2')return {data:{run_id:webcrypto.randomUUID()}};if(name==='bu_ranking_submit_v2')return {data:{saved:true}};return {data:{rows}}}};
+R.open();await new Promise(resolve=>setTimeout(resolve,0));assert(w.document.querySelector('#rankRows').textContent.includes(bad));assert(!w.document.querySelector('#rankRows img'));assert(w.document.querySelector('#rankRows').textContent.includes('41.998s'));assert.equal(w.document.querySelectorAll('[data-board]').length,7);
+w.document.querySelector('[data-board="dunk"]').click();await Promise.resolve();assert.equal(w.document.querySelectorAll('#rankVariant option').length,15);w.document.querySelector('[data-board="parket"]').click();assert.equal(w.document.querySelectorAll('#rankVariant option').length,4);R.close();assert(!w.document.querySelector('#buRankings'));
+await R.match('parket',true,'one-real-match','cpu:easy');await R.match('parket',true,'one-real-match','cpu:easy');assert.equal(JSON.parse(w.localStorage.getItem('bu_rank_local_v2:parket:cpu:easy')).wins,1);assert.equal(calls.filter(([n])=>n==='bu_ranking_submit_v2').at(-1)[1].p_event_id,calls.filter(([n])=>n==='bu_ranking_submit_v2').at(-2)[1].p_event_id);
+await R.match('parket',true,'another-real-match','cpu:easy');assert.equal(JSON.parse(w.localStorage.getItem('bu_rank_local_v2:parket:cpu:easy')).wins,2,'a new match with the same score must still count');
+console.log('Ranking UI: seven games, exact milliseconds, literal malicious names, difficulty filters and duplicate-safe local match totals: PASS');
+// Run the actual timed game with a controlled clock and animation completions.
+const timedCode=fs.readFileSync(new URL('../../contest-v0960.js',import.meta.url),'utf8');let clock=1000;Object.defineProperty(w.performance,'now',{value:()=>clock});w.setInterval=()=>1;w.clearInterval=()=>{};let animation=null;
+w.FTAnim={setLook(){},setSpeed(){},mount(){},reset(){},setSpot(){},destroy(){},shoot(_,cb){animation=cb}};w.BU={solo(){}};w.BUArena={attach(){},detach(){},shot(){},clock(){}};w.BUTestUI={openAudio(){}};
+const submitted=[];const originalTimed=R.timed;R.timed=async(result)=>{submitted.push(result);return {saved:true}};
+w.eval(timedCode.slice(0,timedCode.lastIndexOf('})();'))+';window.timedProbe={get game(){return game},shoot,finish};})();');
+const p={name:'Shooter',team:'Test',pct:40};let completed;const live=[];w.buCurrentLook=()=>({jersey:'#e03a3e',number:'77'});
+w.BU3PTContest.begin(p,r=>completed=r,event=>live.push(event));for(let i=0;i<25;i++){clock=1000+i*1700+.123;w.timedProbe.game.marker=50;w.timedProbe.shoot();assert(animation);clock+=i===24?5000:100;const cb=animation;animation=null;cb();}assert.equal(completed.made,25);assert.equal(completed.elapsedMs,40800);assert.equal(submitted.length,1);assert.equal(submitted[0].elapsedMs,40800,'last animation must not count');
+assert.equal(live.length,26);assert.equal(live[0].shots.length,0);assert.equal(live.at(-1).shots.length,25);assert.equal(live.at(-1).score,30);assert.equal(live.at(-1).look.number,'77');assert(live.at(-1).shots.every((event,i)=>event.n===i+1));console.log('Actual timed game: all 25 makes, millisecond release timing, last animation excluded, callback and leaderboard share the same result: PASS');
+clock=100000;completed=null;w.BU3PTContest.begin(p,r=>completed=r);w.timedProbe.game.marker=50;w.timedProbe.shoot();animation();animation=null;clock=160000;w.timedProbe.game.marker=50;w.timedProbe.shoot();assert.equal(completed.results.length,1,'expired shot must not be accepted even without a timer tick');assert.equal(completed.elapsedMs,60000);assert.equal(submitted.length,2);
+clock=200000;w.BU3PTContest.begin(p);w.timedProbe.game.marker=50;w.timedProbe.shoot();w.timedProbe.finish(true);assert.equal(submitted.length,2,'manual quit cannot submit a ranked run');assert(w.document.querySelector('#bu3ptContestResult').textContent.includes('Unfinished run'));assert(w.document.querySelector('#bu3ptContestResult').textContent.includes('elapsed'));assert(w.document.querySelector('#bu3ptResultBoard'));
+console.log('Actual timed game: exact deadline rejection, partial timeout at 60s, quit exclusion and result leaderboard button: PASS');
+R.timed=originalTimed;await new Promise(resolve=>setTimeout(resolve,0));
+// Exercise the actual wardrobe UI and fail-closed cloud purchase paths.
+w.setTimeout=()=>1;let fail=true;w.buSupabase={auth:{async getSession(){return {data:{session:{user:{id:'wallet-test'}}}}},onAuthStateChange(){}},async rpc(name,args){if(name==='bu_wardrobe_get')return {data:{coins:500,owned:[],outfit:{skin:'#c98d62',hair:'short',hairColor:'#15110e',jersey:'c:#f28c28',number:'23',shoes:'white',acc:'none'}}};if(fail)return {error:{message:'offline'}};if(name==='bu_wardrobe_buy')return {data:{ok:true,coins:420,owned:[args.p_item]}};return {error:{message:'unexpected'}}}};
+const wardrobe=[...source.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)].find(m=>m[2].includes('Locker Room: stickman, coins, shop'))[2];
+w.eval(wardrobe.slice(0,wardrobe.lastIndexOf('})();'))+'window.walletProbe={get state(){return W}};})();');await w.buWardrobeReady;w.buOpenLocker();
+await w.BU_award(25,'test');assert.equal(w.walletProbe.state.coins,500);await w.document.querySelector('#lkDaily').onclick();assert.equal(w.walletProbe.state.coins,500);assert.equal(w.walletProbe.state.daily.last,null);
+w.document.querySelector('[data-tab="hair"]').click();let buy=w.document.querySelector('[data-buy]');assert(buy);await buy.onclick();assert.equal(w.walletProbe.state.coins,500);assert.equal(w.walletProbe.state.owned.length,0);assert.equal(w.walletProbe.state.outfit.hair,'short');assert(w.document.body.textContent.includes('Purchase could not be confirmed'));
+fail=false;buy=w.document.querySelector('[data-buy]');await buy.onclick();assert.equal(w.walletProbe.state.coins,420);assert.equal(w.walletProbe.state.owned.length,1);assert.notEqual(w.walletProbe.state.outfit.hair,'short');console.log('Actual wardrobe: failed online coin rewards/daily claims/purchases grant nothing locally; confirmed purchase still unlocks the item: PASS');
+dom.window.close();

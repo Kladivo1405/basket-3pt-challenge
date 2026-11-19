@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node mp-test.mjs && node game-regression.mjs && node career-test.mjs && node sql-test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.16",
+    "jsdom": "26.1.0",
+    "@napi-rs/canvas": "1.1.1"
+  }
+}
