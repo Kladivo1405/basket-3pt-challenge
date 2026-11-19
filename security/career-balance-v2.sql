@@ -8,7 +8,7 @@ DECLARE score integer:=0;i integer;rating integer;attempts integer;chance numeri
 BEGIN
  IF r.kind<>'match' THEN RETURN 0;END IF;
  IF r.rules_version=1 THEN rating:=18+r.rival*10+(r.season_no-1)*4;FOR i IN 0..7 LOOP IF n-r.started_ms>=3000+i*3300 AND mod(r.seed+i*37,100)<least(88,37+rating*.6) THEN score:=score+3;END IF;END LOOP;RETURN score;END IF;
- attempts:=8+r.rival+CASE r.difficulty WHEN 'easy' THEN -1 WHEN 'hard' THEN 2 ELSE 0 END;
+ attempts:=6+r.rival/2+CASE r.difficulty WHEN 'easy' THEN -1 WHEN 'hard' THEN 1 ELSE 0 END;
  chance:=least(94,greatest(15,38+r.rival*12+(r.season_no-1)*4+CASE r.difficulty WHEN 'easy' THEN -14 WHEN 'hard' THEN 12 ELSE 0 END));
  gap:=27000.0/(attempts-1);
  FOR i IN 0..attempts-1 LOOP IF n-r.started_ms>=2000+i*gap AND mod(r.seed+i*37,100)<chance THEN score:=score+3;END IF;END LOOP;RETURN score;
